@@ -23,6 +23,9 @@ src/app/
       components/
         ecosystem-insights-panel/
         ecosystem-timeline-card/
+      controllers/
+        aquarium.controller.ts
+        world-pointer.controller.ts
   shared/
     design-system/
     simulation/
@@ -38,10 +41,12 @@ src/app/
    Angular route components or the feature's UI components.
 3. **Feature UI** can import domain models and shared design components. It must not
    import from the `pages/` layer (which no longer exists).
-4. **Feature page** composes its own UI and orchestrates its domain/rendering.
+4. **Feature-local controllers** handle fullscreen/HUD lifecycle and pointer gestures. They
+   depend on callback interfaces, never on the route component or shared singletons.
+5. **Feature page** composes its own UI and orchestrates its domain/rendering.
    It is loaded lazily from `app.routes.ts`.
-5. **Shared** contains genuinely reusable primitives; it never depends on a feature.
-6. **Home** currently consumes the ecosystem engine/renderer to show its live preview.
+6. **Shared** contains genuinely reusable primitives; it never depends on a feature.
+7. **Home** currently consumes the ecosystem engine/renderer to show its live preview.
    That is a **known coupling** until the future simulation catalogue abstraction
    (roadmap step 8). Do not introduce a generic plugin interface prematurely.
 
@@ -52,8 +57,8 @@ dependency in its logic (the browser clock is injectable). The ecosystem engine 
 deterministic and unaware of the runner.
 
 No `core/` or `application/` folder is introduced without an actual responsibility.
-UI-level orchestration, chart refresh and pointer controls stay in feature components
-pending later refactoring steps.
+Chart refresh and page-level orchestration remain in the feature page. Aquarium/fullscreen
+and pointer/touch behavior live in independently testable feature-local controllers.
 
 ## Adding a world
 
