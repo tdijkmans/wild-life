@@ -106,8 +106,12 @@ export class CanopyWorld implements InteractiveWorld {
     this.seed = seed;
     this.random = new SeededRandom(seed);
     if (
-      !Number.isInteger(treeCount) || treeCount < 0 || treeCount > TREE_LIMIT ||
-      !Number.isInteger(insectCount) || insectCount < 0 || insectCount > INSECT_LIMIT
+      !Number.isInteger(treeCount) ||
+      treeCount < 0 ||
+      treeCount > TREE_LIMIT ||
+      !Number.isInteger(insectCount) ||
+      insectCount < 0 ||
+      insectCount > INSECT_LIMIT
     ) {
       throw new RangeError('Canopy population exceeds its safe bounds');
     }
@@ -133,15 +137,17 @@ export class CanopyWorld implements InteractiveWorld {
       water: this.random.range(0.45, 0.85),
       shade: 0,
       hue: this.random.range(-8, 18),
-      branches: [{
-        parent: -1,
-        angle: -Math.PI / 2 + this.random.range(-0.12, 0.12),
-        length: this.random.range(130, 205),
-        progress: sapling ? 0.17 : 1,
-        depth: 0,
-        thickness: this.random.range(9, 15),
-        children: false,
-      }],
+      branches: [
+        {
+          parent: -1,
+          angle: -Math.PI / 2 + this.random.range(-0.12, 0.12),
+          length: this.random.range(130, 205),
+          progress: sapling ? 0.17 : 1,
+          depth: 0,
+          thickness: this.random.range(9, 15),
+          children: false,
+        },
+      ],
       leaves: [],
     };
     if (!sapling) {
@@ -155,7 +161,8 @@ export class CanopyWorld implements InteractiveWorld {
 
   private endpoint(tree: CanopyTree, index: number): { x: number; y: number } {
     const branch = tree.branches[index];
-    const start = branch.parent >= 0 ? this.endpoint(tree, branch.parent) : { x: tree.x, y: tree.y };
+    const start =
+      branch.parent >= 0 ? this.endpoint(tree, branch.parent) : { x: tree.x, y: tree.y };
     return {
       x: start.x + Math.cos(branch.angle) * branch.length * branch.progress,
       y: start.y + Math.sin(branch.angle) * branch.length * branch.progress,
@@ -163,11 +170,18 @@ export class CanopyWorld implements InteractiveWorld {
   }
 
   /** Exposed geometry is shared by ecology and renderer; Canvas never owns branch growth. */
-  branchGeometry(tree: CanopyTree, index: number): {
-    x1: number; y1: number; x2: number; y2: number;
+  branchGeometry(
+    tree: CanopyTree,
+    index: number,
+  ): {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
   } {
     const branch = tree.branches[index];
-    const start = branch.parent >= 0 ? this.endpoint(tree, branch.parent) : { x: tree.x, y: tree.y };
+    const start =
+      branch.parent >= 0 ? this.endpoint(tree, branch.parent) : { x: tree.x, y: tree.y };
     const end = this.endpoint(tree, index);
     return { x1: start.x, y1: start.y, x2: end.x, y2: end.y };
   }
@@ -218,8 +232,13 @@ export class CanopyWorld implements InteractiveWorld {
   private makeInsect(x: number, y: number): Herbivore {
     const angle = this.random.range(0, Math.PI * 2);
     return {
-      x, y, vx: Math.cos(angle) * 17, vy: Math.sin(angle) * 17,
-      age: 0, energy: this.random.range(0.5, 1), phase: this.random.range(0, Math.PI * 2),
+      x,
+      y,
+      vx: Math.cos(angle) * 17,
+      vy: Math.sin(angle) * 17,
+      age: 0,
+      energy: this.random.range(0.5, 1),
+      phase: this.random.range(0, Math.PI * 2),
     };
   }
 
@@ -231,12 +250,18 @@ export class CanopyWorld implements InteractiveWorld {
   influence(kind: string, x: number, y: number, dx = 0, dy = 0): void {
     if (
       ![x, y, dx, dy].every(Number.isFinite) ||
-      x < 0 || x > this.width || y < 0 || y > this.height ||
+      x < 0 ||
+      x > this.width ||
+      y < 0 ||
+      y > this.height ||
       !['rain', 'sunlight', 'wildflowers'].includes(kind)
-    ) return;
+    )
+      return;
     this.fields.push({
       kind: kind as ForestField['kind'],
-      x, y, radius: kind === 'rain' ? 175 : 160,
+      x,
+      y,
+      radius: kind === 'rain' ? 175 : 160,
       remaining: kind === 'rain' ? 13 : 19,
     });
     if (this.fields.length > 24) this.fields.shift();
@@ -257,7 +282,9 @@ export class CanopyWorld implements InteractiveWorld {
     let shadeSum = 0;
     for (const tree of this.trees) {
       const overlapping = this.trees.filter(
-        (other) => other !== tree && Math.abs(other.x - tree.x) < 155 &&
+        (other) =>
+          other !== tree &&
+          Math.abs(other.x - tree.x) < 155 &&
           other.branches.length >= tree.branches.length - 5,
       ).length;
       tree.shade = Math.min(0.74, overlapping * 0.15);
@@ -278,19 +305,19 @@ export class CanopyWorld implements InteractiveWorld {
       const light = clamp(0.78 - tree.shade + sun * 0.38, 0.13, 1.25);
       tree.energy = clamp(
         tree.energy + dt * (foliage * light * tree.water * 0.00045 - 0.0028),
-        0.08, 1.6,
+        0.08,
+        1.6,
       );
       tree.age += dt;
       for (let index = 0; index < tree.branches.length; index++) {
         const branch = tree.branches[index];
         branch.progress = Math.min(
-          1, branch.progress + dt * (0.008 + tree.energy * tree.water * light * 0.022),
+          1,
+          branch.progress + dt * (0.008 + tree.energy * tree.water * light * 0.022),
         );
       }
       for (const leaf of tree.leaves) {
-        leaf.growth = Math.min(
-          1, leaf.growth + dt * 0.033 * light * tree.water * tree.energy,
-        );
+        leaf.growth = Math.min(1, leaf.growth + dt * 0.033 * light * tree.water * tree.energy);
         leaf.age += dt;
         if (leaf.health < 1 && tree.energy > 0.4) {
           leaf.health = Math.min(1, leaf.health + dt * 0.00035 * tree.water);
@@ -299,9 +326,13 @@ export class CanopyWorld implements InteractiveWorld {
       // Leaf positions are computed from the actual (growing) branches.
       for (const leaf of tree.leaves) {
         const geom = this.branchGeometry(tree, leaf.branch);
-        leaf.x = geom.x1 + (geom.x2 - geom.x1) * leaf.position +
+        leaf.x =
+          geom.x1 +
+          (geom.x2 - geom.x1) * leaf.position +
           Math.cos(tree.branches[leaf.branch].angle + Math.PI / 2) * leaf.side * 5;
-        leaf.y = geom.y1 + (geom.y2 - geom.y1) * leaf.position +
+        leaf.y =
+          geom.y1 +
+          (geom.y2 - geom.y1) * leaf.position +
           Math.sin(tree.branches[leaf.branch].angle + Math.PI / 2) * leaf.side * 5;
       }
     }
@@ -437,8 +468,18 @@ export class CanopyWorld implements InteractiveWorld {
     return [
       { label: 'FOLIAGE', value: String(this.countLeaves()), note: 'growing leaves', tone: 'mint' },
       { label: 'TREES', value: String(this.trees.length), note: 'living crowns', tone: 'blue' },
-      { label: 'HERBIVORES', value: String(this.insects.length), note: 'leaf-eating insects', tone: 'gold' },
-      { label: 'LEAVES EATEN', value: String(this.leavesEaten), note: 'herbivory events', tone: 'coral' },
+      {
+        label: 'HERBIVORES',
+        value: String(this.insects.length),
+        note: 'leaf-eating insects',
+        tone: 'gold',
+      },
+      {
+        label: 'LEAVES EATEN',
+        value: String(this.leavesEaten),
+        note: 'herbivory events',
+        tone: 'coral',
+      },
     ];
   }
 }

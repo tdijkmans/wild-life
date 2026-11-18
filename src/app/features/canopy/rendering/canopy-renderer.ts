@@ -17,7 +17,10 @@ export class CanopyRenderer implements WorldCanvasRenderer {
   private world: CanopyWorld;
   private readonly motes: ForestDetail[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: CanopyWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: CanopyWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canopy needs a 2D Canvas context');
     this.ctx = ctx;
@@ -97,7 +100,9 @@ export class CanopyRenderer implements WorldCanvasRenderer {
       ctx.beginPath();
       ctx.moveTo(0, 720);
       for (let x = -20; x <= 1240; x += 22) {
-        const y = 560 + layer * 40 +
+        const y =
+          560 +
+          layer * 40 +
           Math.sin(x * 0.024 + layer * 2) * 26 +
           Math.sin(x * 0.066 + layer) * 13;
         ctx.lineTo(x, y);
@@ -107,8 +112,12 @@ export class CanopyRenderer implements WorldCanvasRenderer {
     }
 
     for (const field of world.fields) {
-      const tint = field.kind === 'rain' ? '139,211,210' :
-        field.kind === 'sunlight' ? '250,229,146' : '240,178,188';
+      const tint =
+        field.kind === 'rain'
+          ? '139,211,210'
+          : field.kind === 'sunlight'
+            ? '250,229,146'
+            : '240,178,188';
       const strength = Math.min(1, field.remaining / 3);
       const halo = ctx.createRadialGradient(field.x, field.y, 3, field.x, field.y, field.radius);
       halo.addColorStop(0, `rgba(${tint},${strength * 0.24})`);
@@ -125,7 +134,7 @@ export class CanopyRenderer implements WorldCanvasRenderer {
           const radius = Math.sqrt((i + 0.5) / 28) * field.radius;
           const x = field.x + Math.cos(angle) * radius;
           const y = field.y + Math.sin(angle) * radius;
-          const offset = ((nowMs * 0.035 + i * 17) % 38);
+          const offset = (nowMs * 0.035 + i * 17) % 38;
           ctx.beginPath();
           ctx.moveTo(x, y + offset - 20);
           ctx.lineTo(x - 3, y + offset - 8);
@@ -153,7 +162,15 @@ export class CanopyRenderer implements WorldCanvasRenderer {
       ctx.shadowBlur = 8;
       ctx.fillStyle = '#e1c68b';
       ctx.beginPath();
-      ctx.ellipse(insect.x, insect.y + bob, 2.5, 1.5, Math.atan2(insect.vy, insect.vx), 0, 2 * Math.PI);
+      ctx.ellipse(
+        insect.x,
+        insect.y + bob,
+        2.5,
+        1.5,
+        Math.atan2(insect.vy, insect.vx),
+        0,
+        2 * Math.PI,
+      );
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -183,7 +200,8 @@ export class CanopyRenderer implements WorldCanvasRenderer {
       ctx.quadraticCurveTo(
         (geom.x1 + geom.x2) * 0.5 + curl,
         (geom.y1 + geom.y2) * 0.5,
-        geom.x2, geom.y2,
+        geom.x2,
+        geom.y2,
       );
       ctx.stroke();
       if (branch.depth < 2) {
@@ -198,7 +216,12 @@ export class CanopyRenderer implements WorldCanvasRenderer {
     for (const leaf of tree.leaves) this.drawLeaf(ctx, leaf, tree, nowMs);
   }
 
-  private drawLeaf(ctx: CanvasRenderingContext2D, leaf: Leaf, tree: CanopyTree, nowMs: number): void {
+  private drawLeaf(
+    ctx: CanvasRenderingContext2D,
+    leaf: Leaf,
+    tree: CanopyTree,
+    nowMs: number,
+  ): void {
     if (leaf.health <= 0.03 || leaf.growth <= 0.03) return;
     const branch = tree.branches[leaf.branch];
     const size = leaf.growth * (8.4 + branch.depth * 1.1);

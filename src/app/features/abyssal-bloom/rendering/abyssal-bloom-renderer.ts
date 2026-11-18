@@ -22,7 +22,10 @@ export class AbyssalBloomRenderer implements WorldCanvasRenderer {
   private world: AbyssalBloomWorld;
   private readonly motes: MarineDetail[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: AbyssalBloomWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: AbyssalBloomWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Abyssal Bloom needs a 2D Canvas context');
     this.ctx = ctx;
@@ -126,8 +129,12 @@ export class AbyssalBloomRenderer implements WorldCanvasRenderer {
     }
 
     for (const field of world.fields) {
-      const tint = field.kind === 'light' ? '163,236,209' :
-        field.kind === 'upwelling' ? '101,206,242' : '148,166,239';
+      const tint =
+        field.kind === 'light'
+          ? '163,236,209'
+          : field.kind === 'upwelling'
+            ? '101,206,242'
+            : '148,166,239';
       const alpha = Math.min(1, field.remaining / 3) * 0.27;
       const halo = ctx.createRadialGradient(field.x, field.y, 0, field.x, field.y, field.radius);
       halo.addColorStop(0, `rgba(${tint},${alpha})`);
@@ -167,7 +174,9 @@ export class AbyssalBloomRenderer implements WorldCanvasRenderer {
   }
 
   private drawProducer(
-    ctx: CanvasRenderingContext2D, producer: Phytoplankton, nowMs: number,
+    ctx: CanvasRenderingContext2D,
+    producer: Phytoplankton,
+    nowMs: number,
   ): void {
     const pulse = 0.7 + Math.sin(nowMs * 0.0017 + producer.phase) * 0.28;
     const luminous = Math.max(0.15, producer.luminosity * producer.energy * pulse);

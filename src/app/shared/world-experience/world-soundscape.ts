@@ -8,12 +8,15 @@ interface Voice {
   gain: GainNode;
 }
 
-const palettes: Record<SoundscapeProfile, {
-  root: number;
-  overtone: number;
-  windCutoff: number;
-  noiseLevel: number;
-}> = {
+const palettes: Record<
+  SoundscapeProfile,
+  {
+    root: number;
+    overtone: number;
+    windCutoff: number;
+    noiseLevel: number;
+  }
+> = {
   forest: { root: 75, overtone: 151, windCutoff: 750, noiseLevel: 0.025 },
   abyss: { root: 49, overtone: 96, windCutoff: 270, noiseLevel: 0.027 },
   sky: { root: 83, overtone: 157, windCutoff: 1100, noiseLevel: 0.018 },
@@ -56,7 +59,11 @@ export class WorldSoundscape {
       // Multiple quiet layers, not a melody or recorded wildlife calls.
       this.addVoice(context, master, palette.root, 'sine', 0.021);
       this.addVoice(context, master, palette.overtone, 'sine', 0.005);
-      const noiseBuffer = context.createBuffer(1, Math.round(context.sampleRate * 2), context.sampleRate);
+      const noiseBuffer = context.createBuffer(
+        1,
+        Math.round(context.sampleRate * 2),
+        context.sampleRate,
+      );
       const channel = noiseBuffer.getChannelData(0);
       const random = new SeededRandom(0x51ade3);
       for (let i = 0; i < channel.length; i++) channel[i] = random.next() * 2 - 1;
@@ -86,8 +93,11 @@ export class WorldSoundscape {
   }
 
   private addVoice(
-    context: AudioContext, destination: GainNode, frequency: number,
-    type: OscillatorType, volume: number,
+    context: AudioContext,
+    destination: GainNode,
+    frequency: number,
+    type: OscillatorType,
+    volume: number,
   ): void {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
@@ -138,7 +148,10 @@ export class WorldSoundscape {
     const oscillator = context.createOscillator();
     oscillator.type = event.kind === 'rustle' || event.kind === 'flow' ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(start, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(Math.max(30, end), context.currentTime + 0.32);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      Math.max(30, end),
+      context.currentTime + 0.32,
+    );
     const envelope = context.createGain();
     const volume = Math.max(0.001, Math.min(0.023, 0.016 * event.strength));
     envelope.gain.setValueAtTime(0.00001, context.currentTime);

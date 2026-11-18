@@ -30,7 +30,9 @@ describe('Abyssal Bloom nutrient and grazing ecology', () => {
     world.influence('upwelling', 500, 360);
     expect(world.nutrientAt(500, 360)).toBeGreaterThan(before);
     advance(world, 30);
-    expect(world.nutrients.every((value) => Number.isFinite(value) && value >= 0 && value <= 1.5)).toBe(true);
+    expect(
+      world.nutrients.every((value) => Number.isFinite(value) && value >= 0 && value <= 1.5),
+    ).toBe(true);
   });
 
   it('local light changes photosynthesis and eventually diverges from the control', () => {

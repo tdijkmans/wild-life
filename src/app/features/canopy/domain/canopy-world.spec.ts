@@ -29,8 +29,12 @@ describe('Canopy emergent growth and herbivory', () => {
     const before = world.trees.map((tree) => tree.branches.map((branch) => branch.progress));
     const leafCount = world.trees.reduce((total, tree) => total + tree.leaves.length, 0);
     advance(world, 540);
-    expect(world.trees.some((tree, i) => tree.branches[0].progress > before[i][0] ||
-      tree.branches.length > before[i].length)).toBe(true);
+    expect(
+      world.trees.some(
+        (tree, i) =>
+          tree.branches[0].progress > before[i][0] || tree.branches.length > before[i].length,
+      ),
+    ).toBe(true);
     expect(world.trees.reduce((total, tree) => total + tree.leaves.length, 0)).toBeGreaterThan(
       leafCount,
     );

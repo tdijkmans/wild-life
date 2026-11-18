@@ -66,7 +66,9 @@ test('mobile viewport keeps both worlds and environmental controls usable', asyn
 });
 
 for (const route of ['/canopy', '/abyssal-bloom']) {
-  test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({ page }) => {
+  test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({
+    page,
+  }) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(route);

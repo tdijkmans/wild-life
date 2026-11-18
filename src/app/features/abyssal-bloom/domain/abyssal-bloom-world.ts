@@ -85,8 +85,12 @@ export class AbyssalBloomWorld implements InteractiveWorld {
     this.seed = seed;
     this.random = new SeededRandom(seed);
     if (
-      !Number.isInteger(producers) || producers < 0 || producers > PHYTO_LIMIT ||
-      !Number.isInteger(consumers) || consumers < 0 || consumers > GRAZER_LIMIT
+      !Number.isInteger(producers) ||
+      producers < 0 ||
+      producers > PHYTO_LIMIT ||
+      !Number.isInteger(consumers) ||
+      consumers < 0 ||
+      consumers > GRAZER_LIMIT
     ) {
       throw new RangeError('Ocean population is outside safe limits');
     }
@@ -107,9 +111,7 @@ export class AbyssalBloomWorld implements InteractiveWorld {
       );
     }
     for (let i = 0; i < consumers; i++) {
-      this.grazers.push(
-        this.makeGrazer(this.random.range(210, 960), this.random.range(130, 600)),
-      );
+      this.grazers.push(this.makeGrazer(this.random.range(210, 960), this.random.range(130, 600)));
     }
     this.sample();
   }
@@ -153,13 +155,18 @@ export class AbyssalBloomWorld implements InteractiveWorld {
   influence(kind: string, x: number, y: number, dx = 0, dy = 0): void {
     if (
       ![x, y, dx, dy].every(Number.isFinite) ||
-      x < 0 || x > this.width || y < 0 || y > this.height ||
+      x < 0 ||
+      x > this.width ||
+      y < 0 ||
+      y > this.height ||
       !['current', 'upwelling', 'light'].includes(kind)
-    ) return;
+    )
+      return;
     const length = Math.hypot(dx, dy);
     this.fields.push({
       kind: kind as OceanField['kind'],
-      x, y,
+      x,
+      y,
       dx: kind === 'current' ? (length > 2 ? (dx / length) * 115 : 66) : 0,
       dy: kind === 'current' ? (length > 2 ? (dy / length) * 115 : -45) : 0,
       radius: kind === 'upwelling' ? 190 : 175,
@@ -258,10 +265,20 @@ export class AbyssalBloomWorld implements InteractiveWorld {
       cell.age += dt;
       cell.luminosity = clamp(cell.luminosity + dt * (light * 0.001 - 0.0005), 0.24, 1);
       if (cell.luminosity > 0.65 && cell.energy > 0.8) glowing++;
-      if (cell.energy > 1.05 && cell.age > 8 && this.random.next() < dt * 0.045 &&
-        this.phytoplankton.length + newProducers.length < PHYTO_LIMIT) {
+      if (
+        cell.energy > 1.05 &&
+        cell.age > 8 &&
+        this.random.next() < dt * 0.045 &&
+        this.phytoplankton.length + newProducers.length < PHYTO_LIMIT
+      ) {
         cell.energy *= 0.54;
-        newProducers.push(this.makeProducer(cell.x + this.random.range(-8, 8), cell.y + this.random.range(-8, 8), cell));
+        newProducers.push(
+          this.makeProducer(
+            cell.x + this.random.range(-8, 8),
+            cell.y + this.random.range(-8, 8),
+            cell,
+          ),
+        );
         this.birthsSinceSample++;
         this.blooms++;
       }
@@ -272,7 +289,8 @@ export class AbyssalBloomWorld implements InteractiveWorld {
     }
     this.phytoplankton.push(...newProducers);
     this.luminousFraction = this.phytoplankton.length
-      ? Math.round((glowing / this.phytoplankton.length) * 100) : 0;
+      ? Math.round((glowing / this.phytoplankton.length) * 100)
+      : 0;
 
     this.grid.clear();
     for (let i = 0; i < this.phytoplankton.length; i++) {
@@ -315,9 +333,12 @@ export class AbyssalBloomWorld implements InteractiveWorld {
       grazer.age += dt;
       grazer.energy = Math.max(0, grazer.energy - dt * 0.004);
       grazer.feedingGlow = Math.max(0, grazer.feedingGlow - dt * 0.5);
-      if (grazer.energy > 1.5 && grazer.age > 25 &&
+      if (
+        grazer.energy > 1.5 &&
+        grazer.age > 25 &&
         this.grazers.length + newbornGrazers.length < GRAZER_LIMIT &&
-        this.random.next() < dt * 0.012) {
+        this.random.next() < dt * 0.012
+      ) {
         grazer.energy *= 0.58;
         newbornGrazers.push(this.makeGrazer(grazer.x, grazer.y));
       }
@@ -328,7 +349,8 @@ export class AbyssalBloomWorld implements InteractiveWorld {
     }
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
-      if (this.birthsSinceSample > 4) this.cue('bloom', clamp(this.birthsSinceSample / 25, 0.15, 0.9));
+      if (this.birthsSinceSample > 4)
+        this.cue('bloom', clamp(this.birthsSinceSample / 25, 0.15, 0.9));
       else if (this.feedsSinceSample > 8 && this.random.next() < 0.28) this.cue('shimmer', 0.22);
       this.birthsSinceSample = 0;
       this.feedsSinceSample = 0;
@@ -347,7 +369,11 @@ export class AbyssalBloomWorld implements InteractiveWorld {
         const down = before[Math.min(ROWS - 1, row + 1) * COLUMNS + col];
         const average = (left + right + up + down) * 0.25;
         const deepRegeneration = row > ROWS * 0.64 ? 0.0009 : 0.00015;
-        this.nutrients[index] = clamp(before[index] + (average - before[index]) * 0.075 + deepRegeneration, 0, 1.5);
+        this.nutrients[index] = clamp(
+          before[index] + (average - before[index]) * 0.075 + deepRegeneration,
+          0,
+          1.5,
+        );
       }
     }
   }
@@ -362,12 +388,33 @@ export class AbyssalBloomWorld implements InteractiveWorld {
   }
 
   metrics(): readonly WorldMetric[] {
-    const avgNutrients = this.nutrients.reduce((sum, value) => sum + value, 0) / this.nutrients.length;
+    const avgNutrients =
+      this.nutrients.reduce((sum, value) => sum + value, 0) / this.nutrients.length;
     return [
-      { label: 'PHYTOPLANKTON', value: String(this.phytoplankton.length), note: 'luminous producers', tone: 'mint' },
-      { label: 'GRAZERS', value: String(this.grazers.length), note: 'feeding zooplankton', tone: 'coral' },
-      { label: 'NUTRIENTS', value: `${Math.round((avgNutrients / 1.5) * 100)}%`, note: 'water column reserve', tone: 'blue' },
-      { label: 'LUMINESCENCE', value: `${this.luminousFraction}%`, note: 'active glow', tone: 'gold' },
+      {
+        label: 'PHYTOPLANKTON',
+        value: String(this.phytoplankton.length),
+        note: 'luminous producers',
+        tone: 'mint',
+      },
+      {
+        label: 'GRAZERS',
+        value: String(this.grazers.length),
+        note: 'feeding zooplankton',
+        tone: 'coral',
+      },
+      {
+        label: 'NUTRIENTS',
+        value: `${Math.round((avgNutrients / 1.5) * 100)}%`,
+        note: 'water column reserve',
+        tone: 'blue',
+      },
+      {
+        label: 'LUMINESCENCE',
+        value: `${this.luminousFraction}%`,
+        note: 'active glow',
+        tone: 'gold',
+      },
     ];
   }
 }
