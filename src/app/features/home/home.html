@@ -46,7 +46,10 @@
           <div class="wl-preview-counters">
             @for (metric of previewMetrics.metrics(); track metric.label) {
               <span>
-                <i [class.wl-prey]="metric.tone === 'mint'" [class.wl-pred]="metric.tone === 'coral'"></i>
+                <i
+                  [class.wl-prey]="metric.tone === 'mint'"
+                  [class.wl-pred]="metric.tone === 'coral'"
+                ></i>
                 {{ metric.label }} <strong>{{ metric.value }}</strong>
               </span>
             }

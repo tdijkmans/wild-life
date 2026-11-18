@@ -13,10 +13,7 @@ import { WorldRenderer } from '../rendering/renderer';
   selector: 'app-ecosystem-preview',
   standalone: true,
   template: '<canvas #previewCanvas aria-hidden="true"></canvas>',
-  styles: [
-    `:host { display: block; position: absolute; inset: 0; }
-     canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }`,
-  ],
+  styleUrl: './ecosystem-preview.css',
 })
 export class EcosystemPreviewComponent implements AfterViewInit, OnDestroy {
   @ViewChild('previewCanvas', { static: true })

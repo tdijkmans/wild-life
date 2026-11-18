@@ -60,7 +60,9 @@ export function simulationRoutes(definitions: readonly SimulationDefinition[]): 
   });
 }
 
-export function featuredSimulation(definitions: readonly SimulationDefinition[]): SimulationDefinition {
+export function featuredSimulation(
+  definitions: readonly SimulationDefinition[],
+): SimulationDefinition {
   const featured = definitions.find((entry) => entry.featured) ?? definitions[0];
   if (!featured) throw new Error('The WILD LIFE simulation catalog must not be empty');
   if (definitions.filter((entry) => entry.featured).length > 1) {
