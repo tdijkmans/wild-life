@@ -17,7 +17,10 @@ export class SynchronyRenderer implements WorldCanvasRenderer {
   private world: SynchronyWorld;
   private readonly stars: NightDetail[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: SynchronyWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: SynchronyWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Synchrony requires a 2D Canvas context');
     this.ctx = ctx;
@@ -89,7 +92,9 @@ export class SynchronyRenderer implements WorldCanvasRenderer {
       ctx.beginPath();
       ctx.moveTo(0, 720);
       for (let x = 0; x <= 1210; x += 30) {
-        const ridge = 565 + layer * 40 +
+        const ridge =
+          565 +
+          layer * 40 +
           Math.sin(x * 0.013 + layer * 1.3) * 35 +
           Math.cos(x * 0.041 + layer) * 14;
         ctx.lineTo(x, ridge);
@@ -111,8 +116,12 @@ export class SynchronyRenderer implements WorldCanvasRenderer {
     }
 
     for (const field of world.fields) {
-      const tint = field.kind === 'warmth' ? '249,186,124' :
-        field.kind === 'shade' ? '101,144,214' : '155,239,218';
+      const tint =
+        field.kind === 'warmth'
+          ? '249,186,124'
+          : field.kind === 'shade'
+            ? '101,144,214'
+            : '155,239,218';
       const opacity = Math.min(1, field.remaining / 2) * 0.22;
       const aura = ctx.createRadialGradient(field.x, field.y, 1, field.x, field.y, field.radius);
       aura.addColorStop(0, `rgba(${tint},${opacity})`);

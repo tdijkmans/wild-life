@@ -1,8 +1,4 @@
-import {
-  MicrobialCommonsWorld,
-  MICRO_COLS,
-  MICRO_SITES,
-} from './microbial-commons-world';
+import { MicrobialCommonsWorld, MICRO_COLS, MICRO_SITES } from './microbial-commons-world';
 
 function advance(world: MicrobialCommonsWorld, ticks: number): void {
   for (let i = 0; i < ticks; i++) world.step(1 / 60);
@@ -87,7 +83,9 @@ describe('Microbial Commons — resource-driven colony growth', () => {
     expect(world.occupied).toBeGreaterThan(0);
     expect(world.occupied).toBeLessThanOrEqual(MICRO_SITES);
     for (const field of [world.nutrients, world.oxygen, world.metabolite, world.inhibitor]) {
-      expect(field.every((value) => Number.isFinite(value) && value >= 0 && value <= 1.5)).toBe(true);
+      expect(field.every((value) => Number.isFinite(value) && value >= 0 && value <= 1.5)).toBe(
+        true,
+      );
     }
     expect(world.tolerance.every((value) => Number.isFinite(value))).toBe(true);
     expect(world.history.length).toBeLessThanOrEqual(160);

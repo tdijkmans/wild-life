@@ -3,12 +3,7 @@ import type {
   InteractiveWorld,
   WorldCanvasRenderer,
 } from '../../../shared/world-experience/world-protocol';
-import {
-  ReefWorld,
-  type CoralColony,
-  type AlgaePatch,
-  type ReefFish,
-} from '../domain/reef-world';
+import { ReefWorld, type CoralColony, type AlgaePatch, type ReefFish } from '../domain/reef-world';
 
 interface ReefMote {
   x: number;
@@ -22,7 +17,10 @@ export class ReefRenderer implements WorldCanvasRenderer {
   private world: ReefWorld;
   private readonly motes: ReefMote[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: ReefWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: ReefWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Reef requires a 2D Canvas context');
     this.ctx = ctx;
@@ -110,8 +108,12 @@ export class ReefRenderer implements WorldCanvasRenderer {
     for (const coral of world.corals) this.drawCoral(ctx, coral, nowMs);
 
     for (const field of world.fields) {
-      const tint = field.kind === 'cool' ? '156,229,244' :
-        field.kind === 'nutrients' ? '230,221,131' : '130,208,243';
+      const tint =
+        field.kind === 'cool'
+          ? '156,229,244'
+          : field.kind === 'nutrients'
+            ? '230,221,131'
+            : '130,208,243';
       const opacity = Math.min(1, field.remaining / 2) * 0.25;
       const glow = ctx.createRadialGradient(field.x, field.y, 4, field.x, field.y, field.radius);
       glow.addColorStop(0, `rgba(${tint},${opacity})`);

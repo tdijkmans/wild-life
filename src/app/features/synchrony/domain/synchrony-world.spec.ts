@@ -35,11 +35,20 @@ describe('Synchrony — locally coupled fireflies', () => {
     for (const world of [close, far]) {
       const a = world.fireflies[0];
       const b = world.fireflies[1];
-      a.x = 420; a.y = 340; a.vx = 0; a.vy = 0;
-      b.x = 430; b.y = 340; b.vx = 0; b.vy = 0;
-      a.phase = 0.2; b.phase = 1.7;
-      a.frequency = 1.7; b.frequency = 1.7;
-      a.coupling = 1; b.coupling = 1;
+      a.x = 420;
+      a.y = 340;
+      a.vx = 0;
+      a.vy = 0;
+      b.x = 430;
+      b.y = 340;
+      b.vx = 0;
+      b.vy = 0;
+      a.phase = 0.2;
+      b.phase = 1.7;
+      a.frequency = 1.7;
+      b.frequency = 1.7;
+      a.coupling = 1;
+      b.coupling = 1;
     }
     far.fireflies[1].x = 950;
     const start = phaseDistance(close.fireflies[0].phase, close.fireflies[1].phase);
@@ -77,7 +86,9 @@ describe('Synchrony — locally coupled fireflies', () => {
       expect(firefly.x).toBeLessThanOrEqual(world.width);
       expect(firefly.y).toBeGreaterThanOrEqual(0);
       expect(firefly.y).toBeLessThanOrEqual(world.height);
-      expect([firefly.phase, firefly.frequency, firefly.energy, firefly.flash].every(Number.isFinite)).toBe(true);
+      expect(
+        [firefly.phase, firefly.frequency, firefly.energy, firefly.flash].every(Number.isFinite),
+      ).toBe(true);
     }
   });
 

@@ -28,8 +28,13 @@ describe('Reef — coral symbiosis, competition and grazing', () => {
     const world = new ReefWorld(7, 12, 15, 0);
     const before = world.corals.map((colony) => colony.branches.map((branch) => branch.progress));
     advance(world, 600);
-    expect(world.corals.some((colony, i) => colony.branches.length > before[i].length ||
-      colony.branches.some((branch, j) => branch.progress > (before[i][j] ?? 0)))).toBe(true);
+    expect(
+      world.corals.some(
+        (colony, i) =>
+          colony.branches.length > before[i].length ||
+          colony.branches.some((branch, j) => branch.progress > (before[i][j] ?? 0)),
+      ),
+    ).toBe(true);
     const geometry = world.branchGeometry(world.corals[0], 0);
     expect(Object.values(geometry).every(Number.isFinite)).toBe(true);
   });

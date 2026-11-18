@@ -6,14 +6,27 @@ export interface WorldMetric {
   readonly tone: 'mint' | 'coral' | 'blue' | 'gold';
 }
 
-export type WorldSoundProfile = 'forest' | 'abyss' | 'sky' | 'meadow' | 'twilight' | 'reef' | 'microbial';
+export type WorldSoundProfile =
+  'forest' | 'abyss' | 'sky' | 'meadow' | 'twilight' | 'reef' | 'microbial';
 
 export interface WorldAudioCue {
   readonly id: number;
   readonly kind:
-    | 'rain' | 'growth' | 'rustle' | 'bubble' | 'shimmer' | 'bloom' | 'flow'
-    | 'pulse' | 'chorus' | 'hush' | 'reef' | 'bleach' | 'graze'
-    | 'exchange' | 'division';
+    | 'rain'
+    | 'growth'
+    | 'rustle'
+    | 'bubble'
+    | 'shimmer'
+    | 'bloom'
+    | 'flow'
+    | 'pulse'
+    | 'chorus'
+    | 'hush'
+    | 'reef'
+    | 'bleach'
+    | 'graze'
+    | 'exchange'
+    | 'division';
   readonly strength: number;
 }
 

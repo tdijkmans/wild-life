@@ -25,7 +25,10 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
   private world: MicrobialCommonsWorld;
   private readonly motes: AgarParticle[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: MicrobialCommonsWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: MicrobialCommonsWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Microbial Commons requires a 2D Canvas context');
     this.ctx = ctx;
@@ -114,7 +117,12 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
       const x = (col + 0.5) * SITE_WIDTH;
       const y = (row + 0.5) * SITE_HEIGHT;
       ctx.fillStyle = `rgba(89,226,198,${0.017 + n * 0.045})`;
-      ctx.fillRect(x - SITE_WIDTH * 1.3, y - SITE_HEIGHT * 1.3, SITE_WIDTH * 2.6, SITE_HEIGHT * 2.6);
+      ctx.fillRect(
+        x - SITE_WIDTH * 1.3,
+        y - SITE_HEIGHT * 1.3,
+        SITE_WIDTH * 2.6,
+        SITE_HEIGHT * 2.6,
+      );
       if (metabolite > 0.04) {
         ctx.fillStyle = `rgba(136,160,249,${Math.min(0.16, metabolite * 0.2)})`;
         ctx.beginPath();
@@ -129,12 +137,7 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
       }
     }
 
-    const colors = [
-      '',
-      '147,236,193',
-      '174,167,255',
-      '252,167,129',
-    ];
+    const colors = ['', '147,236,193', '174,167,255', '252,167,129'];
     ctx.globalCompositeOperation = 'screen';
     for (let i = 0; i < MICRO_SITES; i++) {
       const strain = world.species[i];
@@ -146,7 +149,7 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
       const y = (row + 0.5) * SITE_HEIGHT;
       const tint = colors[strain];
       const radius = 3.3 + mass * 5.2;
-      ctx.fillStyle = `rgba(${tint},${0.10 + mass * 0.16})`;
+      ctx.fillStyle = `rgba(${tint},${0.1 + mass * 0.16})`;
       ctx.beginPath();
       ctx.arc(x, y, radius * 1.8, 0, Math.PI * 2);
       ctx.fill();
@@ -168,8 +171,11 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
         ctx.lineTo(x + SITE_WIDTH, y);
         ctx.stroke();
       }
-      if (row + 1 < MICRO_ROWS && world.species[i + MICRO_COLS] === strain &&
-        world.biomass[i + MICRO_COLS] > 0.2) {
+      if (
+        row + 1 < MICRO_ROWS &&
+        world.species[i + MICRO_COLS] === strain &&
+        world.biomass[i + MICRO_COLS] > 0.2
+      ) {
         ctx.strokeStyle = `rgba(${tint},${mass * 0.16})`;
         ctx.lineWidth = 1.3;
         ctx.beginPath();
@@ -181,8 +187,12 @@ export class MicrobialCommonsRenderer implements WorldCanvasRenderer {
     ctx.globalCompositeOperation = 'source-over';
 
     for (const field of world.fields) {
-      const tint = field.kind === 'nutrients' ? '245,220,132' :
-        field.kind === 'oxygen' ? '127,225,243' : '204,175,249';
+      const tint =
+        field.kind === 'nutrients'
+          ? '245,220,132'
+          : field.kind === 'oxygen'
+            ? '127,225,243'
+            : '204,175,249';
       const alpha = Math.min(1, field.remaining / 2) * 0.23;
       const halo = ctx.createRadialGradient(field.x, field.y, 4, field.x, field.y, field.radius);
       halo.addColorStop(0, `rgba(${tint},${alpha})`);

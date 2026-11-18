@@ -14,8 +14,7 @@ export const MICRO_SITES = MICRO_COLS * MICRO_ROWS;
 const UPDATE_SECONDS = 0.16;
 const MAX_FIELDS = 22;
 
-const clamp = (v: number, low: number, high: number): number =>
-  Math.max(low, Math.min(high, v));
+const clamp = (v: number, low: number, high: number): number => Math.max(low, Math.min(high, v));
 
 export type MicrobeSpecies = 0 | 1 | 2 | 3;
 
@@ -118,7 +117,7 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
   /** World-space coordinates of the center of a living agar site. */
   coordinates(index: number): { x: number; y: number } {
     return {
-      x: (index % MICRO_COLS + 0.5) * (this.width / MICRO_COLS),
+      x: ((index % MICRO_COLS) + 0.5) * (this.width / MICRO_COLS),
       y: (Math.floor(index / MICRO_COLS) + 0.5) * (this.height / MICRO_ROWS),
     };
   }
@@ -142,15 +141,22 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
   influence(kind: string, x: number, y: number, dx = 0, dy = 0): void {
     if (
       ![x, y, dx, dy].every(Number.isFinite) ||
-      x < 0 || y < 0 || x > this.width || y > this.height ||
+      x < 0 ||
+      y < 0 ||
+      x > this.width ||
+      y > this.height ||
       !['nutrients', 'oxygen', 'buffer'].includes(kind)
-    ) return;
-    const col = Math.floor(x / this.width * MICRO_COLS);
-    const row = Math.floor(y / this.height * MICRO_ROWS);
+    )
+      return;
+    const col = Math.floor((x / this.width) * MICRO_COLS);
+    const row = Math.floor((y / this.height) * MICRO_ROWS);
     if (!this.insideDish(col, row)) return;
     this.fields.push({
       kind: kind as CommonsField['kind'],
-      x, y, radius: 123, remaining: kind === 'nutrients' ? 12 : 15,
+      x,
+      y,
+      radius: 123,
+      remaining: kind === 'nutrients' ? 12 : 15,
     });
     if (this.fields.length > MAX_FIELDS) this.fields.shift();
     this.cue(kind === 'nutrients' ? 'division' : kind === 'oxygen' ? 'exchange' : 'hush', 0.33);
@@ -202,15 +208,18 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
       if (!this.insideDish(col, row)) continue;
       const adjacent = this.neighbors(index);
       const average = (field: Float32Array): number =>
-        adjacent.length ? adjacent.reduce((sum, i) => sum + field[i], 0) / adjacent.length : field[index];
-      let nutrient = beforeNutrients[index] + (average(beforeNutrients) - beforeNutrients[index]) * 0.16;
+        adjacent.length
+          ? adjacent.reduce((sum, i) => sum + field[i], 0) / adjacent.length
+          : field[index];
+      let nutrient =
+        beforeNutrients[index] + (average(beforeNutrients) - beforeNutrients[index]) * 0.16;
       let oxygen = beforeOxygen[index] + (average(beforeOxygen) - beforeOxygen[index]) * 0.21;
-      let metabolite = beforeMetabolite[index] +
-        (average(beforeMetabolite) - beforeMetabolite[index]) * 0.22;
-      let inhibitor = beforeInhibitor[index] +
-        (average(beforeInhibitor) - beforeInhibitor[index]) * 0.15;
-      const cellX = (col + 0.5) * this.width / MICRO_COLS;
-      const cellY = (row + 0.5) * this.height / MICRO_ROWS;
+      let metabolite =
+        beforeMetabolite[index] + (average(beforeMetabolite) - beforeMetabolite[index]) * 0.22;
+      let inhibitor =
+        beforeInhibitor[index] + (average(beforeInhibitor) - beforeInhibitor[index]) * 0.15;
+      const cellX = ((col + 0.5) * this.width) / MICRO_COLS;
+      const cellY = ((row + 0.5) * this.height) / MICRO_ROWS;
       nutrient = clamp(nutrient + elapsed * 0.0013, 0, 1.5);
       oxygen = clamp(oxygen + elapsed * 0.0018, 0, 1.5);
       metabolite = clamp(metabolite - elapsed * 0.0012, 0, 1.5);
@@ -219,8 +228,7 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
       for (const field of this.fields) {
         const distance = Math.hypot(cellX - field.x, cellY - field.y);
         if (distance >= field.radius) continue;
-        const strength = (1 - distance / field.radius) *
-          Math.min(1, field.remaining / 3) * elapsed;
+        const strength = (1 - distance / field.radius) * Math.min(1, field.remaining / 3) * elapsed;
         if (field.kind === 'nutrients') nutrient += strength * 0.052;
         if (field.kind === 'oxygen') oxygen += strength * 0.047;
         if (field.kind === 'buffer') inhibitor = Math.max(0, inhibitor - strength * 0.06);
@@ -230,11 +238,11 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
       const mass = beforeBiomass[index];
       if (strain > 0 && mass > 0) {
         const tolerance = this.tolerance[index];
-        const stress = strain === 3 ? inhibitor * 0.12 : inhibitor * 0.31 / tolerance;
+        const stress = strain === 3 ? inhibitor * 0.12 : (inhibitor * 0.31) / tolerance;
         let resource = nutrient;
         if (strain === 2) resource = metabolite * 1.7 + nutrient * 0.06;
-        const gain = Math.min(resource, oxygen) * (strain === 2 ? 0.25 : 0.23) *
-          mass * (1 - mass) * elapsed;
+        const gain =
+          Math.min(resource, oxygen) * (strain === 2 ? 0.25 : 0.23) * mass * (1 - mass) * elapsed;
         const decline = (0.004 + stress * 0.05) * elapsed;
         const updatedMass = clamp(mass + gain - decline, 0, 1);
         this.biomass[index] = updatedMass < 0.08 ? 0 : updatedMass;
@@ -261,17 +269,18 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
         }
         if (stress > 0.16) this.stressedSinceSample++;
         if (
-          this.biomass[index] > 0.38 && resource > 0.18 && oxygen > 0.1 &&
-          adjacent.length && this.random.next() < 0.29 * this.biomass[index]
+          this.biomass[index] > 0.38 &&
+          resource > 0.18 &&
+          oxygen > 0.1 &&
+          adjacent.length &&
+          this.random.next() < 0.29 * this.biomass[index]
         ) {
           const target = adjacent[this.random.integer(0, adjacent.length)];
           if (beforeSpecies[target] === 0) {
             colonists.push({
               index: target,
               species: strain,
-              tolerance: clamp(
-                tolerance + this.random.range(-0.035, 0.035), 0.6, 1.4,
-              ),
+              tolerance: clamp(tolerance + this.random.range(-0.035, 0.035), 0.6, 1.4),
             });
           }
         }
@@ -322,10 +331,30 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
 
   metrics(): readonly WorldMetric[] {
     return [
-      { label: 'PRODUCERS', value: String(this.producerCount), note: 'resource converters', tone: 'mint' },
-      { label: 'CROSS-FEEDERS', value: String(this.crossfeederCount), note: 'metabolite consumers', tone: 'blue' },
-      { label: 'COMPETITORS', value: String(this.competitorCount), note: 'chemical inhibitors', tone: 'coral' },
-      { label: 'EXCHANGES', value: String(this.exchanges), note: 'metabolite uptake', tone: 'gold' },
+      {
+        label: 'PRODUCERS',
+        value: String(this.producerCount),
+        note: 'resource converters',
+        tone: 'mint',
+      },
+      {
+        label: 'CROSS-FEEDERS',
+        value: String(this.crossfeederCount),
+        note: 'metabolite consumers',
+        tone: 'blue',
+      },
+      {
+        label: 'COMPETITORS',
+        value: String(this.competitorCount),
+        note: 'chemical inhibitors',
+        tone: 'coral',
+      },
+      {
+        label: 'EXCHANGES',
+        value: String(this.exchanges),
+        note: 'metabolite uptake',
+        tone: 'gold',
+      },
     ];
   }
 }

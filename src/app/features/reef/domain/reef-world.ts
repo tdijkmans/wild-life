@@ -106,10 +106,14 @@ export class ReefWorld implements InteractiveWorld {
     this.random = new SeededRandom(seed);
     if (
       ![colonyCount, algaeCount, fishCount].every(Number.isInteger) ||
-      colonyCount < 0 || colonyCount > MAX_CORALS ||
-      algaeCount < 0 || algaeCount > MAX_ALGAE ||
-      fishCount < 0 || fishCount > MAX_FISH
-    ) throw new RangeError('Reef population is outside supported bounds');
+      colonyCount < 0 ||
+      colonyCount > MAX_CORALS ||
+      algaeCount < 0 ||
+      algaeCount > MAX_ALGAE ||
+      fishCount < 0 ||
+      fishCount > MAX_FISH
+    )
+      throw new RangeError('Reef population is outside supported bounds');
 
     for (let i = 0; i < colonyCount; i++) {
       const x = 90 + (i / Math.max(1, colonyCount - 1)) * 1015 + this.random.range(-28, 28);
@@ -141,15 +145,17 @@ export class ReefWorld implements InteractiveWorld {
       symbionts: this.random.range(0.68, 0.99),
       tolerance: this.random.range(27.3, 29.4),
       hue: this.random.range(-23, 34),
-      branches: [{
-        parent: -1,
-        angle: -Math.PI / 2 + this.random.range(-0.35, 0.35),
-        length: this.random.range(42, 75),
-        progress: sapling ? 0.14 : 1,
-        depth: 0,
-        width: this.random.range(5, 9),
-        forked: false,
-      }],
+      branches: [
+        {
+          parent: -1,
+          angle: -Math.PI / 2 + this.random.range(-0.35, 0.35),
+          length: this.random.range(42, 75),
+          progress: sapling ? 0.14 : 1,
+          depth: 0,
+          width: this.random.range(5, 9),
+          forked: false,
+        },
+      ],
     };
     if (!sapling) {
       this.fork(colony, 0, true);
@@ -163,12 +169,18 @@ export class ReefWorld implements InteractiveWorld {
     this.corals.push(colony);
   }
 
-  branchGeometry(coral: CoralColony, index: number): {
-    x1: number; y1: number; x2: number; y2: number;
+  branchGeometry(
+    coral: CoralColony,
+    index: number,
+  ): {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
   } {
     const branch = coral.branches[index];
-    const start = branch.parent >= 0
-      ? this.branchEndpoint(coral, branch.parent) : { x: coral.x, y: coral.y };
+    const start =
+      branch.parent >= 0 ? this.branchEndpoint(coral, branch.parent) : { x: coral.x, y: coral.y };
     return {
       x1: start.x,
       y1: start.y,
@@ -191,7 +203,8 @@ export class ReefWorld implements InteractiveWorld {
       const sign = i % 2 === 0 ? -1 : 1;
       const angle = clamp(
         branch.angle + sign * this.random.range(0.34, 0.68),
-        -Math.PI + 0.25, -0.23,
+        -Math.PI + 0.25,
+        -0.23,
       );
       coral.branches.push({
         parent: index,
@@ -224,7 +237,9 @@ export class ReefWorld implements InteractiveWorld {
 
   private cue(kind: WorldAudioCue['kind'], strength: number): void {
     this.audioCues.push({
-      id: ++this.nextCueId, kind, strength: clamp(strength, 0.06, 1),
+      id: ++this.nextCueId,
+      kind,
+      strength: clamp(strength, 0.06, 1),
     });
     if (this.audioCues.length > 16) this.audioCues.shift();
   }
@@ -232,15 +247,20 @@ export class ReefWorld implements InteractiveWorld {
   influence(kind: string, x: number, y: number, dx = 0, dy = 0): void {
     if (
       ![x, y, dx, dy].every(Number.isFinite) ||
-      x < 0 || y < 0 || x > this.width || y > this.height ||
+      x < 0 ||
+      y < 0 ||
+      x > this.width ||
+      y > this.height ||
       !['cool', 'nutrients', 'current'].includes(kind)
-    ) return;
+    )
+      return;
     const length = Math.hypot(dx, dy);
     this.fields.push({
       kind: kind as ReefField['kind'],
-      x, y,
-      dx: kind === 'current' ? length > 2 ? dx / length * 86 : 48 : 0,
-      dy: kind === 'current' ? length > 2 ? dy / length * 86 : -18 : 0,
+      x,
+      y,
+      dx: kind === 'current' ? (length > 2 ? (dx / length) * 86 : 48) : 0,
+      dy: kind === 'current' ? (length > 2 ? (dy / length) * 86 : -18) : 0,
       radius: kind === 'cool' ? 195 : 175,
       remaining: kind === 'current' ? 12 : 18,
     });
@@ -254,8 +274,7 @@ export class ReefWorld implements InteractiveWorld {
       if (field.kind !== 'cool') continue;
       const distance = Math.hypot(field.x - x, field.y - y);
       if (distance < field.radius) {
-        temperature -= (1 - distance / field.radius) *
-          Math.min(1, field.remaining / 2) * 2.2;
+        temperature -= (1 - distance / field.radius) * Math.min(1, field.remaining / 2) * 2.2;
       }
     }
     return temperature;
@@ -294,17 +313,20 @@ export class ReefWorld implements InteractiveWorld {
       const light = clamp(1 - (coral.y - 350) / 900 - nearbyAlgae * 0.14, 0.16, 1.15);
       const heat = Math.max(0, localTemp - coral.tolerance);
       coral.symbionts = clamp(
-        coral.symbionts + dt * (heat > 0 ? -heat * 0.035 : 0.007 * light) ,
-        0.04, 1,
+        coral.symbionts + dt * (heat > 0 ? -heat * 0.035 : 0.007 * light),
+        0.04,
+        1,
       );
       coral.energy = clamp(
-        coral.energy + dt * (coral.symbionts * light * 0.021 - 0.010 - nearbyAlgae * 0.0015),
-        0.04, 1.65,
+        coral.energy + dt * (coral.symbionts * light * 0.021 - 0.01 - nearbyAlgae * 0.0015),
+        0.04,
+        1.65,
       );
       coral.age += dt;
       for (const branch of coral.branches) {
         branch.progress = Math.min(
-          1, branch.progress + dt * 0.018 * coral.symbionts * coral.energy,
+          1,
+          branch.progress + dt * 0.018 * coral.symbionts * coral.energy,
         );
       }
     }
@@ -323,11 +345,11 @@ export class ReefWorld implements InteractiveWorld {
         return sum + (distance < 67 ? coral.energy * (1 - distance / 67) : 0);
       }, 0);
       patch.mass = clamp(
-        patch.mass + dt * (
-          (sunlight + enrich * 1.2) * patch.mass * (1 - patch.mass) * 0.048 -
-          crowding * 0.009
-        ),
-        0.01, 1,
+        patch.mass +
+          dt *
+            ((sunlight + enrich * 1.2) * patch.mass * (1 - patch.mass) * 0.048 - crowding * 0.009),
+        0.01,
+        1,
       );
     }
     this.advanceFish(dt);
@@ -399,13 +421,16 @@ export class ReefWorld implements InteractiveWorld {
         const dy = other.y - fish.y;
         const d2 = dx * dx + dy * dy;
         if (d2 > 24 * 24 || d2 < 0.01) continue;
-        ax -= dx / (d2 + 9) * 780;
-        ay -= dy / (d2 + 9) * 780;
+        ax -= (dx / (d2 + 9)) * 780;
+        ay -= (dy / (d2 + 9)) * 780;
       }
       const acceleration = Math.hypot(ax, ay);
-      if (acceleration > 110) { ax *= 110 / acceleration; ay *= 110 / acceleration; }
-      fish.vx = clamp((fish.vx + ax * dt) * (1 - dt * 0.10), -65, 65);
-      fish.vy = clamp((fish.vy + ay * dt) * (1 - dt * 0.10), -65, 65);
+      if (acceleration > 110) {
+        ax *= 110 / acceleration;
+        ay *= 110 / acceleration;
+      }
+      fish.vx = clamp((fish.vx + ax * dt) * (1 - dt * 0.1), -65, 65);
+      fish.vy = clamp((fish.vy + ay * dt) * (1 - dt * 0.1), -65, 65);
       fish.x = clamp(fish.x + fish.vx * dt, 20, this.width - 20);
       fish.y = clamp(fish.y + fish.vy * dt, 130, this.height - 20);
       fish.age += dt;
@@ -438,8 +463,8 @@ export class ReefWorld implements InteractiveWorld {
       this.bleaching = 0;
       return;
     }
-    this.meanSymbiosis = this.corals.reduce((sum, coral) => sum + coral.symbionts, 0) /
-      this.corals.length;
+    this.meanSymbiosis =
+      this.corals.reduce((sum, coral) => sum + coral.symbionts, 0) / this.corals.length;
     this.bleaching = this.corals.filter((coral) => coral.symbionts < 0.48).length;
   }
 
@@ -448,7 +473,8 @@ export class ReefWorld implements InteractiveWorld {
       time: Math.round(this.time * 10) / 10,
       primary: Math.round(this.meanSymbiosis * 100),
       secondary: Math.round(
-        (this.algae.reduce((sum, patch) => sum + patch.mass, 0) / Math.max(1, this.algae.length)) * 100,
+        (this.algae.reduce((sum, patch) => sum + patch.mass, 0) / Math.max(1, this.algae.length)) *
+          100,
       ),
     });
     if (this.history.length > 160) this.history.shift();
@@ -456,10 +482,30 @@ export class ReefWorld implements InteractiveWorld {
 
   metrics(): readonly WorldMetric[] {
     return [
-      { label: 'CORAL BRANCHES', value: String(this.corals.reduce((sum, coral) => sum + coral.branches.length, 0)), note: 'living calcified tips', tone: 'mint' },
-      { label: 'SYMBIOSIS', value: `${Math.round(this.meanSymbiosis * 100)}%`, note: 'symbiotic algae retained', tone: 'gold' },
-      { label: 'BLEACHING', value: String(this.bleaching), note: 'stressed coral colonies', tone: 'coral' },
-      { label: 'GRAZERS', value: String(this.fish.length), note: 'algae-eating fish', tone: 'blue' },
+      {
+        label: 'CORAL BRANCHES',
+        value: String(this.corals.reduce((sum, coral) => sum + coral.branches.length, 0)),
+        note: 'living calcified tips',
+        tone: 'mint',
+      },
+      {
+        label: 'SYMBIOSIS',
+        value: `${Math.round(this.meanSymbiosis * 100)}%`,
+        note: 'symbiotic algae retained',
+        tone: 'gold',
+      },
+      {
+        label: 'BLEACHING',
+        value: String(this.bleaching),
+        note: 'stressed coral colonies',
+        tone: 'coral',
+      },
+      {
+        label: 'GRAZERS',
+        value: String(this.fish.length),
+        note: 'algae-eating fish',
+        tone: 'blue',
+      },
     ];
   }
 }

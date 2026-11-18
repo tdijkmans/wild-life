@@ -80,10 +80,7 @@ export class SynchronyWorld implements InteractiveWorld {
       const gy = 195 + Math.floor(group / 2) * 310;
       const theta = this.random.range(0, TAU);
       const radial = Math.sqrt(this.random.next());
-      this.birth(
-        gx + Math.cos(theta) * radial * 240,
-        gy + Math.sin(theta) * radial * 185,
-      );
+      this.birth(gx + Math.cos(theta) * radial * 240, gy + Math.sin(theta) * radial * 185);
     }
     this.measure();
     this.sample();
@@ -98,16 +95,20 @@ export class SynchronyWorld implements InteractiveWorld {
       y: clamp(y, 18, this.height - 18),
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      phase: parent ? (parent.phase + this.random.range(-0.45, 0.45) + TAU) % TAU :
-        this.random.range(0, TAU),
-      frequency: parent ? clamp(parent.frequency + this.random.range(-0.11, 0.11), 1.08, 2.7) :
-        this.random.range(1.35, 2.16),
-      coupling: parent ? clamp(parent.coupling + this.random.range(-0.08, 0.08), 0.68, 1.32) :
-        this.random.range(0.84, 1.16),
+      phase: parent
+        ? (parent.phase + this.random.range(-0.45, 0.45) + TAU) % TAU
+        : this.random.range(0, TAU),
+      frequency: parent
+        ? clamp(parent.frequency + this.random.range(-0.11, 0.11), 1.08, 2.7)
+        : this.random.range(1.35, 2.16),
+      coupling: parent
+        ? clamp(parent.coupling + this.random.range(-0.08, 0.08), 0.68, 1.32)
+        : this.random.range(0.84, 1.16),
       age: parent ? 0 : this.random.range(6, 80),
       energy: parent ? 0.85 : this.random.range(0.75, 1.15),
-      tint: parent ? clamp(parent.tint + this.random.range(-7, 7), -25, 28) :
-        this.random.range(-20, 26),
+      tint: parent
+        ? clamp(parent.tint + this.random.range(-7, 7), -25, 28)
+        : this.random.range(-20, 26),
       flash: 0,
     });
   }
@@ -119,14 +120,19 @@ export class SynchronyWorld implements InteractiveWorld {
 
   influence(kind: string, x: number, y: number, dx = 0, dy = 0): void {
     if (
-      ![x, y, dx, dy].every(Number.isFinite) || x < 0 || y < 0 ||
-      x > this.width || y > this.height ||
+      ![x, y, dx, dy].every(Number.isFinite) ||
+      x < 0 ||
+      y < 0 ||
+      x > this.width ||
+      y > this.height ||
       !['warmth', 'breeze', 'shade'].includes(kind)
-    ) return;
+    )
+      return;
     const length = Math.hypot(dx, dy);
     this.fields.push({
       kind: kind as SynchronyField['kind'],
-      x, y,
+      x,
+      y,
       dx: kind === 'breeze' ? (length > 3 ? (dx / length) * 70 : 42) : 0,
       dy: kind === 'breeze' ? (length > 3 ? (dy / length) * 70 : -17) : 0,
       radius: kind === 'shade' ? 170 : 155,
@@ -198,8 +204,11 @@ export class SynchronyWorld implements InteractiveWorld {
           ay += field.dy * falloff * 0.47;
         }
       }
-      const coupled = neighbors ? (alignment / neighbors) * fly.coupling * 3.6 * couplingModifier : 0;
-      const phase = (phases[i] + Math.max(0.22, fly.frequency + frequencyModifier + coupled) * dt) % TAU;
+      const coupled = neighbors
+        ? (alignment / neighbors) * fly.coupling * 3.6 * couplingModifier
+        : 0;
+      const phase =
+        (phases[i] + Math.max(0.22, fly.frequency + frequencyModifier + coupled) * dt) % TAU;
       const vx = clamp(fly.vx * (1 - dt * 0.34) + ax * dt, -27, 27);
       const vy = clamp(fly.vy * (1 - dt * 0.34) + ay * dt, -27, 27);
       updates.push({ phase, vx, vy });
@@ -230,7 +239,8 @@ export class SynchronyWorld implements InteractiveWorld {
       this.measure();
       this.sample();
       if (
-        this.localCoherence > 0.75 && this.activeFlashes > this.fireflies.length * 0.14 &&
+        this.localCoherence > 0.75 &&
+        this.activeFlashes > this.fireflies.length * 0.14 &&
         this.time - this.lastChorus > 5
       ) {
         this.lastChorus = this.time;
@@ -266,7 +276,8 @@ export class SynchronyWorld implements InteractiveWorld {
         continue;
       }
       if (
-        fly.age > 25 && fly.energy > 0.95 &&
+        fly.age > 25 &&
+        fly.energy > 0.95 &&
         this.fireflies.length + offspring.length < MAX_FIREFLIES &&
         this.random.next() < 0.028
       ) {
@@ -275,7 +286,11 @@ export class SynchronyWorld implements InteractiveWorld {
       }
     }
     for (const baby of offspring) {
-      this.birth(baby.x + this.random.range(-20, 20), baby.y + this.random.range(-20, 20), baby.parent);
+      this.birth(
+        baby.x + this.random.range(-20, 20),
+        baby.y + this.random.range(-20, 20),
+        baby.parent,
+      );
       this.births++;
     }
   }
@@ -291,10 +306,30 @@ export class SynchronyWorld implements InteractiveWorld {
 
   metrics(): readonly WorldMetric[] {
     return [
-      { label: 'FIREFLIES', value: String(this.fireflies.length), note: 'autonomous oscillators', tone: 'mint' },
-      { label: 'GLOBAL ORDER', value: `${Math.round(this.coherence * 100)}%`, note: 'whole-world coherence', tone: 'gold' },
-      { label: 'LOCAL SYNC', value: `${Math.round(this.localCoherence * 100)}%`, note: 'neighbor phase agreement', tone: 'blue' },
-      { label: 'FLASHING', value: String(this.activeFlashes), note: 'currently illuminated', tone: 'coral' },
+      {
+        label: 'FIREFLIES',
+        value: String(this.fireflies.length),
+        note: 'autonomous oscillators',
+        tone: 'mint',
+      },
+      {
+        label: 'GLOBAL ORDER',
+        value: `${Math.round(this.coherence * 100)}%`,
+        note: 'whole-world coherence',
+        tone: 'gold',
+      },
+      {
+        label: 'LOCAL SYNC',
+        value: `${Math.round(this.localCoherence * 100)}%`,
+        note: 'neighbor phase agreement',
+        tone: 'blue',
+      },
+      {
+        label: 'FLASHING',
+        value: String(this.activeFlashes),
+        note: 'currently illuminated',
+        tone: 'coral',
+      },
     ];
   }
 }

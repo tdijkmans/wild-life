@@ -55,7 +55,9 @@ for (const world of newWorlds) {
   });
 }
 
-test('mobile viewport keeps every shared world and environmental controls usable', async ({ page }) => {
+test('mobile viewport keeps every shared world and environmental controls usable', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
     '/murmuration',
@@ -76,13 +78,7 @@ test('mobile viewport keeps every shared world and environmental controls usable
   }
 });
 
-for (const route of [
-  '/canopy',
-  '/abyssal-bloom',
-  '/synchrony',
-  '/reef',
-  '/microbial-commons',
-]) {
+for (const route of ['/canopy', '/abyssal-bloom', '/synchrony', '/reef', '/microbial-commons']) {
   test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({
     page,
   }) => {

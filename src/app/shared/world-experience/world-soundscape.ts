@@ -159,7 +159,8 @@ export class WorldSoundscape {
     const [start, end] = frequencies[event.kind];
     const oscillator = context.createOscillator();
     oscillator.type = ['rustle', 'flow', 'graze', 'division'].includes(event.kind)
-      ? 'triangle' : 'sine';
+      ? 'triangle'
+      : 'sine';
     oscillator.frequency.setValueAtTime(start, context.currentTime);
     oscillator.frequency.exponentialRampToValueAtTime(
       Math.max(30, end),
