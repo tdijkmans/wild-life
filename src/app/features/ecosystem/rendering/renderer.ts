@@ -1,4 +1,4 @@
-import { WorldEngine } from './engine';
+import { WorldEngine } from '../domain/engine';
 
 const TAU = Math.PI * 2;
 export class WorldRenderer {

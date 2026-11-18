@@ -8,7 +8,7 @@ import {
   input,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { WorldEvent, WorldStats } from '../../../../pages/ecosystem/sim/engine';
+import { WorldEvent, WorldStats } from '../../domain/engine';
 
 @Component({
   selector: 'app-ecosystem-insights-panel',

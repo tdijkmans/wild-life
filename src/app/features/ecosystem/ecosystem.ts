@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './sim/engine';
-import { WorldRenderer } from './sim/renderer';
-import { drawChart, drawTinyChart } from './sim/charts';
+import { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
+import { WorldRenderer } from './rendering/renderer';
+import { drawChart, drawTinyChart } from './rendering/charts';
 import { DsLiveIndicatorComponent } from '../../shared/design-system/live-indicator/live-indicator';
-import { EcosystemTimelineCardComponent } from '../../features/ecosystem/components/ecosystem-timeline-card/ecosystem-timeline-card';
-import { EcosystemInsightsPanelComponent } from '../../features/ecosystem/components/ecosystem-insights-panel/ecosystem-insights-panel';
+import { EcosystemTimelineCardComponent } from './components/ecosystem-timeline-card/ecosystem-timeline-card';
+import { EcosystemInsightsPanelComponent } from './components/ecosystem-insights-panel/ecosystem-insights-panel';
 
 type Tool = 'bloom' | 'current' | 'heat' | 'cold' | 'inspect';
 type AquariumCard = 'population' | 'evolution' | 'timeline' | 'journal';

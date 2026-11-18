@@ -1,4 +1,4 @@
-import { HistorySample } from './engine';
+import { HistorySample } from '../domain/engine';
 
 type ChartMode = 'population' | 'traits';
 function fit(canvas: HTMLCanvasElement) {

@@ -1,5 +1,5 @@
 import { routes } from './app.routes';
-import { SIMULATIONS } from './pages/home/simulation-catalog';
+import { SIMULATIONS } from './features/home/simulation-catalog';
 
 describe('WILD LIFE catalogue and routes', () => {
   it('starts at the experiment catalogue', () => {
