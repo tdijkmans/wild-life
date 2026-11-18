@@ -16,31 +16,33 @@
       <a class="subtle-btn demo-return" routerLink="/" aria-label="Back to WILD LIFE worlds"
         >← All worlds</a
       >
-      <button
-        class="subtle-btn aquarium-enter"
+      <ds-button
+        class="aquarium-enter"
+        variant="subtle"
         (click)="toggleAquarium()"
         title="Aquarium mode (F)"
-        aria-label="Open fullscreen aquarium"
+        ariaLabel="Open fullscreen aquarium"
       >
         ⛶ <span class="hide-sm">Aquarium</span>
-      </button>
-      <button
-        class="icon-btn info-btn"
+      </ds-button>
+      <ds-button
+        class="info-btn"
+        variant="icon"
         (click)="toggleGuide()"
         title="How to interact"
-        aria-label="Show instructions"
+        ariaLabel="Show instructions"
       >
         ?
-      </button>
-      <button class="subtle-btn" (click)="newWorld()" title="Seed a new world">
+      </ds-button>
+      <ds-button variant="subtle" (click)="newWorld()" title="Seed a new world">
         <span class="action-icon">↻</span><span class="hide-sm"> New world</span>
-      </button>
-      <button class="subtle-btn" (click)="cycleSpeed()" title="Change simulation speed">
+      </ds-button>
+      <ds-button variant="subtle" (click)="cycleSpeed()" title="Change simulation speed">
         {{ speed() }}×
-      </button>
-      <button class="pause-btn" [class.is-paused]="paused()" (click)="togglePause()">
+      </ds-button>
+      <ds-button variant="primary" class="pause-btn" [class.is-paused]="paused()" (click)="togglePause()">
         {{ paused() ? '▶ Resume' : 'Ⅱ Pause' }}
-      </button>
+      </ds-button>
     </div>
   </header>
 

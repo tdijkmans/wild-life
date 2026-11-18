@@ -1,13 +1,84 @@
 :host {
   display: inline-flex;
+  align-items: stretch;
 }
 
 .ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: var(--ds-button-height, 34px);
+  border-radius: var(--ds-button-radius, 7px);
   font: inherit;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     border-color 0.2s,
     background 0.2s,
     color 0.2s,
     transform 0.2s;
+}
+
+.ds-button--subtle,
+.ds-button--icon {
+  background: var(--ds-button-bg, var(--wl-surface-button));
+  border: 1px solid var(--ds-button-border, rgba(173, 205, 198, 0.14));
+  color: var(--ds-button-color, #d5e6df);
+}
+
+.ds-button--subtle {
+  padding: 0 var(--ds-button-padding-x, 14px);
+}
+
+.ds-button--icon {
+  width: var(--ds-button-height, 34px);
+  padding: 0;
+  font-size: var(--ds-button-icon-size, 16px);
+  color: var(--ds-button-icon-color, #9db5b5);
+}
+
+.ds-button--subtle:hover:not(:disabled),
+.ds-button--icon:hover:not(:disabled) {
+  background: var(--ds-button-hover-bg, var(--ds-button-bg, var(--wl-surface-button)));
+  border-color: var(--ds-button-hover-border, rgba(143, 239, 213, 0.5));
+}
+
+.ds-button--primary {
+  padding: 0 var(--ds-button-padding-x, 17px);
+  border: 1px solid var(--ds-button-primary-bg, #abf2cf);
+  background: var(--ds-button-primary-bg, #abf2cf);
+  color: var(--ds-button-primary-color, #0c2524);
+  font-weight: 700;
+}
+
+.ds-button--segmented {
+  height: auto;
+  border: 0;
+  border-radius: 5px;
+  padding: var(--ds-segmented-padding, 7px 11px);
+  background: transparent;
+  color: var(--ds-segmented-color, #78938f);
+  font-size: var(--ds-segmented-size, 11px);
+}
+
+.ds-button--segmented[aria-pressed='true'] {
+  background: var(--ds-segmented-active-bg, #23403e);
+  color: var(--ds-segmented-active-color, #c6f8e8);
+}
+
+.ds-button:focus-visible {
+  outline: 2px solid var(--wl-accent-mint);
+  outline-offset: 2px;
+}
+
+.ds-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-button {
+    transition: none;
+  }
 }

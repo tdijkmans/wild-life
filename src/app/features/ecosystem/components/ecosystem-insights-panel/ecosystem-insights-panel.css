@@ -4,8 +4,8 @@
 
 .insights-panel {
   background: #101d22;
-  border: 1px solid rgba(168, 204, 192, 0.13);
-  border-radius: 12px;
+  border: 1px solid var(--wl-border-subtle);
+  border-radius: var(--wl-panel-radius);
   padding: 23px 25px 16px;
   min-width: 0;
   display: flex;
@@ -14,8 +14,7 @@
 
 .insights-heading {
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   letter-spacing: 1.6px;
   color: #9db1af;
   display: flex;
@@ -46,7 +45,7 @@
 
 .panel-title {
   margin-top: 27px;
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-size: 27px;
   font-weight: 600;
   line-height: 1.3;
@@ -66,7 +65,7 @@
 }
 
 .stat-row {
-  border-top: 1px solid rgba(168, 204, 192, 0.13);
+  border-top: 1px solid var(--wl-border-subtle);
   padding: 17px 0 14px;
   display: flex;
   justify-content: space-between;
@@ -99,14 +98,13 @@
 
 .stat-name {
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   letter-spacing: 1.4px;
   color: #9ebbb3;
 }
 
 .stat-value {
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-size: 39px;
   line-height: 1.1;
   letter-spacing: -1.4px;
@@ -122,8 +120,7 @@
 
 .stat-description {
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   color: #77928d;
   margin-top: 6px;
 }
@@ -139,11 +136,10 @@
 .metrics-header {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid rgba(168, 204, 192, 0.13);
+  border-top: 1px solid var(--wl-border-subtle);
   padding: 19px 0 13px;
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   letter-spacing: 1.4px;
   color: #afc5bc;
 }
@@ -157,7 +153,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1px;
-  background: rgba(168, 204, 192, 0.13);
+  background: var(--wl-border-subtle);
   border-radius: 7px;
   overflow: hidden;
 }
@@ -170,8 +166,7 @@
 
 .metric-label {
   font:
-    8px 'DM Mono',
-    monospace;
+    8px var(--wl-font-mono);
   letter-spacing: 0.5px;
   color: #799f98;
   display: block;
@@ -181,7 +176,7 @@
 .metric strong {
   display: block;
   font-size: 24px;
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-weight: 600;
   margin: 8px 0 7px;
   letter-spacing: -0.5px;
@@ -197,8 +192,7 @@
 
 .metric-caption {
   font:
-    8px 'DM Mono',
-    monospace;
+    8px var(--wl-font-mono);
   color: #627f7a;
   letter-spacing: 0.5px;
 }
@@ -238,14 +232,13 @@
 
 .facts span {
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   letter-spacing: 0.55px;
   color: #8aa6a0;
 }
 
 .facts strong {
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-size: 13px;
   font-weight: 600;
   color: #e5f4ec;
@@ -260,13 +253,12 @@
 
 .field-log {
   margin-top: 20px;
-  border-top: 1px solid rgba(168, 204, 192, 0.13);
+  border-top: 1px solid var(--wl-border-subtle);
 }
 
 .log-heading {
   font:
-    9px 'DM Mono',
-    monospace;
+    9px var(--wl-font-mono);
   color: #b2c9c0;
   letter-spacing: 1.25px;
   display: flex;
@@ -302,8 +294,7 @@
 
 .log-date {
   font:
-    8px 'DM Mono',
-    monospace;
+    8px var(--wl-font-mono);
   color: #81a59a;
   letter-spacing: 0.7px;
 }
@@ -317,11 +308,10 @@
 
 .insights-footer {
   font:
-    8px 'DM Mono',
-    monospace;
+    8px var(--wl-font-mono);
   letter-spacing: 0.5px;
   color: #68837c;
-  border-top: 1px solid rgba(168, 204, 192, 0.13);
+  border-top: 1px solid var(--wl-border-subtle);
   display: flex;
   justify-content: space-between;
   padding-top: 14px;

@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100dvh;
-  background: #071116;
-  color: #e8f4ed;
-  font-family: 'DM Sans', sans-serif;
+  background: var(--wl-bg);
+  color: var(--wl-home-text);
+  font-family: var(--wl-font-body);
 }
 .wl-home {
   max-width: 1700px;

@@ -5,12 +5,12 @@
       <h2>Population dynamics</h2>
     </div>
     <div class="timeline-controls">
-      <button [class.active]="chartMode() === 'population'" (click)="setChartMode('population')">
+      <ds-button variant="segmented" [pressed]="chartMode() === 'population'" (click)="setChartMode('population')">
         Population
-      </button>
-      <button [class.active]="chartMode() === 'traits'" (click)="setChartMode('traits')">
+      </ds-button>
+      <ds-button variant="segmented" [pressed]="chartMode() === 'traits'" (click)="setChartMode('traits')">
         Traits
-      </button>
+      </ds-button>
     </div>
   </div>
   <div class="chart-legend">

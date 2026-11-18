@@ -1,15 +1,28 @@
 /* WILD LIFE global styles */
 :root {
   color-scheme: dark;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  /* WILD LIFE semantic design tokens: shared across features. */
+  --wl-bg: #071116;
+  --wl-text: #e5f4ed;
+  --wl-home-text: #e8f4ed;
+  --wl-accent-mint: #8af2d8;
+  --wl-accent-coral: #f9aa79;
+  --wl-live: #90f0bd;
+  --wl-border-subtle: rgba(168, 204, 192, 0.13);
+  --wl-surface-button: #102027;
+  --wl-panel-radius: 12px;
+  --wl-font-body: 'DM Sans', sans-serif;
+  --wl-font-display: Manrope, sans-serif;
+  --wl-font-mono: 'DM Mono', monospace;
+  font-family: var(--wl-font-body);
 }
 
 html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #071116;
-  color: #e5f4ed;
+  background: var(--wl-bg);
+  color: var(--wl-text);
 }
 
 *,
