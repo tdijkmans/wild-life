@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild, input } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+  input,
+} from '@angular/core';
 import { DsEyebrowComponent } from '../../../../shared/design-system/eyebrow/eyebrow';
 
 @Component({

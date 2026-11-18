@@ -19,6 +19,6 @@ The GitHub Actions workflow runs these commands on pull requests and pushes to `
 - `npm run bundle:report` produces `reports/bundle.json` plus a human-readable CI summary of built JS/CSS sizes (raw and gzip).
 - Angular already enforces initial and component CSS size budgets in `angular.json`. The snapshot is observational, not a second arbitrary size limit.
 
-**Lockfile bootstrap:** In the first CI run, the workflow resolves the newly added ESLint dependencies and uploads `npm-lockfile-candidate`. Commit that generated `package-lock.json`, then remove the temporary `npm install --package-lock-only` step so every future CI job uses `npm ci` on the committed lockfile only.
+The ESLint dependency graph is locked in the committed `package-lock.json`; CI uses only `npm ci` and never mutates dependencies.
 
 CI is a quality gate; to _require_ it before merges, configure the branch ruleset for `main` to require the workflow's check once it is green.
