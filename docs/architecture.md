@@ -13,6 +13,14 @@ src/app/
   features/
     home/
       home.ts / home.html / home.css
+    murmuration/
+      murmuration.ts
+      domain/murmuration-world.ts
+      rendering/murmuration-renderer.ts
+    defensive-herd/
+      defensive-herd.ts
+      domain/defensive-herd-world.ts
+      rendering/defensive-herd-renderer.ts
     ecosystem/
       ecosystem.ts / ecosystem.html / ecosystem.css
       README.md
@@ -41,6 +49,11 @@ src/app/
       simulation-runner.ts
       frame-throttle.ts
       preview-metrics.ts
+      seeded-random.ts
+      spatial-grid.ts
+    world-experience/
+      world-protocol.ts
+      world-experience.ts / world-experience.html / world-experience.css
 e2e/
   ecosystem.spec.ts
 ```
@@ -58,8 +71,10 @@ Scoped `AGENTS.md` files live alongside the components they govern.
 4. **Feature page** composes `ExperimentSession`, `SimulationRunner`,
    renderer, charts, controllers and display signals. Angular routes are
    lazy-loaded.
-5. **Shared** contains reusable scheduling and UI primitives, never imports
-   feature engines or components.
+5. **Shared** contains reusable scheduling, world-experience presentation
+   and UI primitives, never imports feature engines or components.
+   The shared world experience accepts a typed world/renderer adapter;
+   each world's domain owns its own behavior.
 6. **Simulation catalogue** owns world metadata, lazy route loaders and
    featured preview definitions. Both `app.routes.ts` and Home derive from
    `SIMULATIONS`.
@@ -84,6 +99,15 @@ before it replaces the active experiment.
 The feature-owned homepage preview uses the same runner with its own
 world. `FrameThrottle` limits **drawing** to 30 fps; the domain's fixed
 timestep remains independent of display refresh.
+
+Murmuration and Defensive Herd each use their own deterministic engine
+and Canvas renderer. Both use `shared/world-experience/` to provide
+consistent Aquarium, gentle pointer tools, keyboard shortcuts, pause,
+speed, seed reset, statistics and history. They do **not** yet implement
+the versioned JSON experiment replay protocol of Predator–Prey Evolution;
+their seeds and unit tests make their model runs reproducible.
+
+See `docs/new-worlds.md` for model assumptions and validation boundaries.
 
 See `docs/experiments.md`, `docs/performance.md` and
 `docs/biological-regression-tests.md` for invariants and limits.

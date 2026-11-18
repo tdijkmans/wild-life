@@ -1,6 +1,7 @@
 import {
   featuredSimulation,
   simulationRoutes,
+  SIMULATIONS,
   type SimulationDefinition,
 } from './simulation-catalog';
 
@@ -44,6 +45,17 @@ describe('Simulation catalog registration', () => {
     const definitions = [example('first', '/first'), example('selected', '/selected', true)];
     expect(featuredSimulation(definitions).id).toBe('selected');
     expect(featuredSimulation([example('fallback', '/fallback')]).id).toBe('fallback');
+  });
+
+  it('registers three distinct living worlds with independent lazy routes', () => {
+    const registered = SIMULATIONS.map((world) => ({ id: world.id, path: world.path }));
+    expect(registered).toEqual([
+      { id: 'ecosystem', path: '/ecosystem' },
+      { id: 'murmuration', path: '/murmuration' },
+      { id: 'defensive-herd', path: '/defensive-herd' },
+    ]);
+    expect(simulationRoutes(SIMULATIONS)).toHaveLength(3);
+    expect(SIMULATIONS.filter((world) => world.featured)).toHaveLength(1);
   });
 
   it('requires a world and disallows multiple featured worlds', () => {

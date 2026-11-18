@@ -1,0 +1,207 @@
+<div
+  class="experience"
+  [class.sky]="definition().theme === 'sky'"
+  [class.tundra]="definition().theme === 'tundra'"
+>
+  <header class="experience-header">
+    <a routerLink="/" class="brand" aria-label="WILD LIFE home">
+      <span class="brand-orbit" aria-hidden="true">✳</span>
+      WILD<span>LIFE</span><b>.</b>
+    </a>
+    <div class="header-meta">
+      <span>EXPERIMENT {{ definition().number }}</span>
+      <span class="header-separator">/</span>
+      <span>THE LIVING COLLECTION</span>
+    </div>
+    <ds-button variant="subtle" ariaLabel="Open fullscreen aquarium" (click)="toggleAquarium()"
+      >⛶ <span class="full-label">Aquarium mode</span></ds-button
+    >
+  </header>
+
+  <section class="opening" aria-label="World introduction">
+    <div>
+      <p class="eyebrow">
+        <span class="live-dot"></span> AN AUTONOMOUS WORLD / OBSERVE · INFLUENCE · DISCOVER
+      </p>
+      <h1>{{ definition().name }}<span class="punctuation">.</span></h1>
+      <p class="tagline">{{ definition().tagline }}</p>
+      <p class="description">{{ definition().description }}</p>
+    </div>
+    <div class="opening-number" aria-hidden="true">{{ definition().number }}</div>
+  </section>
+
+  <main>
+    <section
+      #stage
+      class="stage"
+      [class.aquarium]="aquarium()"
+      [class.chrome-hidden]="aquarium() && !hudVisible()"
+      [attr.aria-label]="definition().name + ' simulation'"
+      (pointermove)="wakeHud()"
+    >
+      <canvas
+        #worldCanvas
+        class="world-canvas"
+        aria-label="Interactive living world"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointercancel)="onPointerUp($event)"
+        (pointerleave)="onPointerLeave()"
+      ></canvas>
+      <div class="stage-vignette" aria-hidden="true"></div>
+      @if (cursor() && (!aquarium() || interactionEnabled())) {
+        <div
+          class="brush-indicator"
+          aria-hidden="true"
+          [style.left.%]="cursor()!.x"
+          [style.top.%]="cursor()!.y"
+        ></div>
+      }
+      <div class="stage-top scene-chrome">
+        <span class="scene-number"
+          ><i class="live-dot"></i> WORLD {{ definition().number }} — LIVE</span
+        >
+        <span class="scene-slogan">AUTONOMOUS BEHAVIOR / NO SCRIPTED FORMATIONS</span>
+        @if (aquarium()) {
+          <div class="aquarium-actions">
+            <ds-button
+              variant="subtle"
+              ariaLabel="Toggle aquarium interaction"
+              [pressed]="interactionEnabled()"
+              (click)="toggleAquariumInteraction()"
+              >{{ interactionEnabled() ? '✳ Interacting' : '◎ Observe only' }}</ds-button
+            >
+            <ds-button variant="subtle" ariaLabel="Exit aquarium" (click)="leaveAquarium()">
+              ✕ Exit
+            </ds-button>
+          </div>
+        }
+      </div>
+      <div class="scene-bottom scene-chrome">
+        <div class="scene-caption">
+          <span class="scene-kicker">{{
+            definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS'
+          }}</span>
+          <strong>{{ definition().tagline }}</strong>
+        </div>
+        <span class="scene-coordinates"
+          >SEED {{ seed() }} <i></i> {{ paused() ? 'PAUSED' : speed() + '× LIVE' }}</span
+        >
+      </div>
+    </section>
+
+    <div class="lab-grid">
+      <section class="lab-surface" aria-label="World controls">
+        <div class="surface-head">
+          <span class="eyebrow">01 / ENVIRONMENT</span>
+          <span>GENTLE INTERVENTIONS</span>
+        </div>
+        <h2>Change the conditions<span>.</span></h2>
+        <p>
+          Nothing here commands an individual creature. Influence the environment and watch how life
+          responds.
+        </p>
+        <div class="tool-grid" role="group" aria-label="Environmental tools">
+          @for (tool of definition().tools; track tool.id; let index = $index) {
+            <button
+              class="tool"
+              [class.selected]="selectedTool() === tool.id"
+              [attr.aria-pressed]="selectedTool() === tool.id"
+              [attr.aria-label]="tool.title"
+              (click)="chooseTool(tool.id)"
+            >
+              <span class="tool-symbol" aria-hidden="true">{{ tool.symbol }}</span>
+              <span class="tool-title">{{ tool.title }}</span>
+              <span class="tool-shortcut">{{ index + 1 }}</span>
+              <small>{{ tool.description }}</small>
+            </button>
+          }
+        </div>
+        <div class="lab-actions">
+          <ds-button
+            variant="primary"
+            ariaLabel="Pause or resume simulation"
+            (click)="togglePause()"
+          >
+            {{ paused() ? '▶ Resume' : 'Ⅱ Pause' }}
+          </ds-button>
+          <ds-button variant="subtle" ariaLabel="Change simulation speed" (click)="cycleSpeed()">
+            {{ speed() }}× Speed
+          </ds-button>
+          <label class="seed-field">
+            Seed
+            <input
+              type="number"
+              min="0"
+              max="4294967295"
+              step="1"
+              [value]="seedInput()"
+              (input)="updateSeed($event)"
+            />
+          </label>
+          <ds-button variant="subtle" ariaLabel="Restart from seed" (click)="restartWithSeed()">
+            ↻ Restart
+          </ds-button>
+          <ds-button variant="subtle" ariaLabel="Start new variation" (click)="newVariation()">
+            ✳ New variation
+          </ds-button>
+        </div>
+        <p class="interaction-feedback" role="status">
+          {{ status() || activeTool()?.description }}
+        </p>
+      </section>
+
+      <section class="lab-surface data-surface" aria-label="World observations">
+        <div class="surface-head">
+          <span class="eyebrow">02 / OBSERVATION</span>
+          <span>LIVE BIOLOGICAL SIGNALS</span>
+        </div>
+        <h2>What is emerging<span>?</span></h2>
+        <div class="metric-grid">
+          @for (metric of metrics(); track metric.label) {
+            <div class="metric" [class]="'metric metric-' + metric.tone">
+              <span>{{ metric.label }}</span>
+              <strong>{{ metric.value }}</strong>
+              <small>{{ metric.note }}</small>
+            </div>
+          }
+        </div>
+        <div class="history-section">
+          <div class="history-title">
+            <span>POPULATION / GROUP DYNAMICS</span>
+            <span class="line-labels"
+              >● {{ definition().primaryHistoryLabel }} / ●
+              {{ definition().secondaryHistoryLabel }}</span
+            >
+          </div>
+          <canvas
+            #historyCanvas
+            class="history-canvas"
+            aria-label="Recent simulation history"
+          ></canvas>
+        </div>
+      </section>
+    </div>
+    <section class="mechanisms" aria-label="How the world works">
+      <div class="mechanisms-heading">
+        <p class="eyebrow">03 / UNDER THE SURFACE</p>
+        <h2>Simple rules. <em>Unscripted outcomes.</em></h2>
+      </div>
+      <div class="mechanisms-grid">
+        @for (principle of definition().principles; track principle; let i = $index) {
+          <div class="mechanism">
+            <span>0{{ i + 1 }}</span>
+            <p>{{ principle }}</p>
+          </div>
+        }
+      </div>
+      <p class="scientific-note">{{ definition().scientificNote }}</p>
+    </section>
+  </main>
+
+  <footer class="experience-footer">
+    <span>WILD LIFE ✳ ARTIFICIAL WORLDS. REAL EMERGENCE.</span>
+    <a routerLink="/">← Back to the collection</a>
+  </footer>
+</div>

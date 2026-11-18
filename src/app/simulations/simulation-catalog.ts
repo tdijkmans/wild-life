@@ -40,6 +40,28 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
         ),
     },
   },
+  {
+    id: 'murmuration',
+    number: '002',
+    name: 'Murmuration',
+    description:
+      'Hundreds of autonomous starlings create flowing formations in a living sky. Influence them with breeze, thermals and stillness.',
+    path: '/murmuration',
+    tags: ['Flocking', 'Collective behavior', 'Air currents'],
+    loadComponent: () =>
+      import('../features/murmuration/murmuration').then((m) => m.MurmurationComponent),
+  },
+  {
+    id: 'defensive-herd',
+    number: '003',
+    name: 'Defensive Herd',
+    description:
+      'Witness a herd gather around its young as predators approach. Encourage protection with pasture, scent and soft wind.',
+    path: '/defensive-herd',
+    tags: ['Emergence', 'Group defense', 'Ecology'],
+    loadComponent: () =>
+      import('../features/defensive-herd/defensive-herd').then((m) => m.DefensiveHerdComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */
