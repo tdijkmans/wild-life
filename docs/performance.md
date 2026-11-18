@@ -43,3 +43,11 @@ on actual hardware.
 The CI benchmark measures engine throughput, not canvas rendering. Hosted
 runner timings vary; compare medians across repeated runs and use Chrome
 Performance profiling for end-to-end browser metrics.
+
+## First CI benchmark baseline
+
+GitHub Actions [run 44314635770](https://github.com/tdijkmans/wild-life/actions/runs/44314635770)
+measured a median **114.65 ms for 600 engine steps**, equivalent to approximately
+**5,233 simulation steps/s**, over five seeded runs. The scenario begins with
+120 prey and 12 predators. This is a reference measurement on shared CI
+hardware, not proof of a CPU improvement. The biological engine is unchanged.
