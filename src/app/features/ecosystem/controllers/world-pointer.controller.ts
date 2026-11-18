@@ -52,10 +52,7 @@ export class WorldPointerController {
     event.preventDefault();
     if (!this.context.canInteract()) return;
     const viewport = this.context.getViewport();
-    viewport.zoom = Math.max(
-      1,
-      Math.min(2.8, viewport.zoom * (event.deltaY > 0 ? 0.92 : 1.08)),
-    );
+    viewport.zoom = Math.max(1, Math.min(2.8, viewport.zoom * (event.deltaY > 0 ? 0.92 : 1.08)));
     this.context.onZoom(viewport.zoom);
   }
 
