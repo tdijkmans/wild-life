@@ -223,8 +223,7 @@ describe('SimulationRunner', () => {
   it('does not reschedule after its frame callback stops the runner', () => {
     const clock = new FakeClock();
     const world = new TestWorld();
-    let runner: SimulationRunner<TestWorld>;
-    runner = createRunner(clock, world, () => runner.stop());
+    const runner = createRunner(clock, world, () => runner.stop());
     runner.start();
     clock.advance(0);
     expect(clock.pending.size).toBe(0);
