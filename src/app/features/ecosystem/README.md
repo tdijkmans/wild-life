@@ -15,3 +15,10 @@ Aquarium mode offers fullscreen Zen, Glance, and Discover views with individuall
 - `ecosystem.ts/html/css`: route-level Angular page composing the feature
 
 The ecosystem's component styles remain in `ecosystem.css`; Angular's existing component-style budgets still apply.
+
+## Simulation lifecycle
+
+The shared `SimulationRunner` under `src/app/shared/simulation/` owns requestAnimationFrame,
+fixed-time integration, pause, speed, visibility handling and cleanup. The route page retains
+UI-specific timers (chart refresh and pointer tools); it does not advance the engine itself.
+Both the landing-page preview and the full world now use the same runner.

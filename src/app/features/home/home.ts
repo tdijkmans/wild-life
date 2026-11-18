@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } fr
 import { RouterLink } from '@angular/router';
 import { WorldEngine } from '../ecosystem/domain/engine';
 import { WorldRenderer } from '../ecosystem/rendering/renderer';
+import { SimulationRunner } from '../../shared/simulation/simulation-runner';
 import { SIMULATIONS } from './simulation-catalog';
 import { DsEyebrowComponent } from '../../shared/design-system/eyebrow/eyebrow';
 
@@ -20,9 +21,19 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   private readonly world = new WorldEngine(20261118, 120, 12);
   private renderer?: WorldRenderer;
   private observer?: ResizeObserver;
-  private frameId = 0;
-  private previousTime = 0;
-  private accumulated = 0;
+  private readonly runner = new SimulationRunner(this.world, {
+    maxFrameSeconds: 0.09,
+    maxStepsPerFrame: 6,
+    maxAccumulatedSeconds: 0.28,
+    isActive: () => !document.hidden,
+    onFrame: ({ nowMs }) => {
+      this.renderer?.render(nowMs);
+      if (nowMs - this.lastRead >= 600) {
+        this.updateCounters();
+        this.lastRead = nowMs;
+      }
+    },
+  });
   private lastRead = 0;
 
   ngAfterViewInit(): void {
@@ -31,11 +42,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     this.observer.observe(this.previewCanvas.nativeElement);
     this.renderer.resize();
     this.updateCounters();
-    this.frameId = requestAnimationFrame(this.frame);
+    this.runner.start();
   }
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.frameId);
+    this.runner.stop();
     this.observer?.disconnect();
   }
 
@@ -43,24 +54,4 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     const { prey, predators } = this.world.stats();
     this.previewCounts.set({ prey, predators });
   }
-
-  private readonly frame = (time: number): void => {
-    if (!document.hidden && this.renderer) {
-      const dt = this.previousTime ? Math.min((time - this.previousTime) / 1000, 0.09) : 0;
-      this.accumulated += dt;
-      let steps = 0;
-      while (this.accumulated >= 1 / 60 && steps < 6) {
-        this.world.step(1 / 60);
-        this.accumulated -= 1 / 60;
-        steps++;
-      }
-      this.renderer.render(time);
-      if (time - this.lastRead > 600) {
-        this.updateCounters();
-        this.lastRead = time;
-      }
-    }
-    this.previousTime = time;
-    this.frameId = requestAnimationFrame(this.frame);
-  };
 }
