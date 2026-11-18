@@ -21,4 +21,4 @@ The GitHub Actions workflow runs these commands on pull requests and pushes to `
 
 **Lockfile bootstrap:** In the first CI run, the workflow resolves the newly added ESLint dependencies and uploads `npm-lockfile-candidate`. Commit that generated `package-lock.json`, then remove the temporary `npm install --package-lock-only` step so every future CI job uses `npm ci` on the committed lockfile only.
 
-CI is a quality gate; to *require* it before merges, configure the branch ruleset for `main` to require the workflow's check once it is green.
+CI is a quality gate; to _require_ it before merges, configure the branch ruleset for `main` to require the workflow's check once it is green.
