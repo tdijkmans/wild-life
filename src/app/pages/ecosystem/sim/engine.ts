@@ -258,8 +258,8 @@ export class WorldEngine {
   private addOrganism(species: Species, parent?: Organism) {
     const p = parent
       ? {
-          x: clamp(parent.x + this.random.between(-16, 16), 4, W - 4),
-          y: clamp(parent.y + this.random.between(-16, 16), 4, H - 4),
+          x: clamp(parent.x + this.random.between(-16, 16), 8, W - 8),
+          y: clamp(parent.y + this.random.between(-16, 16), 8, H - 8),
         }
       : this.randomPoint();
     const angle = this.random.between(0, Math.PI * 2);
