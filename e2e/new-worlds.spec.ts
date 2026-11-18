@@ -25,9 +25,7 @@ for (const world of newWorlds) {
     expect(runtimeErrors).toEqual([]);
   });
 
-  test(`${world.title}: pause, speed, seeded restart and immersive Aquarium`, async ({
-    page,
-  }) => {
+  test(`${world.title}: pause, speed, seeded restart and immersive Aquarium`, async ({ page }) => {
     await page.goto(world.path);
     await page.getByRole('button', { name: 'Pause or resume simulation' }).click();
     await expect(page.getByRole('button', { name: 'Pause or resume simulation' })).toContainText(
@@ -35,9 +33,7 @@ for (const world of newWorlds) {
     );
     await page.getByRole('button', { name: 'Pause or resume simulation' }).click();
     await page.getByRole('button', { name: 'Change simulation speed' }).click();
-    await expect(page.getByRole('button', { name: 'Change simulation speed' })).toContainText(
-      '2×',
-    );
+    await expect(page.getByRole('button', { name: 'Change simulation speed' })).toContainText('2×');
     await page.getByLabel('Seed', { exact: true }).fill('48502');
     await page.getByRole('button', { name: 'Restart from seed' }).click();
     await expect(page.getByRole('status')).toContainText('seed 48502');
@@ -45,9 +41,10 @@ for (const world of newWorlds) {
     await page.getByRole('button', { name: 'Open fullscreen aquarium' }).click();
     await expect(page.locator('.stage.aquarium')).toBeVisible();
     await page.getByRole('button', { name: 'Toggle aquarium interaction' }).click();
-    await expect(
-      page.getByRole('button', { name: 'Toggle aquarium interaction' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: 'Toggle aquarium interaction' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await page.getByRole('button', { name: 'Exit aquarium' }).click();
     await expect(page.locator('.stage.aquarium')).toHaveCount(0);
   });

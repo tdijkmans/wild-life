@@ -3,11 +3,7 @@ import type {
   InteractiveWorld,
   WorldCanvasRenderer,
 } from '../../../shared/world-experience/world-protocol';
-import {
-  DefensiveHerdWorld,
-  type HerdAnimal,
-  type Wolf,
-} from '../domain/defensive-herd-world';
+import { DefensiveHerdWorld, type HerdAnimal, type Wolf } from '../domain/defensive-herd-world';
 
 interface GroundDetail {
   x: number;
@@ -21,7 +17,10 @@ export class DefensiveHerdRenderer implements WorldCanvasRenderer {
   private world: DefensiveHerdWorld;
   private readonly ground: GroundDetail[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: DefensiveHerdWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: DefensiveHerdWorld,
+  ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Defensive Herd requires a 2D Canvas context');
     this.ctx = ctx;
@@ -108,7 +107,12 @@ export class DefensiveHerdRenderer implements WorldCanvasRenderer {
 
     for (const pasture of this.world.pastures) {
       const gradient = ctx.createRadialGradient(
-        pasture.x, pasture.y, 5, pasture.x, pasture.y, pasture.radius,
+        pasture.x,
+        pasture.y,
+        5,
+        pasture.x,
+        pasture.y,
+        pasture.radius,
       );
       gradient.addColorStop(0, `rgba(110,181,126,${0.15 + pasture.food * 0.17})`);
       gradient.addColorStop(0.57, `rgba(94,155,106,${pasture.food * 0.045})`);

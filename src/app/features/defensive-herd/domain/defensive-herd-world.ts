@@ -144,7 +144,8 @@ export class DefensiveHerdWorld implements InteractiveWorld {
       x > this.width ||
       y < 0 ||
       y > this.height
-    ) return;
+    )
+      return;
 
     if (kind === 'pasture') {
       const nearby = this.pastures.find((patch) => Math.hypot(patch.x - x, patch.y - y) < 68);
@@ -400,8 +401,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
       const protectedCalf = target.kind === 'calf' && this.blocksAttack(wolf, target);
       const threat = this.herd.filter(
         (animal) =>
-          animal.kind === 'adult' &&
-          Math.hypot(animal.x - wolf.x, animal.y - wolf.y) < 56,
+          animal.kind === 'adult' && Math.hypot(animal.x - wolf.x, animal.y - wolf.y) < 56,
       ).length;
       let ax = ((target.x - wolf.x) / Math.max(1, actual)) * (wolf.cooldown ? 15 : 68);
       let ay = ((target.y - wolf.y) / Math.max(1, actual)) * (wolf.cooldown ? 15 : 68);
@@ -459,7 +459,11 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     const parents = adults.filter((animal) => animal.energy > 0.8);
     if (!parents.length) return;
     const parent = parents[this.random.integer(0, parents.length)];
-    this.addAnimal('calf', parent.x + this.random.range(-15, 15), parent.y + this.random.range(-15, 15));
+    this.addAnimal(
+      'calf',
+      parent.x + this.random.range(-15, 15),
+      parent.y + this.random.range(-15, 15),
+    );
     this.births++;
     parent.energy *= 0.78;
   }
@@ -496,7 +500,12 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     return [
       { label: 'GUARDIANS', value: String(adults), note: 'adult grazers', tone: 'mint' },
       { label: 'YOUNG', value: String(calves), note: 'protected calves', tone: 'gold' },
-      { label: 'RING', value: `${this.ringCoverage}%`, note: 'outward-facing sectors', tone: 'blue' },
+      {
+        label: 'RING',
+        value: `${this.ringCoverage}%`,
+        note: 'outward-facing sectors',
+        tone: 'blue',
+      },
       { label: 'LOSSES', value: String(this.losses), note: 'predation events', tone: 'coral' },
     ];
   }

@@ -1,6 +1,10 @@
 import { SeededRandom } from '../../../shared/simulation/seeded-random';
 import { SpatialGrid } from '../../../shared/simulation/spatial-grid';
-import type { InteractiveWorld, WorldHistoryPoint, WorldMetric } from '../../../shared/world-experience/world-protocol';
+import type {
+  InteractiveWorld,
+  WorldHistoryPoint,
+  WorldMetric,
+} from '../../../shared/world-experience/world-protocol';
 
 export const MURMURATION_WIDTH = 1200;
 export const MURMURATION_HEIGHT = 720;
@@ -197,7 +201,7 @@ export class MurmurationWorld implements InteractiveWorld {
       const ry = bird.y - this.raptor.y;
       const r2 = rx * rx + ry * ry;
       if (r2 < 185 * 185 && r2 > 1) {
-        const factor = (1 - Math.sqrt(r2) / 185) * 280 / Math.sqrt(r2);
+        const factor = ((1 - Math.sqrt(r2) / 185) * 280) / Math.sqrt(r2);
         ax += rx * factor;
         ay += ry * factor;
       }
@@ -308,7 +312,11 @@ export class MurmurationWorld implements InteractiveWorld {
       }
     }
     for (const baby of newborn) {
-      this.spawn(baby.x + this.random.range(-16, 16), baby.y + this.random.range(-16, 16), baby.parent);
+      this.spawn(
+        baby.x + this.random.range(-16, 16),
+        baby.y + this.random.range(-16, 16),
+        baby.parent,
+      );
       this.births++;
     }
   }
@@ -325,8 +333,18 @@ export class MurmurationWorld implements InteractiveWorld {
   metrics(): readonly WorldMetric[] {
     return [
       { label: 'STARLINGS', value: String(this.birds.length), note: 'living agents', tone: 'mint' },
-      { label: 'COHESION', value: `${Math.round(this.formation)}%`, note: 'dense neighbors', tone: 'blue' },
-      { label: 'NEIGHBORS', value: this.meanNeighbors.toFixed(1), note: 'average nearby', tone: 'gold' },
+      {
+        label: 'COHESION',
+        value: `${Math.round(this.formation)}%`,
+        note: 'dense neighbors',
+        tone: 'blue',
+      },
+      {
+        label: 'NEIGHBORS',
+        value: this.meanNeighbors.toFixed(1),
+        note: 'average nearby',
+        tone: 'gold',
+      },
       { label: 'NEW LIFE', value: String(this.births), note: 'born in flight', tone: 'coral' },
     ];
   }

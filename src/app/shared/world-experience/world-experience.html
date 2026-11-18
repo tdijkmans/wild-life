@@ -1,4 +1,8 @@
-<div class="experience" [class.sky]="definition().theme === 'sky'" [class.tundra]="definition().theme === 'tundra'">
+<div
+  class="experience"
+  [class.sky]="definition().theme === 'sky'"
+  [class.tundra]="definition().theme === 'tundra'"
+>
   <header class="experience-header">
     <a routerLink="/" class="brand" aria-label="WILD LIFE home">
       <span class="brand-orbit" aria-hidden="true">✳</span>
@@ -9,16 +13,16 @@
       <span class="header-separator">/</span>
       <span>THE LIVING COLLECTION</span>
     </div>
-    <ds-button
-      variant="subtle"
-      ariaLabel="Open fullscreen aquarium"
-      (click)="toggleAquarium()"
-    >⛶ <span class="full-label">Aquarium mode</span></ds-button>
+    <ds-button variant="subtle" ariaLabel="Open fullscreen aquarium" (click)="toggleAquarium()"
+      >⛶ <span class="full-label">Aquarium mode</span></ds-button
+    >
   </header>
 
   <section class="opening" aria-label="World introduction">
     <div>
-      <p class="eyebrow"><span class="live-dot"></span> AN AUTONOMOUS WORLD / OBSERVE · INFLUENCE · DISCOVER</p>
+      <p class="eyebrow">
+        <span class="live-dot"></span> AN AUTONOMOUS WORLD / OBSERVE · INFLUENCE · DISCOVER
+      </p>
       <h1>{{ definition().name }}<span class="punctuation">.</span></h1>
       <p class="tagline">{{ definition().tagline }}</p>
       <p class="description">{{ definition().description }}</p>
@@ -55,7 +59,9 @@
         ></div>
       }
       <div class="stage-top scene-chrome">
-        <span class="scene-number"><i class="live-dot"></i> WORLD {{ definition().number }} — LIVE</span>
+        <span class="scene-number"
+          ><i class="live-dot"></i> WORLD {{ definition().number }} — LIVE</span
+        >
         <span class="scene-slogan">AUTONOMOUS BEHAVIOR / NO SCRIPTED FORMATIONS</span>
         @if (aquarium()) {
           <div class="aquarium-actions">
@@ -64,7 +70,8 @@
               ariaLabel="Toggle aquarium interaction"
               [pressed]="interactionEnabled()"
               (click)="toggleAquariumInteraction()"
-            >{{ interactionEnabled() ? '✳ Interacting' : '◎ Observe only' }}</ds-button>
+              >{{ interactionEnabled() ? '✳ Interacting' : '◎ Observe only' }}</ds-button
+            >
             <ds-button variant="subtle" ariaLabel="Exit aquarium" (click)="leaveAquarium()">
               ✕ Exit
             </ds-button>
@@ -73,10 +80,14 @@
       </div>
       <div class="scene-bottom scene-chrome">
         <div class="scene-caption">
-          <span class="scene-kicker">{{ definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS' }}</span>
+          <span class="scene-kicker">{{
+            definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS'
+          }}</span>
           <strong>{{ definition().tagline }}</strong>
         </div>
-        <span class="scene-coordinates">SEED {{ seed() }} <i></i> {{ paused() ? 'PAUSED' : speed() + '× LIVE' }}</span>
+        <span class="scene-coordinates"
+          >SEED {{ seed() }} <i></i> {{ paused() ? 'PAUSED' : speed() + '× LIVE' }}</span
+        >
       </div>
     </section>
 
@@ -87,7 +98,10 @@
           <span>GENTLE INTERVENTIONS</span>
         </div>
         <h2>Change the conditions<span>.</span></h2>
-        <p>Nothing here commands an individual creature. Influence the environment and watch how life responds.</p>
+        <p>
+          Nothing here commands an individual creature. Influence the environment and watch how life
+          responds.
+        </p>
         <div class="tool-grid" role="group" aria-label="Environmental tools">
           @for (tool of definition().tools; track tool.id; let index = $index) {
             <button
@@ -105,7 +119,11 @@
           }
         </div>
         <div class="lab-actions">
-          <ds-button variant="primary" ariaLabel="Pause or resume simulation" (click)="togglePause()">
+          <ds-button
+            variant="primary"
+            ariaLabel="Pause or resume simulation"
+            (click)="togglePause()"
+          >
             {{ paused() ? '▶ Resume' : 'Ⅱ Pause' }}
           </ds-button>
           <ds-button variant="subtle" ariaLabel="Change simulation speed" (click)="cycleSpeed()">
@@ -129,7 +147,9 @@
             ✳ New variation
           </ds-button>
         </div>
-        <p class="interaction-feedback" role="status">{{ status() || activeTool()?.description }}</p>
+        <p class="interaction-feedback" role="status">
+          {{ status() || activeTool()?.description }}
+        </p>
       </section>
 
       <section class="lab-surface data-surface" aria-label="World observations">
@@ -150,9 +170,16 @@
         <div class="history-section">
           <div class="history-title">
             <span>POPULATION / GROUP DYNAMICS</span>
-            <span class="line-labels">● {{ definition().primaryHistoryLabel }} / ● {{ definition().secondaryHistoryLabel }}</span>
+            <span class="line-labels"
+              >● {{ definition().primaryHistoryLabel }} / ●
+              {{ definition().secondaryHistoryLabel }}</span
+            >
           </div>
-          <canvas #historyCanvas class="history-canvas" aria-label="Recent simulation history"></canvas>
+          <canvas
+            #historyCanvas
+            class="history-canvas"
+            aria-label="Recent simulation history"
+          ></canvas>
         </div>
       </section>
     </div>

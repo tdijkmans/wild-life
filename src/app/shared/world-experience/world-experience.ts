@@ -51,7 +51,8 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   readonly selectedTool = signal('');
   readonly cursor = signal<{ x: number; y: number } | null>(null);
   readonly activeTool = computed(
-    () => this.definition().tools.find((tool) => tool.id === this.selectedTool()) ??
+    () =>
+      this.definition().tools.find((tool) => tool.id === this.selectedTool()) ??
       this.definition().tools[0],
   );
 
@@ -290,7 +291,8 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
       !this.pointers.has(event.pointerId) ||
       this.paused() ||
       (this.aquarium() && !this.interactionEnabled())
-    ) return;
+    )
+      return;
     const last = this.lastPointer;
     if (!last) return;
     const distance = Math.hypot(point.x - last.x, point.y - last.y);

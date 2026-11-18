@@ -1,5 +1,8 @@
 import { SeededRandom } from '../../../shared/simulation/seeded-random';
-import type { InteractiveWorld, WorldCanvasRenderer } from '../../../shared/world-experience/world-protocol';
+import type {
+  InteractiveWorld,
+  WorldCanvasRenderer,
+} from '../../../shared/world-experience/world-protocol';
 import { MurmurationWorld, type Starling } from '../domain/murmuration-world';
 
 interface SkyParticle {
@@ -14,7 +17,10 @@ export class MurmurationRenderer implements WorldCanvasRenderer {
   private world: MurmurationWorld;
   private readonly particles: SkyParticle[] = [];
 
-  constructor(private readonly canvas: HTMLCanvasElement, world: MurmurationWorld) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    world: MurmurationWorld,
+  ) {
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Murmuration requires a 2D Canvas context');
     this.context = context;
@@ -103,7 +109,12 @@ export class MurmurationRenderer implements WorldCanvasRenderer {
 
     for (const field of this.world.fields) {
       const alpha = Math.min(1, field.remaining / 3) * 0.23;
-      const tint = field.kind === 'thermal' ? '247,178,130' : field.kind === 'wind' ? '158,220,246' : '181,229,209';
+      const tint =
+        field.kind === 'thermal'
+          ? '247,178,130'
+          : field.kind === 'wind'
+            ? '158,220,246'
+            : '181,229,209';
       const halo = ctx.createRadialGradient(field.x, field.y, 4, field.x, field.y, field.radius);
       halo.addColorStop(0, `rgba(${tint},${alpha})`);
       halo.addColorStop(0.6, `rgba(${tint},${alpha * 0.25})`);
