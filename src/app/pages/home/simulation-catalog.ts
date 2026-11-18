@@ -12,7 +12,8 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     id: 'ecosystem',
     number: '001',
     name: 'Predator–Prey Evolution',
-    description: 'A living ecosystem that feeds, hunts, reproduces and evolves. Alter its environment and watch what emerges.',
+    description:
+      'A living ecosystem that feeds, hunts, reproduces and evolves. Alter its environment and watch what emerges.',
     path: '/ecosystem',
     tags: ['Evolution', 'Natural selection', 'Interactive'],
   },

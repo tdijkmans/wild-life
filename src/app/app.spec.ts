@@ -10,6 +10,6 @@ describe('WILD LIFE catalogue and routes', () => {
   it('offers Predator–Prey Evolution as the first world', () => {
     expect(SIMULATIONS).toHaveLength(1);
     expect(SIMULATIONS[0].id).toBe('ecosystem');
-    expect(routes.some(route => route.path === 'ecosystem')).toBe(true);
+    expect(routes.some((route) => route.path === 'ecosystem')).toBe(true);
   });
 });

@@ -12,7 +12,8 @@ import { SIMULATIONS } from './simulation-catalog';
   styleUrl: './home.css',
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('previewCanvas', { static: true }) private previewCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('previewCanvas', { static: true })
+  private previewCanvas!: ElementRef<HTMLCanvasElement>;
   readonly simulations = SIMULATIONS;
   readonly previewCounts = signal({ prey: 0, predators: 0 });
   private readonly world = new WorldEngine(20261118, 120, 12);

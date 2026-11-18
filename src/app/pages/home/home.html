@@ -4,28 +4,44 @@
       <span class="wl-mark" aria-hidden="true"><i></i></span>
       WILD<span>LIFE</span><b>.</b>
     </a>
-    <span class="wl-header-meta"><i class="wl-dot"></i> LIVING LABORATORY <span class="wl-divider">/</span> EST. 2026</span>
+    <span class="wl-header-meta"
+      ><i class="wl-dot"></i> LIVING LABORATORY <span class="wl-divider">/</span> EST. 2026</span
+    >
   </header>
 
   <main>
     <section class="wl-hero">
       <div class="wl-intro">
         <div class="wl-eyebrow"><i></i> A COLLECTION OF LIVING EXPERIMENTS</div>
-        <h1>Small worlds.<br><span>Unexpected lives.</span></h1>
-        <p>Step into worlds where simple rules create extraordinary behavior. Watch life unfold, change its conditions, and discover what emerges.</p>
-        <a class="wl-cta" routerLink="/ecosystem">Explore the first world <span aria-hidden="true">↗</span></a>
-        <div class="wl-note"><i class="wl-dot"></i> ONE WORLD ACTIVE <span>—</span> THE COLLECTION WILL GROW</div>
+        <h1>Small worlds.<br /><span>Unexpected lives.</span></h1>
+        <p>
+          Step into worlds where simple rules create extraordinary behavior. Watch life unfold,
+          change its conditions, and discover what emerges.
+        </p>
+        <a class="wl-cta" routerLink="/ecosystem"
+          >Explore the first world <span aria-hidden="true">↗</span></a
+        >
+        <div class="wl-note">
+          <i class="wl-dot"></i> ONE WORLD ACTIVE <span>—</span> THE COLLECTION WILL GROW
+        </div>
       </div>
 
       <a class="wl-preview" routerLink="/ecosystem" aria-label="Launch Predator–Prey Evolution">
         <canvas #previewCanvas aria-hidden="true"></canvas>
         <div class="wl-preview-shade" aria-hidden="true"></div>
-        <div class="wl-preview-top"><span>WORLD 001</span><span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span></div>
+        <div class="wl-preview-top">
+          <span>WORLD 001</span><span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
+        </div>
         <div class="wl-preview-bottom">
           <h2>A living balance.</h2>
           <div class="wl-preview-counters">
-            <span><i class="wl-prey"></i> PREY <strong>{{ previewCounts().prey }}</strong></span>
-            <span><i class="wl-pred"></i> PREDATORS <strong>{{ previewCounts().predators }}</strong></span>
+            <span
+              ><i class="wl-prey"></i> PREY <strong>{{ previewCounts().prey }}</strong></span
+            >
+            <span
+              ><i class="wl-pred"></i> PREDATORS
+              <strong>{{ previewCounts().predators }}</strong></span
+            >
           </div>
         </div>
         <span class="wl-preview-arrow" aria-hidden="true">↗</span>
@@ -34,7 +50,10 @@
 
     <section class="wl-collection" aria-labelledby="wl-collection-heading">
       <div class="wl-collection-head">
-        <div><div class="wl-eyebrow"><i></i> CHOOSE YOUR EXPERIMENT</div><h2 id="wl-collection-heading">The worlds <span>collection.</span></h2></div>
+        <div>
+          <div class="wl-eyebrow"><i></i> CHOOSE YOUR EXPERIMENT</div>
+          <h2 id="wl-collection-heading">The worlds <span>collection.</span></h2>
+        </div>
         <span class="wl-count">01 / WORLD AVAILABLE</span>
       </div>
       <div class="wl-grid">
@@ -42,10 +61,16 @@
           <a class="wl-world-card" [routerLink]="simulation.path">
             <span class="wl-orbit" aria-hidden="true"><i></i></span>
             <div class="wl-world-content">
-              <div class="wl-card-kicker">EXPERIMENT {{ simulation.number }} <i class="wl-dot"></i> LIVE</div>
+              <div class="wl-card-kicker">
+                EXPERIMENT {{ simulation.number }} <i class="wl-dot"></i> LIVE
+              </div>
               <h3>{{ simulation.name }}</h3>
               <p>{{ simulation.description }}</p>
-              <div class="wl-tags">@for(tag of simulation.tags; track tag) { <span>{{ tag }}</span> }</div>
+              <div class="wl-tags">
+                @for (tag of simulation.tags; track tag) {
+                  <span>{{ tag }}</span>
+                }
+              </div>
             </div>
             <span class="wl-card-arrow" aria-hidden="true">↗</span>
           </a>
@@ -53,12 +78,18 @@
         <aside class="wl-upcoming" aria-label="More worlds coming in the future">
           <span class="wl-upcoming-symbol" aria-hidden="true">✳</span>
           <h3>More worlds are forming.</h3>
-          <p>Different rules, new environments, unexpected discoveries. The laboratory is just beginning.</p>
+          <p>
+            Different rules, new environments, unexpected discoveries. The laboratory is just
+            beginning.
+          </p>
           <span>NEW EXPERIMENTS / TO COME</span>
         </aside>
       </div>
     </section>
   </main>
 
-  <footer class="wl-footer"><span>WILD LIFE ✳ ARTIFICIAL WORLDS. REAL EMERGENCE.</span><span>WATCH CLOSELY. INTERVENE GENTLY.</span></footer>
+  <footer class="wl-footer">
+    <span>WILD LIFE ✳ ARTIFICIAL WORLDS. REAL EMERGENCE.</span
+    ><span>WATCH CLOSELY. INTERVENE GENTLY.</span>
+  </footer>
 </div>
