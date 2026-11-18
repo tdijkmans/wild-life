@@ -1,23 +1,15 @@
-import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { routes } from './app.routes';
+import { SIMULATIONS } from './pages/home/simulation-catalog';
 
-describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
+describe('WILD LIFE catalogue and routes', () => {
+  it('starts at the experiment catalogue', () => {
+    expect(routes[0].path).toBe('');
+    expect(routes[0].loadComponent).toBeDefined();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, wild-life');
+  it('offers Predator–Prey Evolution as the first world', () => {
+    expect(SIMULATIONS).toHaveLength(1);
+    expect(SIMULATIONS[0].id).toBe('ecosystem');
+    expect(routes.some((route) => route.path === 'ecosystem')).toBe(true);
   });
 });

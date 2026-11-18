@@ -1,0 +1,11 @@
+# Netlify builds the Angular app at the repository root.
+# The browser output is nested under the Angular project name.
+[build]
+  command = "npm run build"
+  publish = "dist/wild-life/browser"
+
+# Angular Router deep links such as /ecosystem must serve the SPA shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
