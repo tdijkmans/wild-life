@@ -8,7 +8,8 @@ Aquarium mode offers fullscreen Zen, Glance, and Discover views with individuall
 
 ## Architecture
 
-- `domain/engine.ts`: deterministic, Angular-independent agent-based ecological model
+- `domain/engine.ts`: deterministic, Angular-independent ecological model
+- `domain/experiment.ts`: recorded interventions, 60 Hz tick replay, JSON verification
 - `rendering/renderer.ts`: Canvas 2D world visualization (reads from the engine)
 - `rendering/charts.ts`: time-series and trait chart rendering
 - `components/`: feature-owned timeline and insights UI
@@ -21,6 +22,11 @@ The ecosystem's component styles remain in `ecosystem.css`; Angular's existing c
 ## Simulation lifecycle
 
 The shared `SimulationRunner` under `src/app/shared/simulation/` owns requestAnimationFrame,
-fixed-time integration, pause, speed, visibility handling and cleanup. The route page retains
-chart refresh and page orchestration. Pointer controls and fullscreen behavior live in feature-local controllers; the page does not advance the engine itself.
-Both the landing-page preview and the full world now use the same runner.
+fixed-time integration, pause, speed, visibility handling and cleanup.
+The full route passes `ExperimentSession` to the runner to record user
+interventions; the independent featured preview passes its own `WorldEngine`.
+The route page retains chart refresh and orchestration, while pointer tools
+and fullscreen behavior live in feature-local controllers.
+
+See `docs/experiments.md` for replay compatibility and `AGENTS.md` plus
+`domain/AGENTS.md` for change-specific coding guidance.

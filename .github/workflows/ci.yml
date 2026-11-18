@@ -29,6 +29,8 @@ jobs:
           cache: npm
       - name: Install pinned dependencies
         run: npm ci --no-audit --no-fund
+      - name: Agent guidance integrity
+        run: npm run agent:check
       - name: TypeScript check
         run: npm run typecheck
       - name: ESLint

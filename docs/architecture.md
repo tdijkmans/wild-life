@@ -1,84 +1,106 @@
 # WILD LIFE feature architecture
 
-The application is organized **by feature first**. Pages belong to their feature,
-rather than keeping an independent `pages/` tree that other features import from.
+WILD LIFE is an Angular 22 client-side SPA. Organize code **by feature**;
+keep simulation domains framework-independent. This document is the expanded
+architecture reference for the succinct [agent instructions](../AGENTS.md).
 
 ```text
 src/app/
   app.routes.ts
-  features/
-    home/
-      home.ts / home.html / home.css
-      home preview surface / featured hero
   simulations/
     simulation-catalog.ts
     simulation-catalog.spec.ts
+  features/
+    home/
+      home.ts / home.html / home.css
     ecosystem/
       ecosystem.ts / ecosystem.html / ecosystem.css
       README.md
       domain/
         engine.ts
-        engine.spec.ts
+        experiment.ts
         engine.regression.spec.ts
+        experiment.spec.ts
       rendering/
         renderer.ts
         charts.ts
-      components/
-        ecosystem-insights-panel/
-        ecosystem-timeline-card/
       controllers/
         aquarium.controller.ts
         world-pointer.controller.ts
+      components/
+        ecosystem-insights-panel/
+        ecosystem-timeline-card/
+      preview/
+        ecosystem-preview.ts / ecosystem-preview.css
   shared/
     design-system/
+      button/
+      eyebrow/
+      live-indicator/
     simulation/
       simulation-runner.ts
-      simulation-runner.spec.ts
+      frame-throttle.ts
+      preview-metrics.ts
+e2e/
+  ecosystem.spec.ts
 ```
+
+Scoped `AGENTS.md` files live alongside the components they govern.
 
 ## Dependency boundaries
 
-1. **Domain** is TypeScript-only. It must never import Angular, the DOM, route components,
-   rendering or any other feature. This makes its behavior directly testable.
-2. **Rendering** may read the domain's state and use Canvas APIs, but never imports
-   Angular route components or the feature's UI components.
-3. **Feature UI** can import domain models and shared design components. It must not
-   import from the `pages/` layer (which no longer exists).
-4. **Feature-local controllers** handle fullscreen/HUD lifecycle and pointer gestures. They
-   depend on callback interfaces, never on the route component or shared singletons.
-5. **Feature page** composes its own UI and orchestrates its domain/rendering.
-   It is loaded lazily from `app.routes.ts`.
-6. **Shared** contains genuinely reusable primitives; it never depends on a feature.
-7. **The simulation catalog** owns routes, cards, metadata, featured selection and
-   lazy-loaded preview references. App routing and Home derive from this one registry.
-8. **Home** is presentation-only: it never imports a particular simulation domain or
-   Canvas renderer. A featured preview is loaded lazily into a generic preview surface.
-9. **World previews** belong to their feature and communicate small display metrics
-   through a scoped shared store (no global singleton).
+1. **Domain** (`features/<world>/domain/`) is TypeScript-only. It must not
+   import Angular, DOM, Canvas, rendering, routing or UI components.
+2. **Rendering** reads domain state and uses Canvas APIs; it does not own
+   biological updates, simulation steps or route-level UI state.
+3. **Feature-local controllers** handle input and lifecycle operations;
+   they depend on small callback interfaces, not on a route component.
+4. **Feature page** composes `ExperimentSession`, `SimulationRunner`,
+   renderer, charts, controllers and display signals. Angular routes are
+   lazy-loaded.
+5. **Shared** contains reusable scheduling and UI primitives, never imports
+   feature engines or components.
+6. **Simulation catalogue** owns world metadata, lazy route loaders and
+   featured preview definitions. Both `app.routes.ts` and Home derive from
+   `SIMULATIONS`.
+7. **Home** is presentation-only: it does not import a world domain/renderer.
+   It loads the featured preview by dynamic import, and a home-provided
+   `PreviewMetricsStore` receives generic metrics.
+8. **World preview** belongs to its feature and manages its own Canvas,
+   runner, observers and lifecycle.
 
-The shared `shared/simulation/simulation-runner.ts` now owns frame scheduling,
-fixed-step integration, pause, playback speed, visibility suspension, world swapping and
-lifecycle cleanup. It uses only a `step(dt)` interface and has no Angular or DOM
-dependency in its logic (the browser clock is injectable). The ecosystem engine remains
-deterministic and unaware of the runner.
+No generic `core/`, `application/`, global store, dependency-injection
+container or plugin runtime is introduced without an actual need.
 
-No `core/` or `application/` folder is introduced without an actual responsibility.
-Chart refresh and page-level orchestration remain in the feature page. Aquarium/fullscreen
-and pointer/touch behavior live in independently testable feature-local controllers.
+## Time and replay architecture
+
+`SimulationRunner` owns `requestAnimationFrame`, fixed-step
+integration, pause, speed, inactive-tab handling, backlog bounds and
+teardown. The full ecosystem route passes `ExperimentSession` to this
+runner; `ExperimentSession` wraps `WorldEngine` and records user
+interventions at fixed 1/60-second ticks. Replay verifies stored state
+before it replaces the active experiment.
+
+The feature-owned homepage preview uses the same runner with its own
+world. `FrameThrottle` limits **drawing** to 30 fps; the domain's fixed
+timestep remains independent of display refresh.
+
+See `docs/experiments.md`, `docs/performance.md` and
+`docs/biological-regression-tests.md` for invariants and limits.
 
 ## Adding a world
 
-- Create `features/<world>/` with its own domain, rendering and page.
-- Put any reusable UI primitives under `shared/design-system/` only if multiple
-  features need them.
-- Add **one** catalog registration in `simulations/simulation-catalog.ts` with
-  metadata, path and a lazy-loaded component; no manual route editing is needed.
-- Optionally supply a lazy preview component and mark the world `featured: true`.
-  Home handles navigation, labels, counts and metric display generically.
-- Keep deterministic engine tests next to the engine.
-- Run `npm run typecheck`, `npm run lint`, `npm run format:check`,
-  `npm run test:ci` and `npm run build`.
+- Create `features/<world>/` with standalone page and feature-owned
+  domain/rendering code as necessary.
+- Register **one** definition in `simulations/simulation-catalog.ts`
+  with unique ID/path and lazy `loadComponent`.
+- Optionally add a feature-owned lazy preview and mark a single world
+  `featured: true`; Home handles navigation and card metadata.
+- Add deterministic tests, browser coverage and documentation where
+  applicable. Follow the nearest `AGENTS.md`.
+- Run the quality gates in `docs/quality-gates.md`.
 
-The catalog is an application composition boundary, not a plugin runtime or extension
-marketplace. The existing ecosystem still owns its engine, renderer and preview code.
-Domain behavior and fixed-step simulation timing are unchanged.
+The catalogue is an application composition boundary, not a runtime
+marketplace. The main branch uses a static Netlify-hosted SPA; keep
+`dist/wild-life/browser` and the deep-link rewrite in `netlify.toml`
+unless deployment architecture explicitly changes.

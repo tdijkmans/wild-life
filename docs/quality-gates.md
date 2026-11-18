@@ -1,24 +1,53 @@
 # Quality gates
 
-Run the same checks locally before requesting a review:
+The source of truth for automated verification is
+`.github/workflows/ci.yml`. Keep these commands and the agent contract
+in sync when changing the toolchain.
 
 ```bash
 npm ci
+npm run agent:check
 npm run typecheck
 npm run lint
 npm run format:check
 npm run test:ci
 npm run build
 npm run bundle:report
+npm run perf:benchmark
 ```
 
-The GitHub Actions workflow runs these commands on pull requests and pushes to `main`, using Node 24.
+For navigation, Canvas, interactions, mobile layouts or experiment file
+changes also run:
 
-- ESLint uses the Angular 22 flat configuration for TypeScript and templates.
-- Prettier is separate from ESLint to prevent formatting rules from obscuring correctness rules.
-- `npm run bundle:report` produces `reports/bundle.json` plus a human-readable CI summary of built JS/CSS sizes (raw and gzip).
-- Angular already enforces initial and component CSS size budgets in `angular.json`. The snapshot is observational, not a second arbitrary size limit.
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
 
-The ESLint dependency graph is locked in the committed `package-lock.json`; CI uses only `npm ci` and never mutates dependencies.
+- **Agent guidance integrity** verifies required `AGENTS.md`/tool entry
+  points, referenced core files and quality-script names. It does not
+  interpret the intent or correctness of prose instructions.
+- **TypeScript / ESLint / Prettier:** TypeScript and Angular template
+  typing, architectural import guards, formatting. ESLint uses the
+  Angular 22 flat config. Prettier is deliberately separate.
+- **Unit + regression:** Vitest via Angular's `ng test --watch=false`,
+  including deterministic domain and runner tests.
+- **Browser E2E:** pinned Playwright Chromium tests verify actual
+  navigation, Aquarium, user interactions, seeded export/import,
+  verified replay, invalid inputs and a mobile viewport. Failure
+  screenshots/traces are retained as CI artifacts.
+- **Bundle report:** `reports/bundle.json` records all built JS/CSS,
+  initial and lazy, without a second arbitrary size threshold.
+  Angular's budgets in `angular.json` remain authoritative.
+- **Engine CPU benchmark:** `reports/performance.json` is an
+  informational seeded CPU measurement on variable CI hardware.
+  It is not a browser FPS/energy guarantee.
 
-CI is a quality gate; to _require_ it before merges, configure the branch ruleset for `main` to require the workflow's check once it is green.
+CI uses Node 24, read-only GitHub contents permissions and `npm ci`
+from the committed `package-lock.json`. Do not let CI mutate or
+commit dependencies or formatting. For local formatting, run
+`npx prettier --write <changed-file>` and check the full repo afterward.
+
+Configure a GitHub branch ruleset requiring the quality and Chromium
+checks to **enforce** green CI before merges; merely running the workflow
+does not enforce a merge restriction.

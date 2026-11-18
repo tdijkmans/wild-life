@@ -14,7 +14,8 @@
     "test:ci": "ng test --watch=false",
     "bundle:report": "node scripts/report-bundle.mjs",
     "perf:benchmark": "node scripts/benchmark-engine.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "agent:check": "node scripts/check-agent-guidance.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.1",
