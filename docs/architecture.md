@@ -9,7 +9,10 @@ src/app/
   features/
     home/
       home.ts / home.html / home.css
-      simulation-catalog.ts
+      home preview surface / featured hero
+  simulations/
+    simulation-catalog.ts
+    simulation-catalog.spec.ts
     ecosystem/
       ecosystem.ts / ecosystem.html / ecosystem.css
       README.md
@@ -46,9 +49,12 @@ src/app/
 5. **Feature page** composes its own UI and orchestrates its domain/rendering.
    It is loaded lazily from `app.routes.ts`.
 6. **Shared** contains genuinely reusable primitives; it never depends on a feature.
-7. **Home** currently consumes the ecosystem engine/renderer to show its live preview.
-   That is a **known coupling** until the future simulation catalogue abstraction
-   (roadmap step 8). Do not introduce a generic plugin interface prematurely.
+7. **The simulation catalog** owns routes, cards, metadata, featured selection and
+   lazy-loaded preview references. App routing and Home derive from this one registry.
+8. **Home** is presentation-only: it never imports a particular simulation domain or
+   Canvas renderer. A featured preview is loaded lazily into a generic preview surface.
+9. **World previews** belong to their feature and communicate small display metrics
+   through a scoped shared store (no global singleton).
 
 The shared `shared/simulation/simulation-runner.ts` now owns frame scheduling,
 fixed-step integration, pause, playback speed, visibility suspension, world swapping and
@@ -65,11 +71,14 @@ and pointer/touch behavior live in independently testable feature-local controll
 - Create `features/<world>/` with its own domain, rendering and page.
 - Put any reusable UI primitives under `shared/design-system/` only if multiple
   features need them.
-- Register the lazy-loaded route in `app.routes.ts`.
-- Add catalogue metadata under `features/home/simulation-catalog.ts`.
+- Add **one** catalog registration in `simulations/simulation-catalog.ts` with
+  metadata, path and a lazy-loaded component; no manual route editing is needed.
+- Optionally supply a lazy preview component and mark the world `featured: true`.
+  Home handles navigation, labels, counts and metric display generically.
 - Keep deterministic engine tests next to the engine.
 - Run `npm run typecheck`, `npm run lint`, `npm run format:check`,
   `npm run test:ci` and `npm run build`.
 
-This PR is a file-organization change; it is not a redesign of the domain model or
-animation loop. All existing routes, component selectors and CSS are preserved.
+The catalog is an application composition boundary, not a plugin runtime or extension
+marketplace. The existing ecosystem still owns its engine, renderer and preview code.
+Domain behavior and fixed-step simulation timing are unchanged.

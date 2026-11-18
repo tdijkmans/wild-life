@@ -18,30 +18,38 @@
           Step into worlds where simple rules create extraordinary behavior. Watch life unfold,
           change its conditions, and discover what emerges.
         </p>
-        <a class="wl-cta" routerLink="/ecosystem"
+        <a class="wl-cta" [routerLink]="featuredSimulation.path"
           >Explore the first world <span aria-hidden="true">↗</span></a
         >
         <div class="wl-note">
-          <i class="wl-dot"></i> ONE WORLD ACTIVE <span>—</span> THE COLLECTION WILL GROW
+          <i class="wl-dot"></i> {{ activeWorldsLabel }} <span>—</span> THE COLLECTION WILL GROW
         </div>
       </div>
 
-      <a class="wl-preview" routerLink="/ecosystem" aria-label="Launch Predator–Prey Evolution">
-        <canvas #previewCanvas aria-hidden="true"></canvas>
+      <a
+        class="wl-preview"
+        [routerLink]="featuredSimulation.path"
+        [attr.aria-label]="'Launch ' + featuredSimulation.name"
+      >
+        @if (previewComponent(); as component) {
+          <ng-container [ngComponentOutlet]="component"></ng-container>
+        } @else if (previewUnavailable()) {
+          <span class="wl-preview-fallback">Preview unavailable</span>
+        }
         <div class="wl-preview-shade" aria-hidden="true"></div>
         <div class="wl-preview-top">
-          <span>WORLD 001</span><span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
+          <span>WORLD {{ featuredSimulation.number }}</span>
+          <span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
         </div>
         <div class="wl-preview-bottom">
-          <h2>A living balance.</h2>
+          <h2>{{ featuredSimulation.preview?.title || featuredSimulation.name }}</h2>
           <div class="wl-preview-counters">
-            <span
-              ><i class="wl-prey"></i> PREY <strong>{{ previewCounts().prey }}</strong></span
-            >
-            <span
-              ><i class="wl-pred"></i> PREDATORS
-              <strong>{{ previewCounts().predators }}</strong></span
-            >
+            @for (metric of previewMetrics.metrics(); track metric.label) {
+              <span>
+                <i [class.wl-prey]="metric.tone === 'mint'" [class.wl-pred]="metric.tone === 'coral'"></i>
+                {{ metric.label }} <strong>{{ metric.value }}</strong>
+              </span>
+            }
           </div>
         </div>
         <span class="wl-preview-arrow" aria-hidden="true">↗</span>
@@ -54,7 +62,7 @@
           <ds-eyebrow class="wl-eyebrow">CHOOSE YOUR EXPERIMENT</ds-eyebrow>
           <h2 id="wl-collection-heading">The worlds <span>collection.</span></h2>
         </div>
-        <span class="wl-count">01 / WORLD AVAILABLE</span>
+        <span class="wl-count">{{ availableCountLabel }} / WORLDS AVAILABLE</span>
       </div>
       <div class="wl-grid">
         @for (simulation of simulations; track simulation.id) {

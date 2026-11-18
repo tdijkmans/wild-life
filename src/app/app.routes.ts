@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { SIMULATIONS, simulationRoutes } from './simulations/simulation-catalog';
 
 export const routes: Routes = [
   {
@@ -6,9 +7,6 @@ export const routes: Routes = [
     pathMatch: 'full',
     loadComponent: () => import('./features/home/home').then((m) => m.HomeComponent),
   },
-  {
-    path: 'ecosystem',
-    loadComponent: () => import('./features/ecosystem/ecosystem').then((m) => m.EcosystemComponent),
-  },
+  ...simulationRoutes(SIMULATIONS),
   { path: '**', redirectTo: '' },
 ];
