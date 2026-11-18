@@ -152,8 +152,15 @@ export class CanopyWorld implements InteractiveWorld {
     };
     if (!sapling) {
       this.fork(tree, 0, true);
+      // Start with an established but still-developing crown. This ensures
+      // Aquarium feels like a living forest from its very first frame.
+      const firstTier = tree.branches.length;
+      for (let branch = 1; branch < firstTier; branch++) {
+        this.fork(tree, branch, true);
+      }
       for (let branch = 1; branch < tree.branches.length; branch++) {
-        if (this.random.next() < 0.85) this.addLeaves(tree, branch, 3);
+        const amount = tree.branches[branch].depth > 1 ? 10 : 6;
+        this.addLeaves(tree, branch, amount);
       }
     }
     this.trees.push(tree);
@@ -377,8 +384,12 @@ export class CanopyWorld implements InteractiveWorld {
     for (const tree of this.trees) {
       for (const leaf of tree.leaves) {
         const geom = this.branchGeometry(tree, leaf.branch);
-        leaf.x = geom.x1 + (geom.x2 - geom.x1) * leaf.position;
-        leaf.y = geom.y1 + (geom.y2 - geom.y1) * leaf.position;
+        const branch = tree.branches[leaf.branch];
+        const normal = branch.angle + Math.PI / 2;
+        leaf.x = geom.x1 + (geom.x2 - geom.x1) * leaf.position +
+          Math.cos(normal) * leaf.side * 5;
+        leaf.y = geom.y1 + (geom.y2 - geom.y1) * leaf.position +
+          Math.sin(normal) * leaf.side * 5;
         this.leafGrid.insert(this.leafRefs.length, leaf.x, leaf.y);
         this.leafRefs.push(leaf);
       }

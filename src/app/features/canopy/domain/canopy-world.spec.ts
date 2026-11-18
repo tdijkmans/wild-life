@@ -24,6 +24,17 @@ describe('Canopy emergent growth and herbivory', () => {
     expect(b.audioCues).toEqual(a.audioCues);
   });
 
+  it('starts with a real layered canopy, not only empty saplings', () => {
+    const world = new CanopyWorld(20261120, 10, 36);
+    const branches = world.trees.reduce((sum, tree) => sum + tree.branches.length, 0);
+    const foliage = world.trees.reduce((sum, tree) => sum + tree.leaves.length, 0);
+    expect(branches).toBeGreaterThan(65);
+    expect(foliage).toBeGreaterThan(350);
+    expect(world.trees.every((tree) => tree.branches.some((branch) => branch.depth > 1))).toBe(
+      true,
+    );
+  });
+
   it('grows living branches and leaf area over simulated time', () => {
     const world = new CanopyWorld(12, 5, 0);
     const before = world.trees.map((tree) => tree.branches.map((branch) => branch.progress));
