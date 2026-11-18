@@ -6,11 +6,14 @@ export interface WorldMetric {
   readonly tone: 'mint' | 'coral' | 'blue' | 'gold';
 }
 
-export type WorldSoundProfile = 'forest' | 'abyss' | 'sky' | 'meadow';
+export type WorldSoundProfile = 'forest' | 'abyss' | 'sky' | 'meadow' | 'twilight' | 'reef' | 'microbial';
 
 export interface WorldAudioCue {
   readonly id: number;
-  readonly kind: 'rain' | 'growth' | 'rustle' | 'bubble' | 'shimmer' | 'bloom' | 'flow';
+  readonly kind:
+    | 'rain' | 'growth' | 'rustle' | 'bubble' | 'shimmer' | 'bloom' | 'flow'
+    | 'pulse' | 'chorus' | 'hush' | 'reef' | 'bleach' | 'graze'
+    | 'exchange' | 'division';
   readonly strength: number;
 }
 
@@ -50,7 +53,7 @@ export interface WorldExperienceDefinition {
   readonly name: string;
   readonly tagline: string;
   readonly description: string;
-  readonly theme: 'sky' | 'tundra' | 'forest' | 'abyss';
+  readonly theme: 'sky' | 'tundra' | 'forest' | 'abyss' | 'twilight' | 'reef' | 'microbial';
   readonly sceneKicker?: string;
   readonly soundProfile?: WorldSoundProfile;
   readonly seed: number;

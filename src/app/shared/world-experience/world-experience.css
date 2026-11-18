@@ -719,3 +719,31 @@
     justify-content: flex-end;
   }
 }
+
+/* World palettes remain separate from their ecological Canvas renderers. */
+.experience.twilight {
+  --world-accent: #d3f69e;
+  --world-accent-strong: #f1fbd6;
+  --world-secondary: #a4d7d3;
+  --world-panel: #101d30;
+  --world-edge: rgba(182, 220, 159, 0.17);
+  background: radial-gradient(ellipse at 70% -14%, #293b50, transparent 51%), #0a1425;
+}
+
+.experience.reef {
+  --world-accent: #9df2dc;
+  --world-accent-strong: #e3fff6;
+  --world-secondary: #f0b79e;
+  --world-panel: #102e38;
+  --world-edge: rgba(149, 225, 213, 0.21);
+  background: radial-gradient(ellipse at 68% -14%, #185468, transparent 53%), #081d29;
+}
+
+.experience.microbial {
+  --world-accent: #c6b0ff;
+  --world-accent-strong: #f3ecff;
+  --world-secondary: #f4bdaf;
+  --world-panel: #211d35;
+  --world-edge: rgba(204, 177, 240, 0.19);
+  background: radial-gradient(ellipse at 71% -16%, #423352, transparent 51%), #141324;
+}

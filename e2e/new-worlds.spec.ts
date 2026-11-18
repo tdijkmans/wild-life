@@ -5,6 +5,9 @@ const newWorlds = [
   { title: 'Defensive Herd', path: '/defensive-herd', tool: 'Scent', metric: 'GUARDIANS' },
   { title: 'Canopy', path: '/canopy', tool: 'Rain', metric: 'FOLIAGE' },
   { title: 'Abyssal Bloom', path: '/abyssal-bloom', tool: 'Upwelling', metric: 'PHYTOPLANKTON' },
+  { title: 'Synchrony', path: '/synchrony', tool: 'Warmth', metric: 'FIREFLIES' },
+  { title: 'Reef', path: '/reef', tool: 'Cool water', metric: 'CORAL BRANCHES' },
+  { title: 'Microbial Commons', path: '/microbial-commons', tool: 'Oxygen', metric: 'PRODUCERS' },
 ] as const;
 
 for (const world of newWorlds) {
@@ -52,9 +55,17 @@ for (const world of newWorlds) {
   });
 }
 
-test('mobile viewport keeps both worlds and environmental controls usable', async ({ page }) => {
+test('mobile viewport keeps every shared world and environmental controls usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ['/murmuration', '/defensive-herd', '/canopy', '/abyssal-bloom']) {
+  for (const route of [
+    '/murmuration',
+    '/defensive-herd',
+    '/canopy',
+    '/abyssal-bloom',
+    '/synchrony',
+    '/reef',
+    '/microbial-commons',
+  ]) {
     await page.goto(route);
     await expect(page.locator('canvas.world-canvas')).toBeVisible();
     await expect(page.getByRole('region', { name: 'World controls' })).toBeVisible();
@@ -65,7 +76,13 @@ test('mobile viewport keeps both worlds and environmental controls usable', asyn
   }
 });
 
-for (const route of ['/canopy', '/abyssal-bloom']) {
+for (const route of [
+  '/canopy',
+  '/abyssal-bloom',
+  '/synchrony',
+  '/reef',
+  '/microbial-commons',
+]) {
   test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({
     page,
   }) => {

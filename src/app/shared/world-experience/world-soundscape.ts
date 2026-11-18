@@ -1,7 +1,8 @@
 import { SeededRandom } from '../simulation/seeded-random';
 import type { WorldAudioCue } from './world-protocol';
 
-export type SoundscapeProfile = 'forest' | 'abyss' | 'sky' | 'meadow';
+export type SoundscapeProfile =
+  'forest' | 'abyss' | 'sky' | 'meadow' | 'twilight' | 'reef' | 'microbial';
 
 interface Voice {
   oscillator: OscillatorNode;
@@ -21,6 +22,9 @@ const palettes: Record<
   abyss: { root: 49, overtone: 96, windCutoff: 270, noiseLevel: 0.027 },
   sky: { root: 83, overtone: 157, windCutoff: 1100, noiseLevel: 0.018 },
   meadow: { root: 69, overtone: 138, windCutoff: 670, noiseLevel: 0.021 },
+  twilight: { root: 57, overtone: 114, windCutoff: 580, noiseLevel: 0.016 },
+  reef: { root: 65, overtone: 125, windCutoff: 780, noiseLevel: 0.022 },
+  microbial: { root: 46, overtone: 109, windCutoff: 310, noiseLevel: 0.012 },
 };
 
 /**
@@ -143,10 +147,19 @@ export class WorldSoundscape {
       shimmer: [490, 690],
       bloom: [340, 530],
       flow: [260, 210],
+      pulse: [290, 380],
+      chorus: [355, 445],
+      hush: [175, 128],
+      reef: [270, 365],
+      bleach: [235, 180],
+      graze: [550, 415],
+      exchange: [440, 570],
+      division: [660, 505],
     };
     const [start, end] = frequencies[event.kind];
     const oscillator = context.createOscillator();
-    oscillator.type = event.kind === 'rustle' || event.kind === 'flow' ? 'triangle' : 'sine';
+    oscillator.type = ['rustle', 'flow', 'graze', 'division'].includes(event.kind)
+      ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(start, context.currentTime);
     oscillator.frequency.exponentialRampToValueAtTime(
       Math.max(30, end),
