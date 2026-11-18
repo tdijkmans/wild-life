@@ -19,6 +19,9 @@ const instructionPaths = [
   'src/app/shared/world-experience/AGENTS.md',
   'src/app/features/canopy/AGENTS.md',
   'src/app/features/abyssal-bloom/AGENTS.md',
+  'src/app/features/synchrony/AGENTS.md',
+  'src/app/features/reef/AGENTS.md',
+  'src/app/features/microbial-commons/AGENTS.md',
 ];
 
 const referencedPaths = [
@@ -49,6 +52,12 @@ const referencedPaths = [
   'src/app/shared/world-experience/world-soundscape.ts',
   'src/app/features/canopy/domain/canopy-world.ts',
   'src/app/features/abyssal-bloom/domain/abyssal-bloom-world.ts',
+  'src/app/features/synchrony/domain/synchrony-world.ts',
+  'src/app/features/reef/domain/reef-world.ts',
+  'src/app/features/microbial-commons/domain/microbial-commons-world.ts',
+  'src/app/features/synchrony/rendering/synchrony-renderer.ts',
+  'src/app/features/reef/rendering/reef-renderer.ts',
+  'src/app/features/microbial-commons/rendering/microbial-commons-renderer.ts',
   'e2e/new-worlds.spec.ts',
   'netlify.toml',
 ];

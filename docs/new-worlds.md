@@ -91,6 +91,74 @@ drive population cycles.
 The water column is a stylized plankton food web. Bioluminescence and
 nutrient cycles are not scientifically calibrated.
 
+## Synchrony (`/synchrony`)
+
+Fireflies independently maintain internal flashing phases and frequencies.
+They couple only to nearby insects through a Kuramoto-inspired local phase
+rule, with finite speed and moving neighborhoods. Synchronization and
+traveling flash clusters emerge from these interactions; **there is no
+central clock or scripted global flash**. Inherited period/coupling
+variation, natural turnover and soft environment fields change the dynamics.
+
+- **Warmth:** accelerates local oscillator frequency.
+- **Breeze:** moves insects and changes who interacts with whom.
+- **Shade:** softens local coupling and phase speed.
+- **Aquarium:** nocturnal wetland, luminous individual fireflies and
+  actual phase-linked flashing clusters.
+- **Laboratory:** number of fireflies, global order parameter, local
+  phase agreement and active flashes.
+- **Sound:** an opt-in twilight hush with occasional soft pulse and
+  chorus accents based on actual environmental fields or synchronization.
+
+It is a local-coupled-oscillator abstraction, not a calibrated biological
+model of any particular flashing firefly species.
+
+## Reef (`/reef`)
+
+Coral colonies extend real branching structures using energy gained
+through light-dependent photosymbiosis. Local warming causes bleaching
+(symbiont loss) and energy decline, while cooler water supports recovery.
+Algae compete for illuminated space near corals and actively feeding
+grazers consume algae; both modify coral outcomes over time. Coral
+recruitment and new grazers are possible under favorable conditions.
+
+- **Cool water:** relieves localized coral heat stress.
+- **Nutrients:** promotes algae; additional food can increase competition.
+- **Current:** changes water flow and grazer movement.
+- **Aquarium:** colorful, growing coral architecture, changing symbiotic
+  coloration, algae fronds and individually swimming grazers.
+- **Laboratory:** branch count, average symbiont retention, number of
+  bleached colonies and grazing fish.
+- **Sound:** opt-in filtered water ambience with restrained coral growth,
+  grazing, current and heat-stress accents.
+
+The model is not a validated forecast of coral growth, disease,
+bleaching thresholds, fish trophic effects or climate resilience.
+
+## Microbial Commons (`/microbial-commons`)
+
+A spatial resource model represents **three metabolic strategies** on a
+finite agar-like habitat. Producers consume nutrient and secrete a
+diffusible metabolite; cross-feeders use that metabolite; competitors
+consume common nutrients while secreting inhibitors. Cells grow and
+colonize adjacent empty sites when local resources permit. Gradients,
+chemical diffusion and inherited tolerance variation produce
+contingent colony boundaries—not pre-drawn patterns.
+
+- **Nutrients:** improve the local nutrient field.
+- **Oxygen:** increase local oxygen availability.
+- **Buffer:** reduce local inhibitor concentration.
+- **Aquarium:** luminous microscopic colony fronts inside a glass Petri
+  dish, visualizing biomass, metabolite and inhibitor distributions.
+- **Laboratory:** live producer, cross-feeder and competitor counts,
+  metabolic exchanges and occupied-habitat trends.
+- **Sound:** opt-in microscopic, low-level wash with occasional subtle
+  division, exchange and neutralization cues.
+
+No specific organisms, pathogens, culturing recipes or empirically
+calibrated kinetics are represented. This is an abstract computational
+ecology model, not a biological laboratory protocol.
+
 ## Procedural sound and listening consent
 
 Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
@@ -105,12 +173,12 @@ Sound button or keyboard (M) activation.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- Procedural sound currently covers worlds 002–005. Predator–Prey
+- Procedural sound currently covers worlds 002–008. Predator–Prey
   Evolution continues to use its original interface without sound.
 
 ## Reproducibility and performance
 
-All four newer models accept fixed integer seeds, run at 60 fixed time steps per
+All seven newer models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -118,7 +186,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These four newer worlds currently provide **seeded resets and deterministic
+These seven newer worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

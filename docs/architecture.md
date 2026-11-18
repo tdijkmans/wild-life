@@ -29,6 +29,18 @@ src/app/
       abyssal-bloom.ts
       domain/abyssal-bloom-world.ts
       rendering/abyssal-bloom-renderer.ts
+    synchrony/
+      synchrony.ts
+      domain/synchrony-world.ts
+      rendering/synchrony-renderer.ts
+    reef/
+      reef.ts
+      domain/reef-world.ts
+      rendering/reef-renderer.ts
+    microbial-commons/
+      microbial-commons.ts
+      domain/microbial-commons-world.ts
+      rendering/microbial-commons-renderer.ts
     ecosystem/
       ecosystem.ts / ecosystem.html / ecosystem.css
       README.md
@@ -65,6 +77,7 @@ src/app/
       world-soundscape.ts
 e2e/
   ecosystem.spec.ts
+  new-worlds.spec.ts
 ```
 
 Scoped `AGENTS.md` files live alongside the components they govern.
@@ -109,8 +122,8 @@ The feature-owned homepage preview uses the same runner with its own
 world. `FrameThrottle` limits **drawing** to 30 fps; the domain's fixed
 timestep remains independent of display refresh.
 
-Murmuration, Defensive Herd, Canopy and Abyssal Bloom each use their own
-deterministic engine and Canvas renderer. They use `shared/world-experience/`
+Murmuration, Defensive Herd, Canopy, Abyssal Bloom, Synchrony, Reef and
+Microbial Commons each use their own deterministic engine and Canvas renderer. They use `shared/world-experience/`
 to provide consistent Aquarium, gentle pointer tools, keyboard shortcuts,
 pause, speed, seed reset, statistics and history. A separate, opt-in
 `WorldSoundscape` produces low-volume ambient and event sounds without

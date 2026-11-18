@@ -83,6 +83,40 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     loadComponent: () =>
       import('../features/abyssal-bloom/abyssal-bloom').then((m) => m.AbyssalBloomComponent),
   },
+  {
+    id: 'synchrony',
+    number: '006',
+    name: 'Synchrony',
+    description:
+      'Hundreds of fireflies gradually synchronize their flashes through local signaling. Shape their rhythms with warmth, breeze and shade.',
+    path: '/synchrony',
+    tags: ['Synchrony', 'Collective rhythms', 'Emergence'],
+    loadComponent: () =>
+      import('../features/synchrony/synchrony').then((m) => m.SynchronyComponent),
+  },
+  {
+    id: 'reef',
+    number: '007',
+    name: 'Reef',
+    description:
+      'A living coral garden grows, bleaches, recovers and competes with algae while fish graze. Influence the water gently.',
+    path: '/reef',
+    tags: ['Symbiosis', 'Coral growth', 'Marine ecology'],
+    loadComponent: () => import('../features/reef/reef').then((m) => m.ReefComponent),
+  },
+  {
+    id: 'microbial-commons',
+    number: '008',
+    name: 'Microbial Commons',
+    description:
+      'Microscopic communities grow, exchange metabolites and compete across an evolving chemical landscape.',
+    path: '/microbial-commons',
+    tags: ['Cross-feeding', 'Colony growth', 'Microbial ecology'],
+    loadComponent: () =>
+      import('../features/microbial-commons/microbial-commons').then(
+        (m) => m.MicrobialCommonsComponent,
+      ),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */

@@ -566,3 +566,47 @@
   background: #8aefe6;
   box-shadow: 0 0 31px rgba(97, 236, 232, 0.77);
 }
+
+.wl-world-card[data-world='synchrony'] {
+  border-color: rgba(192, 229, 142, 0.3);
+  background:
+    radial-gradient(ellipse at 85% 13%, rgba(202, 242, 133, 0.21), transparent 55%),
+    linear-gradient(138deg, #243445, #151c30);
+}
+
+.wl-world-card[data-world='synchrony'] .wl-orbit {
+  border-color: rgba(194, 244, 152, 0.59);
+}
+
+.wl-world-card[data-world='synchrony'] .wl-orbit i {
+  background: #d1ee9f;
+  box-shadow: 0 0 30px rgba(187, 247, 122, 0.8);
+}
+
+.wl-world-card[data-world='reef'] {
+  border-color: rgba(124, 221, 204, 0.35);
+  background:
+    radial-gradient(ellipse at 84% 10%, rgba(148, 229, 199, 0.2), transparent 57%),
+    linear-gradient(130deg, #115166, #0d2c38);
+}
+
+.wl-world-card[data-world='reef'] .wl-orbit i {
+  background: #a3edd9;
+  box-shadow: 0 0 30px rgba(120, 231, 209, 0.76);
+}
+
+.wl-world-card[data-world='microbial-commons'] {
+  border-color: rgba(182, 141, 225, 0.31);
+  background:
+    radial-gradient(ellipse at 85% 12%, rgba(218, 165, 240, 0.19), transparent 57%),
+    linear-gradient(133deg, #30263e, #1a1c35);
+}
+
+.wl-world-card[data-world='microbial-commons'] .wl-orbit {
+  border-color: rgba(211, 172, 241, 0.63);
+}
+
+.wl-world-card[data-world='microbial-commons'] .wl-orbit i {
+  background: #d5baff;
+  box-shadow: 0 0 33px rgba(208, 164, 251, 0.79);
+}

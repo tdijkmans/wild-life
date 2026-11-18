@@ -61,21 +61,24 @@ of the collection.
 - **005 · Abyssal Bloom** (`/abyssal-bloom`) — luminous phytoplankton grow,
   drift and reproduce in a nutrient-rich water column, while zooplankton graze.
   Influence ocean currents, upwelling and sunlight.
+- **006 · Synchrony** (`/synchrony`) — individually flashing fireflies
+  synchronize through local coupling. Shift local rhythms, movement and
+  connectivity with warmth, breeze and shade.
+- **007 · Reef** (`/reef`) — branching coral colonies depend on symbiotic
+  algae; heat stress, algal competition and grazing fish reshape their
+  future. Influence cooling, nutrients and currents.
+- **008 · Microbial Commons** (`/microbial-commons`) — three microbial
+  strategies compete for habitat and exchange metabolites. Shape growth
+  with nutrients, oxygen and gentle chemical buffering.
 
 **Future concepts — not yet implemented**
 
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
   connections and retract others. Influence food and moisture gradients.
-- **Synchrony** — locally coupled organisms gradually synchronize their
-  pulses into waves of light. Influence local rhythms and coupling.
-- **Reef** — coral growth, algae, grazers, competition and symbiosis gradually
-  transform an underwater habitat. Influence environmental conditions.
-- **Microbial Commons** — colonies grow, compete and exchange resources across
-  chemical gradients. Influence nutrients, oxygen and spatial barriers.
 
-These are directions, **not promises of scientific fidelity or completed features**.
-Each world should have a distinct mechanism, visual identity and gentle interaction
-vocabulary.
+Living Networks remains a concept, **not an implemented feature or promise of
+scientific fidelity**. Every world should have a distinct mechanism, visual
+identity and gentle interaction vocabulary.
 
 ## Development
 
@@ -88,9 +91,10 @@ npm start
 ```
 
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
-`/murmuration`, `/defensive-herd`, `/canopy` and `/abyssal-bloom`.
+`/murmuration`, `/defensive-herd`, `/canopy`, `/abyssal-bloom`,
+`/synchrony`, `/reef` and `/microbial-commons`.
 
-**Optional procedural sound:** shared Aquarium/Laboratory worlds (002–005)
+**Optional procedural sound:** shared Aquarium/Laboratory worlds (002–008)
 offer quiet, synthesized ambient and event cues. Audio is muted by default
 and starts only after the visitor explicitly enables Sound (or presses M);
 it follows pause, hidden-tab and component teardown. The original
