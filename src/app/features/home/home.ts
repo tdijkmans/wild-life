@@ -54,5 +54,4 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     const { prey, predators } = this.world.stats();
     this.previewCounts.set({ prey, predators });
   }
-
 }

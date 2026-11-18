@@ -268,7 +268,8 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.paused.set(this.runner.isPaused);
   }
   cycleSpeed() {
-    this.runner.setSpeed(this.runner.playbackSpeed === 1 ? 2 : this.runner.playbackSpeed === 2 ? 4 : 1);
+    const current = this.runner.playbackSpeed;
+    this.runner.setSpeed(current === 1 ? 2 : current === 2 ? 4 : 1);
     this.speed.set(this.runner.playbackSpeed);
   }
   newWorld() {

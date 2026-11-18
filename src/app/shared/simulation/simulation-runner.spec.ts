@@ -29,7 +29,11 @@ class TestWorld {
   }
 }
 
-function createRunner(clock: FakeClock, world: TestWorld, onFrame?: (frame: SimulationFrame) => void) {
+function createRunner(
+  clock: FakeClock,
+  world: TestWorld,
+  onFrame?: (frame: SimulationFrame) => void,
+) {
   return new SimulationRunner(world, {
     clock,
     stepSeconds: 0.1,
