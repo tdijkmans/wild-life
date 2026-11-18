@@ -265,6 +265,16 @@ describe('WILD ecosystem — regression and invariants', () => {
       assertWorldInvariants(world);
     });
 
+    it('ignores invalid bloom quantities rather than entering an unbounded loop', () => {
+      const world = new WorldEngine(212, 0, 0);
+      const before = world.stats().food;
+      for (const quantity of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -9, 0]) {
+        world.bloom(400, 360, quantity);
+      }
+      expect(world.stats().food).toBe(before);
+      expect(world.patches).toHaveLength(0);
+    });
+
     it('refreshes cached statistics after adding food without a time step', () => {
       const world = new WorldEngine(203, 0, 0);
       const before = world.stats().food;

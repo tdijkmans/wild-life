@@ -288,7 +288,10 @@ export class WorldEngine {
   }
   bloom(x: number, y: number, amount = 10) {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-    for (let i = 0; i < amount; i++) {
+    // Bound work even if an API caller supplies an enormous or non-finite amount.
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    const count = Math.min(Math.ceil(amount), MAX_FOOD - this.food.length);
+    for (let i = 0; i < count; i++) {
       const a = this.random.between(0, Math.PI * 2),
         r = Math.sqrt(this.random.next()) * 48;
       this.addFood(x + Math.cos(a) * r, y + Math.sin(a) * r);
