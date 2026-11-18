@@ -1,7 +1,12 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
+import type { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
+import {
+  ExperimentSession,
+  parseExperiment,
+  type ExperimentDocument,
+} from './domain/experiment';
 import { WorldRenderer } from './rendering/renderer';
 import { drawChart, drawTinyChart } from './rendering/charts';
 import { SimulationRunner } from '../../shared/simulation/simulation-runner';
@@ -38,10 +43,11 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private preySpark?: HTMLCanvasElement;
   private predatorSpark?: HTMLCanvasElement;
 
-  private world = new WorldEngine(20261116);
+  private experiment = new ExperimentSession({ seed: 20261116, prey: 210, predators: 18 });
+  private world: WorldEngine = this.experiment.world;
   private renderer!: WorldRenderer;
   private resizeObserver?: ResizeObserver;
-  private readonly runner = new SimulationRunner(this.world, {
+  private readonly runner = new SimulationRunner(this.experiment, {
     maxFrameSeconds: 0.065,
     maxStepsPerFrame: 18,
     maxAccumulatedSeconds: 0.28,
@@ -56,6 +62,14 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly events = signal<WorldEvent[]>([...this.world.events]);
   readonly selected = signal<Organism | null>(null);
   readonly seed = signal(this.world.seed);
+  readonly configuredSeed = signal(this.world.seed);
+  readonly configuredPrey = signal(210);
+  readonly configuredPredators = signal(18);
+  readonly experimentBusy = signal(false);
+  readonly experimentProgress = signal(0);
+  readonly experimentStatus = signal('');
+  readonly comparison = signal<{ previous: WorldStats; restored: WorldStats } | null>(null);
+  private destroyed = false;
   readonly mode = signal<Tool>('bloom');
   readonly chartMode = signal<'population' | 'traits'>('population');
   readonly paused = signal(false);
@@ -176,6 +190,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.runner.start();
   }
   ngOnDestroy() {
+    this.destroyed = true;
     this.runner.stop();
     this.resizeObserver?.disconnect();
     window.removeEventListener('keydown', this.keyHandler);
@@ -261,21 +276,142 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.runner.setSpeed(current === 1 ? 2 : current === 2 ? 4 : 1);
     this.speed.set(this.runner.playbackSpeed);
   }
-  newWorld() {
-    this.world = new WorldEngine(Math.floor(Math.random() * 4294967295));
+  private installExperiment(session: ExperimentSession, pause = false): void {
+    this.experiment = session;
+    this.world = session.world;
     this.renderer.setWorld(this.world);
-    this.runner.setWorld(this.world);
-    this.runner.setPaused(false);
+    this.runner.setWorld(this.experiment);
+    this.runner.setPaused(pause);
     this.seed.set(this.world.seed);
+    this.configuredSeed.set(session.config.seed);
+    this.configuredPrey.set(session.config.prey);
+    this.configuredPredators.set(session.config.predators);
     this.selected.set(null);
-    this.paused.set(false);
+    this.paused.set(pause);
     this.statsTimer = 0;
+    this.lastHistorySample = undefined;
+    this.lastEvent = undefined;
     this.renderer.zoom = 1;
     this.zoomLevel.set(1);
     this.pointerController.reset();
     this.world.selectedId = null;
-    this.interaction.set('An entirely new evolutionary story starts.');
     this.updateUi();
+  }
+
+  newWorld(): void {
+    if (this.experimentBusy()) return;
+    this.installExperiment(
+      new ExperimentSession({
+        seed: Math.floor(Math.random() * 0xffffffff),
+        prey: this.configuredPrey(),
+        predators: this.configuredPredators(),
+      }),
+    );
+    this.experimentStatus.set('');
+    this.comparison.set(null);
+    this.interaction.set('An entirely new evolutionary story starts.');
+  }
+
+  setExperimentInput(field: 'seed' | 'prey' | 'predators', event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    if (field === 'seed') this.configuredSeed.set(value);
+    else if (field === 'prey') this.configuredPrey.set(value);
+    else this.configuredPredators.set(value);
+  }
+
+  startConfiguredExperiment(): void {
+    if (this.experimentBusy()) return;
+    try {
+      const session = new ExperimentSession({
+        seed: this.configuredSeed(),
+        prey: this.configuredPrey(),
+        predators: this.configuredPredators(),
+      });
+      this.installExperiment(session);
+      this.comparison.set(null);
+      this.experimentStatus.set('New deterministic experiment started.');
+    } catch (error) {
+      this.experimentStatus.set(error instanceof Error ? error.message : 'Invalid configuration');
+    }
+  }
+
+  saveExperiment(): void {
+    if (this.experimentBusy()) return;
+    try {
+      const document = this.experiment.export();
+      const blob = new Blob([JSON.stringify(document, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `wild-life-seed-${document.config.seed}-tick-${document.ticks}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      this.experimentStatus.set('Experiment exported with verification checksum.');
+    } catch (error) {
+      this.experimentStatus.set(error instanceof Error ? error.message : 'Export failed');
+    }
+  }
+
+  async loadExperimentFile(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || this.experimentBusy()) return;
+    if (file.size > 3_000_000) {
+      this.experimentStatus.set('Experiment file exceeds the 3 MB limit.');
+      return;
+    }
+    try {
+      await this.restoreExperiment(JSON.parse(await file.text()));
+    } catch (error) {
+      this.experimentStatus.set(error instanceof Error ? error.message : 'Invalid experiment file');
+    }
+  }
+
+  async replayExperiment(): Promise<void> {
+    if (this.experimentBusy()) return;
+    await this.restoreExperiment(this.experiment.export());
+  }
+
+  private async restoreExperiment(input: unknown): Promise<void> {
+    if (this.experimentBusy()) return;
+    const wasPaused = this.runner.isPaused;
+    this.experimentBusy.set(true);
+    this.experimentProgress.set(0);
+    this.runner.setPaused(true);
+    this.paused.set(true);
+    let succeeded = false;
+
+    try {
+      const document: ExperimentDocument = parseExperiment(input);
+      const previous = { ...this.world.stats() };
+      const session = await ExperimentSession.replay(
+        document,
+        () =>
+          new Promise<void>((resolve, reject) => {
+            if (this.destroyed) reject(new Error('Replay interrupted'));
+            else setTimeout(resolve, 0);
+          }),
+        (fraction) => this.experimentProgress.set(Math.round(fraction * 100)),
+      );
+      if (this.destroyed) return;
+      this.installExperiment(session, true);
+      this.comparison.set({ previous, restored: { ...this.world.stats() } });
+      this.experimentStatus.set(
+        `Replay verified: ${document.ticks} ticks, ${document.interventions.length} interventions.`,
+      );
+      succeeded = true;
+    } catch (error) {
+      if (!this.destroyed) {
+        this.experimentStatus.set(error instanceof Error ? error.message : 'Replay failed');
+      }
+    } finally {
+      if (!succeeded && !this.destroyed) {
+        this.runner.setPaused(wasPaused);
+        this.paused.set(wasPaused);
+      }
+      if (!this.destroyed) this.experimentBusy.set(false);
+    }
   }
   closeInspector() {
     this.world.selectedId = null;

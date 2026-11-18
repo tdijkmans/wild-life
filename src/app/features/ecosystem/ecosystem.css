@@ -1310,3 +1310,89 @@
     padding: 0 9px;
   }
 }
+
+/* The experiment lab lives outside the immersive canvas and remains usable on mobile. */
+.experiment-panel {
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  padding: 13px 17px;
+  background: rgba(10, 29, 32, 0.65);
+  margin-bottom: 17px;
+}
+
+.experiment-heading,
+.experiment-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.experiment-heading {
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.experiment-kicker,
+.experiment-detail,
+.experiment-panel label,
+.experiment-feedback,
+.experiment-comparison {
+  font: 10px var(--mono);
+  color: #a5c9bb;
+}
+
+.experiment-kicker {
+  letter-spacing: 1.4px;
+  color: var(--mint);
+}
+
+.experiment-panel label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.experiment-panel input[type='number'] {
+  width: 105px;
+  height: 32px;
+  border: 1px solid rgba(173, 205, 198, 0.19);
+  border-radius: 5px;
+  background: #102027;
+  color: #e7f5ed;
+  font: 11px var(--mono);
+  padding: 0 7px;
+}
+
+.experiment-panel input[type='number']:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.experiment-controls ds-button {
+  --ds-button-height: 32px;
+  --ds-button-padding-x: 10px;
+  font: 10px var(--mono);
+}
+
+.experiment-file {
+  display: none;
+}
+
+.experiment-feedback,
+.experiment-comparison {
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .experiment-panel {
+    padding: 12px;
+  }
+  .experiment-controls {
+    gap: 8px;
+  }
+  .experiment-panel input[type='number'] {
+    width: 82px;
+  }
+}

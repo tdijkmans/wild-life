@@ -1,6 +1,11 @@
 /** WILD agent-based ecosystem. All charts come from these simulated agents. */
 export type Species = 'prey' | 'predator';
 export type Intervention = 'bloom' | 'current' | 'heat' | 'cold';
+/** External interventions only. Autonomous feeding/movement is never recorded. */
+export type WorldIntervention =
+  | { kind: 'bloom'; x: number; y: number; amount: number }
+  | { kind: 'current'; x: number; y: number; dx: number; dy: number }
+  | { kind: 'heat' | 'cold'; x: number; y: number };
 export interface Genes {
   speed: number; // Movement, 0.55—1.6
   vision: number; // Perception range, 0.55—1.6
@@ -159,6 +164,8 @@ export class WorldEngine {
   kills = 0;
   maxPopulation = 0;
   selectedId: number | null = null;
+  /** Optional non-invasive recorder hook; does not alter biological dynamics. */
+  onIntervention?: (event: WorldIntervention) => void;
   private readonly initialPrey: number;
   private readonly initialPredators: number;
 
@@ -291,6 +298,7 @@ export class WorldEngine {
     // Bound work even if an API caller supplies an enormous or non-finite amount.
     if (!Number.isFinite(amount) || amount <= 0) return;
     const count = Math.min(Math.ceil(amount), MAX_FOOD - this.food.length);
+    this.onIntervention?.({ kind: 'bloom', x, y, amount });
     for (let i = 0; i < count; i++) {
       const a = this.random.between(0, Math.PI * 2),
         r = Math.sqrt(this.random.next()) * 48;
@@ -302,10 +310,14 @@ export class WorldEngine {
     if (![x, y, dx, dy].every(Number.isFinite)) return;
     const len = Math.hypot(dx, dy);
     if (len < 1) return;
+    this.onIntervention?.({ kind: 'current', x, y, dx, dy });
     this.pulse(x, y, 'current', 1.65, 115, clamp(dx * 2, -160, 160), clamp(dy * 2, -160, 160));
   }
   climate(x: number, y: number, kind: 'heat' | 'cold') {
-    if (Number.isFinite(x) && Number.isFinite(y)) this.pulse(x, y, kind, 18, 118, 0, 0);
+    if (Number.isFinite(x) && Number.isFinite(y)) {
+      this.onIntervention?.({ kind, x, y });
+      this.pulse(x, y, kind, 18, 118, 0, 0);
+    }
   }
   private pulse(
     x: number,
