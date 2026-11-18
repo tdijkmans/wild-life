@@ -100,5 +100,7 @@ if (failures.length) {
   console.error('Agent guidance integrity failed:\n' + failures.map((item) => `- ${item}`).join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Agent guidance OK: ${instructionPaths.length} instruction files and ${referencedPaths.length} referenced files.`);
+  console.log(
+    `Agent guidance OK: ${instructionPaths.length} instruction files and ${referencedPaths.length} referenced files.`,
+  );
 }

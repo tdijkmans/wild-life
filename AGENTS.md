@@ -37,16 +37,16 @@ multiple independent copies.
 
 ## Module ownership: do not bypass these boundaries
 
-| Area | Owns | Must not do |
-| --- | --- | --- |
-| `src/app/features/<world>/domain/` | Pure deterministic model, events and experiment rules | Import Angular, DOM, Canvas, other feature UI |
-| `src/app/features/<world>/rendering/` | Canvas drawing and charts | Own biological updates or Angular route state |
-| `src/app/features/<world>/controllers/` | Feature-specific input and fullscreen lifecycle | Import its route component or become a global singleton |
-| `src/app/features/<world>/` route page | Compose runner, controls, charts and presentation | Duplicate the simulation scheduler or domain logic |
-| `src/app/features/home/` | Catalogue-driven home layout and featured display | Import a world engine, renderer or preview directly |
-| `src/app/simulations/` | One registration per world, lazy routes and preview loaders | Duplicate routes or eager-load a feature |
-| `src/app/shared/simulation/` | Framework-independent scheduling and preview contracts | Depend on any particular ecosystem or feature |
-| `src/app/shared/design-system/` | Reused accessible UI components | Carry feature-specific behavior |
+| Area                                    | Owns                                                        | Must not do                                             |
+| --------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| `src/app/features/<world>/domain/`      | Pure deterministic model, events and experiment rules       | Import Angular, DOM, Canvas, other feature UI           |
+| `src/app/features/<world>/rendering/`   | Canvas drawing and charts                                   | Own biological updates or Angular route state           |
+| `src/app/features/<world>/controllers/` | Feature-specific input and fullscreen lifecycle             | Import its route component or become a global singleton |
+| `src/app/features/<world>/` route page  | Compose runner, controls, charts and presentation           | Duplicate the simulation scheduler or domain logic      |
+| `src/app/features/home/`                | Catalogue-driven home layout and featured display           | Import a world engine, renderer or preview directly     |
+| `src/app/simulations/`                  | One registration per world, lazy routes and preview loaders | Duplicate routes or eager-load a feature                |
+| `src/app/shared/simulation/`            | Framework-independent scheduling and preview contracts      | Depend on any particular ecosystem or feature           |
+| `src/app/shared/design-system/`         | Reused accessible UI components                             | Carry feature-specific behavior                         |
 
 Refer to `docs/architecture.md`, `docs/simulation-catalog.md` and
 `docs/ecosystem-ui-architecture.md` for the detailed boundaries.
@@ -88,6 +88,7 @@ From the repository root, run:
 
 ```bash
 npm ci
+npm run agent:check
 npm run typecheck
 npm run lint
 npm run format:check
