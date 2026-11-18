@@ -19,7 +19,7 @@
           change its conditions, and discover what emerges.
         </p>
         <a class="wl-cta" [routerLink]="featuredSimulation.path"
-          >Explore the first world <span aria-hidden="true">↗</span></a
+          >Explore the featured world <span aria-hidden="true">↗</span></a
         >
         <div class="wl-note">
           <i class="wl-dot"></i> {{ activeWorldsLabel }} <span>—</span> THE COLLECTION WILL GROW
@@ -39,7 +39,9 @@
         <div class="wl-preview-shade" aria-hidden="true"></div>
         <div class="wl-preview-top">
           <span>WORLD {{ featuredSimulation.number }}</span>
-          <span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
+          @if (featuredSimulation.preview && !previewUnavailable()) {
+            <span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
+          }
         </div>
         <div class="wl-preview-bottom">
           <h2>{{ featuredSimulation.preview?.title || featuredSimulation.name }}</h2>
