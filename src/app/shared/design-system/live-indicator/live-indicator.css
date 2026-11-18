@@ -11,7 +11,7 @@
 .ds-live-indicator-dot {
   width: var(--ds-live-size, 6px);
   height: var(--ds-live-size, 6px);
-  background: var(--ds-live-color, #90f0bd);
+  background: var(--ds-live-color, var(--wl-live));
   border-radius: 50%;
   display: inline-block;
   box-shadow: 0 0 12px var(--ds-live-color, #67d9b0);
@@ -22,5 +22,11 @@
   50% {
     opacity: 0.32;
     transform: scale(0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-live-indicator-dot {
+    animation: none;
   }
 }

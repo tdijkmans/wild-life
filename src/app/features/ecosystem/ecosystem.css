@@ -1,14 +1,14 @@
 :host {
   display: block;
   min-height: 100vh;
-  --mint: #8af2d8;
-  --coral: #f9aa79;
+  --mint: var(--wl-accent-mint);
+  --coral: var(--wl-accent-coral);
   --muted: #879b9b;
-  --edge: rgba(168, 204, 192, 0.13);
-  --mono: 'DM Mono', monospace;
+  --edge: var(--wl-border-subtle);
+  --mono: var(--wl-font-mono);
   background: #081116;
   color: #e9f2ec;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--wl-font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -82,7 +82,7 @@
   top: 18px;
 }
 .brand-word {
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-size: 26px;
   letter-spacing: -1.7px;
   font-weight: 800;
@@ -160,43 +160,33 @@
   gap: 8px;
   font-size: 11px;
 }
-.top-actions button {
+.top-actions ds-button {
+  --ds-button-height: 34px;
+}
+.subtle-btn {
   height: 34px;
   border-radius: 7px;
-  white-space: nowrap;
-}
-.subtle-btn,
-.icon-btn {
   border: 1px solid rgba(173, 205, 198, 0.14);
-  background: #102027;
+  background: var(--wl-surface-button);
   color: #d5e6df;
   padding: 0 14px;
+  white-space: nowrap;
 }
-.icon-btn {
-  width: 34px;
-  padding: 0;
-  color: #9db5b5;
-  font-size: 16px;
-}
-.subtle-btn:hover,
-.icon-btn:hover {
+.subtle-btn:hover {
   border-color: rgba(143, 239, 213, 0.5);
+}
+.top-actions ds-button.aquarium-enter {
+  --ds-button-border: rgba(139, 235, 202, 0.36);
+  --ds-button-color: #aef3d8;
+  --ds-button-hover-bg: #1a3636;
 }
 .action-icon {
   font-size: 18px;
   vertical-align: -1px;
   padding-right: 2px;
 }
-.pause-btn {
-  padding: 0 17px;
-  background: #abf2cf;
-  color: #0c2524;
-  border: 1px solid #abf2cf;
-  font-weight: 700;
-}
-.pause-btn.is-paused {
-  background: #f1b18d;
-  border-color: #f1b18d;
+.top-actions ds-button.pause-btn.is-paused {
+  --ds-button-primary-bg: #f1b18d;
 }
 .page-intro {
   min-height: 172px;
@@ -226,7 +216,7 @@
   line-height: 1.15;
   font-weight: 600;
   letter-spacing: -2.2px;
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
 }
 .headline-dot {
   color: #75ebcf;
@@ -404,7 +394,7 @@
   color: #0b3932;
 }
 .tool-name {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--wl-font-body);
   font-size: 10px;
   font-weight: 700;
 }
@@ -539,7 +529,7 @@
   color: #8ccaaf;
 }
 .welcome-title {
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-size: 28px;
   letter-spacing: -1px;
   line-height: 1.3;
@@ -600,7 +590,7 @@
 }
 .selected-name {
   margin: 12px 0 18px;
-  font-family: Manrope, sans-serif;
+  font-family: var(--wl-font-display);
   font-weight: 700;
   font-size: 18px;
 }
@@ -659,9 +649,6 @@
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: 13px;
   }
-  .insights-panel {
-    padding: 21px 18px 13px;
-  }
   .top-center {
     display: none;
   }
@@ -686,34 +673,6 @@
     height: 60vw;
     min-height: 480px;
   }
-  .insights-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 23px;
-    align-items: start;
-  }
-  .insights-heading,
-  .panel-title,
-  .panel-subtitle,
-  .metrics-header,
-  .metrics-grid,
-  .facts,
-  .field-log,
-  .insights-footer {
-    grid-column: 1/-1;
-  }
-  .panel-title {
-    margin-top: 17px;
-  }
-  .panel-subtitle {
-    margin-bottom: 14px;
-  }
-  .stat-row {
-    margin: 0 0 12px;
-  }
-  .insights-footer {
-    margin-top: 14px;
-  }
 }
 @media (max-width: 600px) {
   .app-shell {
@@ -737,14 +696,16 @@
   .top-actions {
     gap: 5px;
   }
-  .top-actions button {
-    height: 31px;
+  .top-actions ds-button {
+    --ds-button-height: 31px;
+    --ds-button-padding-x: 9px;
+  }
+  .top-actions ds-button.pause-btn {
+    --ds-button-padding-x: 11px;
   }
   .top-actions .subtle-btn {
+    height: 31px;
     padding: 0 9px;
-  }
-  .pause-btn {
-    padding: 0 11px;
   }
   .hide-sm {
     display: none;
@@ -838,56 +799,6 @@
   .under-legend {
     font-size: 8px;
   }
-  .timeline-card {
-    padding: 17px 15px 11px;
-    min-height: 0;
-  }
-  .timeline-heading h2 {
-    font-size: 17px;
-  }
-  .timeline-controls button {
-    font-size: 10px;
-    padding: 6px 7px;
-  }
-  .chart-legend {
-    gap: 9px;
-    font-size: 9px;
-  }
-  .chart-note {
-    display: none;
-  }
-  .main-chart {
-    height: 125px;
-  }
-  .insights-panel {
-    grid-template-columns: 1fr 1fr;
-    padding: 19px 16px;
-    column-gap: 15px;
-  }
-  .panel-title {
-    font-size: 24px;
-  }
-  .panel-subtitle {
-    font-size: 11px;
-  }
-  .stat-row {
-    min-width: 0;
-  }
-  .spark {
-    display: none;
-  }
-  .stat-value {
-    font-size: 32px;
-  }
-  .stat-description {
-    font-size: 8px;
-  }
-  .metric {
-    padding: 12px 9px;
-  }
-  .metric-label {
-    font-size: 7px;
-  }
   .app-footer {
     font-size: 7px;
     height: 49px;
@@ -908,17 +819,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .insights-live span {
-    animation: none;
-  }
 }
-.aquarium-enter {
-  border-color: rgba(139, 235, 202, 0.36);
-  color: #aef3d8;
-}
-.aquarium-enter:hover {
-  background: #1a3636;
-}
+/* Aquarium button tones are configured through ds-button custom properties. */
 .world-frame.aquarium-active,
 .world-frame.aquarium-active:fullscreen {
   position: fixed;

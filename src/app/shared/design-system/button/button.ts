@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 
-type ButtonVariant = 'subtle' | 'icon' | 'primary';
+export type ButtonVariant = 'subtle' | 'icon' | 'primary' | 'segmented';
 
 @Component({
   selector: 'ds-button',
@@ -24,5 +24,6 @@ export class DsButtonComponent {
     'ds-button--subtle': this.variant() === 'subtle',
     'ds-button--icon': this.variant() === 'icon',
     'ds-button--primary': this.variant() === 'primary',
+    'ds-button--segmented': this.variant() === 'segmented',
   }));
 }

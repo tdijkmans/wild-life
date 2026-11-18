@@ -6,6 +6,7 @@ import { WorldRenderer } from './rendering/renderer';
 import { drawChart, drawTinyChart } from './rendering/charts';
 import { SimulationRunner } from '../../shared/simulation/simulation-runner';
 import { DsLiveIndicatorComponent } from '../../shared/design-system/live-indicator/live-indicator';
+import { DsButtonComponent } from '../../shared/design-system/button/button';
 import { EcosystemTimelineCardComponent } from './components/ecosystem-timeline-card/ecosystem-timeline-card';
 import { EcosystemInsightsPanelComponent } from './components/ecosystem-insights-panel/ecosystem-insights-panel';
 import {
@@ -22,6 +23,7 @@ import { WorldPointerController, type Tool } from './controllers/world-pointer.c
     DecimalPipe,
     RouterLink,
     DsLiveIndicatorComponent,
+    DsButtonComponent,
     EcosystemTimelineCardComponent,
     EcosystemInsightsPanelComponent,
   ],

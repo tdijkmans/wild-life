@@ -8,11 +8,12 @@ import {
   input,
 } from '@angular/core';
 import { DsEyebrowComponent } from '../../../../shared/design-system/eyebrow/eyebrow';
+import { DsButtonComponent } from '../../../../shared/design-system/button/button';
 
 @Component({
   selector: 'app-ecosystem-timeline-card',
   standalone: true,
-  imports: [DsEyebrowComponent],
+  imports: [DsEyebrowComponent, DsButtonComponent],
   templateUrl: './ecosystem-timeline-card.html',
   styleUrl: './ecosystem-timeline-card.css',
 })
