@@ -52,7 +52,10 @@ export class WorldPointerController {
     event.preventDefault();
     if (!this.context.canInteract()) return;
     const viewport = this.context.getViewport();
-    viewport.zoom = Math.max(1, Math.min(2.8, viewport.zoom * (event.deltaY > 0 ? 0.92 : 1.08)));
+    viewport.zoom = Math.max(
+      1,
+      Math.min(2.8, viewport.zoom * (event.deltaY > 0 ? 0.92 : 1.08)),
+    );
     this.context.onZoom(viewport.zoom);
   }
 
@@ -93,7 +96,10 @@ export class WorldPointerController {
       const points = [...this.pointers.values()];
       const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
       if (this.pinchDistance) {
-        viewport.zoom = Math.max(1, Math.min(2.8, (this.pinchZoom * distance) / this.pinchDistance));
+        viewport.zoom = Math.max(
+          1,
+          Math.min(2.8, (this.pinchZoom * distance) / this.pinchDistance),
+        );
         this.context.onZoom(viewport.zoom);
       }
       return;
