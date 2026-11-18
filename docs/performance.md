@@ -1,47 +1,45 @@
 # Performance optimization — step 5
 
-The engine remains fixed at 60 simulation steps/second; biological behavior
-and statistical results should not change because a canvas is drawn less often.
+The biological model still runs at 60 fixed simulation steps per second.
+Drawing fewer frames must not alter the engine's ecological behavior or results.
 
-## Before → after (theoretical draw/update counts, verified by unit tests)
+## Draw and update counts
 
-| Operation | Before | After |
-|:--|:--|:--|
-| Homepage Canvas draw at 60 Hz | Up to 60 draws/s | Up to 30 draws/s |
-| Homepage Canvas draw at 120 Hz | Up to 120 draws/s | Up to 30 draws/s |
-| Homepage simulation and draw when off-screen | Continues | Stops entirely |
-| Full simulation graphs while history is unchanged | ~4.5 rebuilds/s | ~0.9 rebuilds/s |
-| WorldEngine simulation step frequency | 60 Hz | 60 Hz |
+The following counts are derived from the scheduling rules and checked by
+unit tests; they are not measurements of total browser CPU time.
 
-The graph interval is approximate: it is based on the engine's 1.1-second
-history samples. Graphs still redraw on chart-mode changes, canvas resize and
-when the Aquarium card is enabled. Pausing a world no longer repaints graph
-data repeatedly.
+- **Homepage preview at 60 Hz:** up to 60 draws/s before, 30 draws/s after.
+- **Homepage preview at 120 Hz:** up to 120 draws/s before, 30 draws/s after.
+- **Preview outside the viewport:** formerly continued; now stops entirely.
+- **Full simulation graphs:** formerly redrawn about 4.5 times per second.
+  Now redrawn when a new history sample arrives, about 0.9 times per second.
+- **WorldEngine integration:** 60 fixed simulation steps/s before and after.
+
+Graph redraws still happen on chart-mode changes, viewport resize, and when
+the Aquarium timeline becomes visible. Pausing a world does not repaint
+identical graph data repeatedly.
 
 ## Implementation
 
-- `shared/simulation/frame-throttle.ts` limits *visual* frames independently
-  of the Simulation Runner's fixed-timestep integration; tests confirm 30
-  render callbacks per second on both 60 Hz and 120 Hz schedules.
-- Home uses `IntersectionObserver` to start/stop the preview runner as its
-  canvas enters/leaves the viewport, and pauses for hidden tabs. A fallback
-  keeps the preview available where IntersectionObserver is unsupported.
-- Ecosystem graphs and history/event signals refresh only when their source
-  samples/events change; rendering still responds to forced resize and mode
-  changes.
-- Canvas resizing checks actual backing-store dimensions to avoid resetting
-  the backing store when unchanged.
-- `npm run perf:benchmark` produces an observational engine CPU report using
-  deterministic seeds. CI uploads `reports/performance.json`.
+- `shared/simulation/frame-throttle.ts` limits visual frames independently
+  of simulation integration. Unit tests count draws under 60 Hz and 120 Hz
+  callback schedules.
+- The homepage uses `IntersectionObserver` to start/stop its preview runner
+  when the canvas enters or leaves the viewport. Hidden tabs also pause it.
+  Older browsers without IntersectionObserver retain an active preview.
+- The ecosystem updates graphs and history/event signals only when source
+  samples or events change, while allowing explicit redraw on resize.
+- Canvas backing stores resize only when pixel dimensions actually change.
+- `npm run perf:benchmark` benchmarks the seeded engine on CI, writes
+  `reports/performance.json`, and prints an informational job summary.
 
-## What we have and have not measured
+## Interpretation
 
-The draw-call reduction is a deterministic, testable consequence of the
-throttling policy. It is **not** a measured 50–75% CPU reduction. Browser
-painting, compositor work, GPU overhead, thermal throttling and actual FPS
-remain dependent on the user's device.
+The draw-call reduction is deterministic and testable. It does **not** mean
+that browser CPU usage has been reduced by a corresponding percentage.
+Painting, compositing, GPU cost, frame rate, and thermal effects depend
+on actual hardware.
 
-The CI benchmark is a reproducible CPU *procedure* with real measurements,
-but hosted runner timings are noisy. Compare medians over multiple runs,
-ideally on the same hardware, and use browser Performance profiling for
-end-to-end main-thread/paint measurements before promising FPS improvements.
+The CI benchmark measures engine throughput, not canvas rendering. Hosted
+runner timings vary; compare medians across repeated runs and use Chrome
+Performance profiling for end-to-end browser metrics.
