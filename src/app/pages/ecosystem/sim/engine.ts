@@ -165,8 +165,11 @@ export class WorldEngine {
   constructor(seed = Math.floor(Math.random() * 0xffffffff), prey = 210, predators = 18) {
     this.seed = seed >>> 0;
     this.random = new Random(this.seed);
-    this.initialPrey = prey;
-    this.initialPredators = predators;
+    // Never allow malformed initial counts to create unbounded populations or loops.
+    this.initialPrey = Number.isFinite(prey) ? clamp(Math.floor(prey), 0, MAX_PREY) : 0;
+    this.initialPredators = Number.isFinite(predators)
+      ? clamp(Math.floor(predators), 0, MAX_PREDATORS)
+      : 0;
     this.populate();
   }
   get day() {
@@ -186,6 +189,7 @@ export class WorldEngine {
     for (let i = 0; i < 410; i++) this.addFood();
     for (let i = 0; i < this.initialPrey; i++) this.addOrganism('prey');
     for (let i = 0; i < this.initialPredators; i++) this.addOrganism('predator');
+    this.maxPopulation = this.organisms.length;
     this.event('world', 'A new world begins. Every life is an experiment.');
     this.takeHistory();
   }
@@ -222,6 +226,7 @@ export class WorldEngine {
         ? this.randomPoint()
         : { x: clamp(x, 0, W), y: clamp(y, 0, H) };
     this.food.push({ id: this.nextId++, x: p.x, y: p.y, energy: this.random.between(0.43, 0.67) });
+    this.statsCache = undefined;
   }
   private genesFor(species: Species, parent?: Genes): Genes {
     if (!parent)
@@ -330,6 +335,8 @@ export class WorldEngine {
   }
   /** Do not change organism array during iteration: births are staged. */
   step(rawDt: number) {
+    // NaN otherwise propagates through time, movement, and every derived statistic.
+    if (!Number.isFinite(rawDt) || rawDt <= 0) return;
     const dt = clamp(rawDt, 0, 0.05);
     if (!dt) return;
     this.elapsed += dt;
