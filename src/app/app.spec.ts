@@ -19,7 +19,12 @@ describe('WILD LIFE catalogue and routes', () => {
   });
 
   it('registers Predator–Prey Evolution as the featured world with a lazy preview', () => {
-    expect(SIMULATIONS).toHaveLength(1);
+    expect(SIMULATIONS).toHaveLength(3);
+    expect(SIMULATIONS.map((entry) => entry.path)).toEqual([
+      '/ecosystem',
+      '/murmuration',
+      '/defensive-herd',
+    ]);
     expect(FEATURED_SIMULATION.id).toBe('ecosystem');
     expect(FEATURED_SIMULATION.path).toBe('/ecosystem');
     expect(FEATURED_SIMULATION.preview?.loadComponent).toBeTypeOf('function');

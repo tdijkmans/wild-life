@@ -505,3 +505,32 @@
     transition: none;
   }
 }
+
+/* Each registered world retains a distinctive visual identity in the catalogue. */
+.wl-world-card[data-world='murmuration'] {
+  border-color: rgba(164, 171, 228, 0.3);
+  background:
+    radial-gradient(ellipse at 88% 15%, rgba(184, 133, 197, 0.24), transparent 53%),
+    linear-gradient(135deg, #22233c, #131a2c);
+}
+
+.wl-world-card[data-world='murmuration'] .wl-orbit {
+  border-color: rgba(203, 189, 237, 0.55);
+}
+
+.wl-world-card[data-world='murmuration'] .wl-orbit i {
+  background: #b7c7f7;
+  box-shadow: 0 0 29px #a69fea;
+}
+
+.wl-world-card[data-world='defensive-herd'] {
+  border-color: rgba(125, 190, 160, 0.32);
+  background:
+    radial-gradient(ellipse at 80% 16%, rgba(131, 201, 158, 0.18), transparent 58%),
+    linear-gradient(130deg, #152d2b, #101d25);
+}
+
+.wl-world-card[data-world='defensive-herd'] .wl-orbit:after {
+  border-style: dashed;
+  border-color: rgba(163, 233, 182, 0.65);
+}

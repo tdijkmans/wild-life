@@ -45,21 +45,22 @@ of the collection.
 
 **Available**
 
-- **001 · Predator–Prey Evolution** — a seeded ecological world of grazers,
-  hunters, food, reproduction and inherited traits. Influence it through food,
-  currents and localized warming or cooling.
+- **001 · [Predator–Prey Evolution](/ecosystem)** — a seeded ecological world
+  of grazers, hunters, food, reproduction and inherited traits. Influence it
+  through food, currents and localized warming or cooling.
+- **002 · [Murmuration](/murmuration)** — hundreds of independently moving
+  starlings align, separate and cohere into living flocks. A roaming raptor
+  creates disturbance; soft wind, thermals and still air change trajectories.
+- **003 · [Defensive Herd](/defensive-herd)** — grazing adults gather and face
+  outward around young when predators approach. A protective ring forms through
+  individual social rules; gaps remain dangerous. Influence grazing, predator
+  scent and breeze.
 
 **Future concepts — not yet implemented**
 
-- **Murmuration** — thousands of agents form flowing flocks through local
-  alignment, cohesion and separation. Shape their motion with wind and thermals.
 - **Canopy** — trees branch, unfold leaves and develop overlapping crowns.
   Light competition, water availability, insect herbivory and regrowth shape
   a living canopy. Gently change light, rain, warmth or nutrient gradients.
-- **Defensive Herd** — grazing animals coordinate when predators approach.
-  Local sensing and social behavior can produce an outward-facing protective
-  ring around vulnerable young, reducing predation risk without scripted
-  formation commands. Influence movement through terrain, food, wind or scent.
 - **Abyssal Bloom** — plankton populations, nutrient cycles and ocean currents
   create luminous underwater blooms. Influence light, temperature and flow.
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
@@ -85,8 +86,8 @@ npm ci
 npm start
 ```
 
-Open `http://localhost:4200/`. The current routes are the collection at
-`/` and Predator–Prey Evolution at `/ecosystem`.
+Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
+`/murmuration` and `/defensive-herd`.
 
 Add new worlds as feature folders and register them **once** in
 [`src/app/simulations/simulation-catalog.ts`](src/app/simulations/simulation-catalog.ts).
@@ -112,7 +113,8 @@ npm run build
 For UI, navigation, Canvas and experiment import/export changes, also run
 `npm run test:e2e` after installing Playwright Chromium.
 
-See [architecture](docs/architecture.md),
+See [new world models](docs/new-worlds.md),
+[architecture](docs/architecture.md),
 [simulation catalogue](docs/simulation-catalog.md),
 [reproducible experiments](docs/experiments.md) and
 [quality gates](docs/quality-gates.md) for implementation details.

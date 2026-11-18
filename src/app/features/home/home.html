@@ -71,7 +71,7 @@
       </div>
       <div class="wl-grid">
         @for (simulation of simulations; track simulation.id) {
-          <a class="wl-world-card" [routerLink]="simulation.path">
+          <a class="wl-world-card" [routerLink]="simulation.path" [attr.data-world]="simulation.id">
             <span class="wl-orbit" aria-hidden="true"><i></i></span>
             <div class="wl-world-content">
               <div class="wl-card-kicker">
