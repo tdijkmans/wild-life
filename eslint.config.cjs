@@ -25,6 +25,23 @@ module.exports = tseslint.config(
     },
   },
   {
+    // Enforce the domain's independence from Angular, presentation and routing.
+    files: ['src/app/features/**/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@angular/*', '**/rendering/**', '**/components/**', '**/home/**'],
+              message: 'Domain code must not depend on Angular or presentation modules.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/**/*.html'],
     extends: [...angular.configs.templateRecommended],
   },

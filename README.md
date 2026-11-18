@@ -16,13 +16,18 @@ Open the app at `http://localhost:4200/`.
 - **`/`**: collection homepage with a living preview and experiment selection.
 - **`/ecosystem`**: the Predator–Prey Evolution world with live statistics, touch/mouse interventions, and immersive Aquarium mode.
 
-To add another experiment: register it in `src/app/pages/home/simulation-catalog.ts` and register a lazily loaded route in `src/app/app.routes.ts`.
+To add another experiment: register it in `src/app/features/home/simulation-catalog.ts` and register a lazily loaded route in `src/app/app.routes.ts`.
 
-## Scalable UI structure
+## Feature-oriented architecture
 
-- `src/app/shared/design-system/`: reusable design primitives (for example `button`, `eyebrow`, and `live-indicator`).
-- `src/app/features/ecosystem/components/`: ecosystem feature components, split by responsibility (timeline card, insights panel, etc.).
-- Page-level components keep orchestration/state, while feature components render focused UI blocks.
+- `src/app/features/home/`: catalogue and live-preview landing page.
+- `src/app/features/ecosystem/domain/`: framework-independent ecological engine and regression tests.
+- `src/app/features/ecosystem/rendering/`: canvas world renderer and charts.
+- `src/app/features/ecosystem/components/`: feature-specific insights and timeline UI.
+- `src/app/features/ecosystem/ecosystem.ts`: route-level orchestration.
+- `src/app/shared/design-system/`: UI primitives shared by multiple features.
+
+See `docs/architecture.md` for module boundaries and a checklist for future experiments. The simulation runner and further UI extraction belong to subsequent roadmap steps, not this behavior-preserving move.
 
 Angular component styles are already locally scoped (style encapsulation), which is the framework-native equivalent of CSS modules.
 

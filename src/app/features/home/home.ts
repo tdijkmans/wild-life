@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { WorldEngine } from '../ecosystem/sim/engine';
-import { WorldRenderer } from '../ecosystem/sim/renderer';
+import { WorldEngine } from '../ecosystem/domain/engine';
+import { WorldRenderer } from '../ecosystem/rendering/renderer';
 import { SIMULATIONS } from './simulation-catalog';
 import { DsEyebrowComponent } from '../../shared/design-system/eyebrow/eyebrow';
 
