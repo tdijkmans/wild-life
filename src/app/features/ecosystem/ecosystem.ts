@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
 import { WorldRenderer } from './rendering/renderer';
 import { drawChart, drawTinyChart } from './rendering/charts';
+import { SimulationRunner } from '../../shared/simulation/simulation-runner';
 import { DsLiveIndicatorComponent } from '../../shared/design-system/live-indicator/live-indicator';
 import { EcosystemTimelineCardComponent } from './components/ecosystem-timeline-card/ecosystem-timeline-card';
 import { EcosystemInsightsPanelComponent } from './components/ecosystem-insights-panel/ecosystem-insights-panel';
@@ -42,9 +43,13 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private world = new WorldEngine(20261116);
   private renderer!: WorldRenderer;
   private resizeObserver?: ResizeObserver;
-  private frameId = 0;
-  private lastFrame = 0;
-  private accumulator = 0;
+  private readonly runner = new SimulationRunner(this.world, {
+    maxFrameSeconds: 0.065,
+    maxStepsPerFrame: 18,
+    maxAccumulatedSeconds: 0.28,
+    isActive: () => !document.hidden,
+    onFrame: ({ nowMs, deltaSeconds }) => this.onSimulationFrame(nowMs, deltaSeconds),
+  });
   private statsTimer = 0;
   private interactionTimer = 0;
   private pointers = new Map<number, { x: number; y: number }>();
@@ -169,13 +174,13 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     window.addEventListener('keydown', this.keyHandler);
     document.addEventListener('fullscreenchange', this.fullscreenHandler);
     this.onResize();
-    this.frameId = requestAnimationFrame(this.tick);
+    this.runner.start();
   }
   ngOnDestroy() {
     if (document.fullscreenElement === this.worldFrame?.nativeElement) {
       void document.exitFullscreen().catch(() => {});
     }
-    cancelAnimationFrame(this.frameId);
+    this.runner.stop();
     this.resizeObserver?.disconnect();
     window.removeEventListener('keydown', this.keyHandler);
     document.removeEventListener('fullscreenchange', this.fullscreenHandler);
@@ -183,19 +188,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     document.body.style.overflow = this.priorBodyOverflow;
   }
 
-  private tick = (now: number) => {
-    if (!this.lastFrame) this.lastFrame = now;
-    const delta = Math.min((now - this.lastFrame) / 1000, 0.065);
-    this.lastFrame = now;
-    if (!this.paused()) {
-      this.accumulator = Math.min(0.28, this.accumulator + delta * this.speed());
-      let steps = 0;
-      while (this.accumulator >= 1 / 60 && steps < 18) {
-        this.world.step(1 / 60);
-        this.accumulator -= 1 / 60;
-        steps++;
-      }
-    }
+  private onSimulationFrame(now: number, delta: number): void {
     this.renderer.render(now);
     this.statsTimer += delta;
     if (this.statsTimer > 0.22) {
@@ -219,8 +212,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         this.interactionTimer = 0;
       }
     }
-    this.frameId = requestAnimationFrame(this.tick);
-  };
+  }
   private updateUi() {
     this.stats.set(this.world.stats());
     this.history.set([...this.world.history]);
@@ -272,20 +264,21 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.paintCharts();
   }
   togglePause() {
-    this.paused.update((p) => !p);
-    this.lastFrame = performance.now();
+    this.runner.setPaused(!this.runner.isPaused);
+    this.paused.set(this.runner.isPaused);
   }
   cycleSpeed() {
-    this.speed.set(this.speed() === 1 ? 2 : this.speed() === 2 ? 4 : 1);
+    this.runner.setSpeed(this.runner.playbackSpeed === 1 ? 2 : this.runner.playbackSpeed === 2 ? 4 : 1);
+    this.speed.set(this.runner.playbackSpeed);
   }
   newWorld() {
     this.world = new WorldEngine(Math.floor(Math.random() * 4294967295));
     this.renderer.setWorld(this.world);
+    this.runner.setWorld(this.world);
+    this.runner.setPaused(false);
     this.seed.set(this.world.seed);
     this.selected.set(null);
     this.paused.set(false);
-    this.lastFrame = performance.now();
-    this.accumulator = 0;
     this.statsTimer = 0;
     this.renderer.zoom = 1;
     this.zoomLevel.set(1);

@@ -25,6 +25,9 @@ src/app/
         ecosystem-timeline-card/
   shared/
     design-system/
+    simulation/
+      simulation-runner.ts
+      simulation-runner.spec.ts
 ```
 
 ## Dependency boundaries
@@ -42,8 +45,15 @@ src/app/
    That is a **known coupling** until the future simulation catalogue abstraction
    (roadmap step 8). Do not introduce a generic plugin interface prematurely.
 
+The shared `shared/simulation/simulation-runner.ts` now owns frame scheduling,
+fixed-step integration, pause, playback speed, visibility suspension, world swapping and
+lifecycle cleanup. It uses only a `step(dt)` interface and has no Angular or DOM
+dependency in its logic (the browser clock is injectable). The ecosystem engine remains
+deterministic and unaware of the runner.
+
 No `core/` or `application/` folder is introduced without an actual responsibility.
-A standalone simulation runner belongs to roadmap step 4.
+UI-level orchestration, chart refresh and pointer controls stay in feature components
+pending later refactoring steps.
 
 ## Adding a world
 
