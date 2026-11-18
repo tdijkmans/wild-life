@@ -11,6 +11,7 @@ const MURMURATION: WorldExperienceDefinition = {
   description:
     'Watch small, independent decisions become sweeping aerial patterns. Starlings follow nearby birds, evade a passing raptor and respond to changes in the air.',
   theme: 'sky',
+  soundProfile: 'sky',
   seed: 20261118,
   tools: [
     {

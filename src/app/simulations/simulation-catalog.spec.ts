@@ -47,14 +47,16 @@ describe('Simulation catalog registration', () => {
     expect(featuredSimulation([example('fallback', '/fallback')]).id).toBe('fallback');
   });
 
-  it('registers three distinct living worlds with independent lazy routes', () => {
+  it('registers five distinct living worlds with independent lazy routes', () => {
     const registered = SIMULATIONS.map((world) => ({ id: world.id, path: world.path }));
     expect(registered).toEqual([
       { id: 'ecosystem', path: '/ecosystem' },
       { id: 'murmuration', path: '/murmuration' },
       { id: 'defensive-herd', path: '/defensive-herd' },
+      { id: 'canopy', path: '/canopy' },
+      { id: 'abyssal-bloom', path: '/abyssal-bloom' },
     ]);
-    expect(simulationRoutes(SIMULATIONS)).toHaveLength(3);
+    expect(simulationRoutes(SIMULATIONS)).toHaveLength(5);
     expect(SIMULATIONS.filter((world) => world.featured)).toHaveLength(1);
   });
 

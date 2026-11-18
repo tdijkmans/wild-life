@@ -18,3 +18,16 @@ In addition to the repository root `AGENTS.md`:
   length: histories truncate to a fixed maximum and must continue updating.
 - Run targeted seeded model tests and Chromium navigation/Aquarium tests
   after changing this shared experience.
+
+## Procedural sound
+
+- `world-soundscape.ts` synthesizes original non-musical ambience and brief
+  semantic event cues. It is **presentation-only** and must not alter models
+  or consume their seeded random stream.
+- No `AudioContext` creation, audio playback or audio download before
+  deliberate user activation. Sound defaults off and is never persisted
+  or enabled through autoplay.
+- Honor explicit mute, simulation pause, tab visibility and component teardown.
+  Close contexts and disconnect nodes when leaving a world.
+- Keep playback levels low, cap event queues, de-duplicate events by ID and
+  rate-limit audible accents. Test muted startup and opt-in in Chromium.

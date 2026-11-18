@@ -62,6 +62,27 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     loadComponent: () =>
       import('../features/defensive-herd/defensive-herd').then((m) => m.DefensiveHerdComponent),
   },
+  {
+    id: 'canopy',
+    number: '004',
+    name: 'Canopy',
+    description:
+      'Watch trees branch, leaves unfold and insects consume the growing canopy. Alter rain, light and insect habitat.',
+    path: '/canopy',
+    tags: ['Forest growth', 'Herbivory', 'Ecology'],
+    loadComponent: () => import('../features/canopy/canopy').then((m) => m.CanopyComponent),
+  },
+  {
+    id: 'abyssal-bloom',
+    number: '005',
+    name: 'Abyssal Bloom',
+    description:
+      'Dive into a luminous plankton ecosystem shaped by nutrient cycles, grazing and ocean currents.',
+    path: '/abyssal-bloom',
+    tags: ['Ocean ecology', 'Plankton blooms', 'Nutrient cycles'],
+    loadComponent: () =>
+      import('../features/abyssal-bloom/abyssal-bloom').then((m) => m.AbyssalBloomComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */

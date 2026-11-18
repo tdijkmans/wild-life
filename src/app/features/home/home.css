@@ -534,3 +534,35 @@
   border-style: dashed;
   border-color: rgba(163, 233, 182, 0.65);
 }
+
+.wl-world-card[data-world='canopy'] {
+  border-color: rgba(154, 216, 143, 0.35);
+  background:
+    radial-gradient(ellipse at 82% 11%, rgba(189, 229, 126, 0.25), transparent 56%),
+    linear-gradient(137deg, #1b3a30, #0e272a);
+}
+
+.wl-world-card[data-world='canopy'] .wl-orbit {
+  border-color: rgba(187, 240, 156, 0.6);
+}
+
+.wl-world-card[data-world='canopy'] .wl-orbit i {
+  background: #b0ee99;
+  box-shadow: 0 0 30px rgba(152, 246, 137, 0.77);
+}
+
+.wl-world-card[data-world='abyssal-bloom'] {
+  border-color: rgba(108, 204, 230, 0.33);
+  background:
+    radial-gradient(ellipse at 86% 10%, rgba(85, 183, 207, 0.29), transparent 54%),
+    linear-gradient(135deg, #102d42, #091b33);
+}
+
+.wl-world-card[data-world='abyssal-bloom'] .wl-orbit {
+  border-color: rgba(128, 234, 246, 0.52);
+}
+
+.wl-world-card[data-world='abyssal-bloom'] .wl-orbit i {
+  background: #8aefe6;
+  box-shadow: 0 0 31px rgba(97, 236, 232, 0.77);
+}

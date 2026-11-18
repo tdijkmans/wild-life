@@ -11,6 +11,7 @@ const DEFENSIVE_HERD: WorldExperienceDefinition = {
   description:
     'A living herd grazes in a moonlit meadow. As predators draw near, adults independently gather around their young. A defensive ring can emerge — but its gaps matter.',
   theme: 'tundra',
+  soundProfile: 'meadow',
   seed: 20261119,
   tools: [
     {

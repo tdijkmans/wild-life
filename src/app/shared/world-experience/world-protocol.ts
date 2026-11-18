@@ -6,6 +6,14 @@ export interface WorldMetric {
   readonly tone: 'mint' | 'coral' | 'blue' | 'gold';
 }
 
+export type WorldSoundProfile = 'forest' | 'abyss' | 'sky' | 'meadow';
+
+export interface WorldAudioCue {
+  readonly id: number;
+  readonly kind: 'rain' | 'growth' | 'rustle' | 'bubble' | 'shimmer' | 'bloom' | 'flow';
+  readonly strength: number;
+}
+
 export interface WorldHistoryPoint {
   readonly time: number;
   readonly primary: number;
@@ -17,6 +25,8 @@ export interface InteractiveWorld {
   readonly width: number;
   readonly height: number;
   readonly history: readonly WorldHistoryPoint[];
+  /** Optional capped, semantic sound events emitted by the deterministic model. */
+  readonly audioCues?: readonly WorldAudioCue[];
   step(dtSeconds: number): void;
   influence(kind: string, x: number, y: number, dx: number, dy: number): void;
   metrics(): readonly WorldMetric[];
@@ -40,7 +50,9 @@ export interface WorldExperienceDefinition {
   readonly name: string;
   readonly tagline: string;
   readonly description: string;
-  readonly theme: 'sky' | 'tundra';
+  readonly theme: 'sky' | 'tundra' | 'forest' | 'abyss';
+  readonly sceneKicker?: string;
+  readonly soundProfile?: WorldSoundProfile;
   readonly seed: number;
   readonly tools: readonly WorldTool[];
   readonly primaryHistoryLabel: string;

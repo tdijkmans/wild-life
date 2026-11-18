@@ -16,6 +16,9 @@ const instructionPaths = [
   'src/app/shared/design-system/AGENTS.md',
   'src/app/simulations/AGENTS.md',
   'e2e/AGENTS.md',
+  'src/app/shared/world-experience/AGENTS.md',
+  'src/app/features/canopy/AGENTS.md',
+  'src/app/features/abyssal-bloom/AGENTS.md',
 ];
 
 const referencedPaths = [
@@ -42,6 +45,11 @@ const referencedPaths = [
   'src/app/features/ecosystem/controllers/world-pointer.controller.ts',
   'e2e/ecosystem.spec.ts',
   'playwright.config.ts',
+  'docs/new-worlds.md',
+  'src/app/shared/world-experience/world-soundscape.ts',
+  'src/app/features/canopy/domain/canopy-world.ts',
+  'src/app/features/abyssal-bloom/domain/abyssal-bloom-world.ts',
+  'e2e/new-worlds.spec.ts',
   'netlify.toml',
 ];
 

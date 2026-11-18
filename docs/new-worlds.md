@@ -1,4 +1,4 @@
-# New living worlds: Murmuration and Defensive Herd
+# Biology-inspired living worlds
 
 These are **biology-inspired** emergent simulations, not calibrated field
 models. They use the shared fixed-step `SimulationRunner`, deterministic
@@ -48,9 +48,69 @@ coverage leaves openings. Calves mature and new calves may be born.
 This is a simplified collective-defense model, not a claim that any real
 species forms a perfect or invulnerable ring.
 
+## Canopy (`/canopy`)
+
+The model grows real branching structures over time. Each branch follows
+the growing endpoint of its parent; attached leaves expand, contribute to
+tree energy and exhibit visible health and bite damage. Trees compete for
+light as neighboring crowns overlap and consume water while growing.
+
+Insects independently search local leaf positions using a spatial index;
+feeding reduces leaf health, and heavily damaged leaves are lost. Water,
+shade and insect activity influence future growth and regeneration.
+
+- **Rain:** temporary localized moisture that improves tree water reserves.
+- **Sunbeam:** localized light that improves leaf production.
+- **Wildflowers:** insect-attracting habitat that changes local herbivore movement.
+- **Aquarium:** sunlit, layered forest, actual growing branches and leaves,
+  leaf-vein details, insect flight and water/illumination fields.
+- **Laboratory:** total foliage, trees, insects, leaves eaten, and population trends.
+- **Sound:** opt-in forest wind ambience and restrained rain, leaf growth and
+  insect rustling cues tied to actual model events.
+
+Tree physiology, branch architecture and insect feeding are simplified
+biology-inspired dynamics, not calibrated forest-growth predictions.
+
+## Abyssal Bloom (`/abyssal-bloom`)
+
+Phytoplankton gain energy through **light and local nutrient concentration**,
+move with currents, divide and eventually die. Zooplankton independently
+seek and consume producers, obtain energy and reproduce. Nutrients move and
+diffuse through a simulated water column. Grazing changes biomass and can
+drive population cycles.
+
+- **Current:** move water and resident organisms through a directional field.
+- **Upwelling:** bring nutrients into a region of the water column.
+- **Light:** increase localized photosynthetic production.
+- **Aquarium:** deep ocean gradient, sunshafts, softly glowing phytoplankton,
+  feeding zooplankton, biological shimmer and faint flow lines.
+- **Laboratory:** producers, grazers, nutrient reserve, luminosity and trends.
+- **Sound:** opt-in underwater wash and quiet bloom, bubble and shimmer events
+  derived from nutrient injection, population growth and feeding.
+
+The water column is a stylized plankton food web. Bioluminescence and
+nutrient cycles are not scientifically calibrated.
+
+## Procedural sound and listening consent
+
+Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
+`WorldSoundscape` uses the browser Web Audio API to synthesize quiet,
+original ambient textures and short non-musical event accents. Audio is
+**muted by default** and no `AudioContext` is created until a deliberate
+Sound button or keyboard (M) activation.
+
+- Sound stays separate from simulation physics and never consumes the model PRNG.
+- Semantic events are emitted in bounded queues; the presentation layer
+  de-duplicates them by increasing IDs and rate-limits audio playback.
+- Pause and background visibility suspend audio; navigation and component
+  destruction close the context. User can mute at any moment.
+- No third-party audio files, streamed media, tracking or autoplay.
+- Procedural sound currently covers worlds 002–005. Predator–Prey
+  Evolution continues to use its original interface without sound.
+
 ## Reproducibility and performance
 
-Both models accept fixed integer seeds, run at 60 fixed time steps per
+All four newer models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -58,7 +118,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These two new worlds currently provide **seeded resets and deterministic
+These four newer worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

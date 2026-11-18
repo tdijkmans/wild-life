@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test';
 const newWorlds = [
   { title: 'Murmuration', path: '/murmuration', tool: 'Thermal', metric: 'STARLINGS' },
   { title: 'Defensive Herd', path: '/defensive-herd', tool: 'Scent', metric: 'GUARDIANS' },
+  { title: 'Canopy', path: '/canopy', tool: 'Rain', metric: 'FOLIAGE' },
+  { title: 'Abyssal Bloom', path: '/abyssal-bloom', tool: 'Upwelling', metric: 'PHYTOPLANKTON' },
 ] as const;
 
 for (const world of newWorlds) {
@@ -52,7 +54,7 @@ for (const world of newWorlds) {
 
 test('mobile viewport keeps both worlds and environmental controls usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ['/murmuration', '/defensive-herd']) {
+  for (const route of ['/murmuration', '/defensive-herd', '/canopy', '/abyssal-bloom']) {
     await page.goto(route);
     await expect(page.locator('canvas.world-canvas')).toBeVisible();
     await expect(page.getByRole('region', { name: 'World controls' })).toBeVisible();
@@ -62,3 +64,24 @@ test('mobile viewport keeps both worlds and environmental controls usable', asyn
     await expect(page.locator('.stage.aquarium')).toHaveCount(0);
   }
 });
+
+for (const route of ['/canopy', '/abyssal-bloom']) {
+  test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(route);
+    const toggle = page.getByRole('button', { name: 'Toggle ambient sound' });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Open fullscreen aquarium' }).click();
+    const aquariumToggle = page.getByRole('button', { name: 'Toggle aquarium sound' });
+    await expect(aquariumToggle).toHaveAttribute('aria-pressed', 'true');
+    await aquariumToggle.click();
+    await expect(aquariumToggle).toHaveAttribute('aria-pressed', 'false');
+    await page.getByRole('button', { name: 'Exit aquarium' }).click();
+    expect(errors).toEqual([]);
+  });
+}
