@@ -1,4 +1,4 @@
-import { WorldEngine, Organism, Patch } from './engine';
+import { WorldEngine } from './engine';
 
 const TAU = Math.PI * 2;
 export class WorldRenderer {
@@ -96,10 +96,10 @@ export class WorldRenderer {
     c.translate(t.ox, t.oy);
     c.scale(t.s, t.s);
     this.grid(now);
-    this.interventions(now);
+    this.interventions();
     this.food(now);
     this.organisms(now);
-    this.flashes(now);
+    this.flashes();
     this.selected(now);
     this.pointerRing(now);
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
@@ -150,7 +150,7 @@ export class WorldRenderer {
     }
     c.restore();
   }
-  private interventions(now: number) {
+  private interventions() {
     const c = this.ctx;
     for (const p of this.world.patches) {
       const power = p.life / p.maxLife;
@@ -208,7 +208,6 @@ export class WorldRenderer {
       const prey = a.species === 'prey',
         pulse = 0.9 + 0.1 * Math.sin(now * 0.003 + a.id),
         s = 0.85 + a.genes.speed * 0.32;
-      const head = prey ? '#7ae6d5' : '#ffb380';
       const tail = prey ? 'rgba(67,225,198,0)' : 'rgba(255,129,98,0)';
       const body = prey
         ? `rgba(125,246,226,${0.74 + a.genes.camouflage * 0.18})`
@@ -264,7 +263,7 @@ export class WorldRenderer {
     }
     c.restore();
   }
-  private flashes(now: number) {
+  private flashes() {
     const c = this.ctx;
     for (const f of this.world.flashes) {
       const p = f.life / f.maxLife;

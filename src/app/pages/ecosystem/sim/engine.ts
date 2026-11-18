@@ -76,7 +76,7 @@ export interface WorldEvent {
   type: 'birth' | 'hunt' | 'evolution' | 'extinction' | 'world';
   message: string;
 }
-export interface OrganismSnapshot extends Organism {}
+export type OrganismSnapshot = Organism;
 
 const W = 1200;
 const H = 740;
