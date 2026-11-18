@@ -55,14 +55,15 @@ of the collection.
   outward around young when predators approach. A protective ring forms through
   individual social rules; gaps remain dangerous. Influence grazing, predator
   scent and breeze.
+- **004 · Canopy** (`/canopy`) — branches grow, leaves expand and insect
+  herbivores consume foliage. Trees compete for water and light; influence
+  rainfall, sunbeams and insect-attracting wildflowers.
+- **005 · Abyssal Bloom** (`/abyssal-bloom`) — luminous phytoplankton grow,
+  drift and reproduce in a nutrient-rich water column, while zooplankton graze.
+  Influence ocean currents, upwelling and sunlight.
 
 **Future concepts — not yet implemented**
 
-- **Canopy** — trees branch, unfold leaves and develop overlapping crowns.
-  Light competition, water availability, insect herbivory and regrowth shape
-  a living canopy. Gently change light, rain, warmth or nutrient gradients.
-- **Abyssal Bloom** — plankton populations, nutrient cycles and ocean currents
-  create luminous underwater blooms. Influence light, temperature and flow.
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
   connections and retract others. Influence food and moisture gradients.
 - **Synchrony** — locally coupled organisms gradually synchronize their
@@ -87,7 +88,13 @@ npm start
 ```
 
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
-`/murmuration` and `/defensive-herd`.
+`/murmuration`, `/defensive-herd`, `/canopy` and `/abyssal-bloom`.
+
+**Optional procedural sound:** shared Aquarium/Laboratory worlds (002–005)
+offer quiet, synthesized ambient and event cues. Audio is muted by default
+and starts only after the visitor explicitly enables Sound (or presses M);
+it follows pause, hidden-tab and component teardown. The original
+Predator–Prey world (001) retains its existing silent interface.
 
 Add new worlds as feature folders and register them **once** in
 [`src/app/simulations/simulation-catalog.ts`](src/app/simulations/simulation-catalog.ts).

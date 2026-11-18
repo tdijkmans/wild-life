@@ -21,6 +21,14 @@ src/app/
       defensive-herd.ts
       domain/defensive-herd-world.ts
       rendering/defensive-herd-renderer.ts
+    canopy/
+      canopy.ts
+      domain/canopy-world.ts
+      rendering/canopy-renderer.ts
+    abyssal-bloom/
+      abyssal-bloom.ts
+      domain/abyssal-bloom-world.ts
+      rendering/abyssal-bloom-renderer.ts
     ecosystem/
       ecosystem.ts / ecosystem.html / ecosystem.css
       README.md
@@ -54,6 +62,7 @@ src/app/
     world-experience/
       world-protocol.ts
       world-experience.ts / world-experience.html / world-experience.css
+      world-soundscape.ts
 e2e/
   ecosystem.spec.ts
 ```
@@ -100,10 +109,12 @@ The feature-owned homepage preview uses the same runner with its own
 world. `FrameThrottle` limits **drawing** to 30 fps; the domain's fixed
 timestep remains independent of display refresh.
 
-Murmuration and Defensive Herd each use their own deterministic engine
-and Canvas renderer. Both use `shared/world-experience/` to provide
-consistent Aquarium, gentle pointer tools, keyboard shortcuts, pause,
-speed, seed reset, statistics and history. They do **not** yet implement
+Murmuration, Defensive Herd, Canopy and Abyssal Bloom each use their own
+deterministic engine and Canvas renderer. They use `shared/world-experience/`
+to provide consistent Aquarium, gentle pointer tools, keyboard shortcuts,
+pause, speed, seed reset, statistics and history. A separate, opt-in
+`WorldSoundscape` produces low-volume ambient and event sounds without
+changing simulation state. These worlds do **not** yet implement
 the versioned JSON experiment replay protocol of Predator–Prey Evolution;
 their seeds and unit tests make their model runs reproducible.
 

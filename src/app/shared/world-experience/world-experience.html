@@ -2,6 +2,8 @@
   class="experience"
   [class.sky]="definition().theme === 'sky'"
   [class.tundra]="definition().theme === 'tundra'"
+  [class.forest]="definition().theme === 'forest'"
+  [class.abyss]="definition().theme === 'abyss'"
 >
   <header class="experience-header">
     <a routerLink="/" class="brand" aria-label="WILD LIFE home">
@@ -13,9 +15,21 @@
       <span class="header-separator">/</span>
       <span>THE LIVING COLLECTION</span>
     </div>
-    <ds-button variant="subtle" ariaLabel="Open fullscreen aquarium" (click)="toggleAquarium()"
-      >⛶ <span class="full-label">Aquarium mode</span></ds-button
-    >
+    <div class="header-actions">
+      @if (definition().soundProfile) {
+        <ds-button
+          variant="subtle"
+          ariaLabel="Toggle ambient sound"
+          [pressed]="soundEnabled()"
+          (click)="toggleSound()"
+        >
+          {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
+        </ds-button>
+      }
+      <ds-button variant="subtle" ariaLabel="Open fullscreen aquarium" (click)="toggleAquarium()">
+        ⛶ <span class="full-label">Aquarium mode</span>
+      </ds-button>
+    </div>
   </header>
 
   <section class="opening" aria-label="World introduction">
@@ -65,6 +79,16 @@
         <span class="scene-slogan">AUTONOMOUS BEHAVIOR / NO SCRIPTED FORMATIONS</span>
         @if (aquarium()) {
           <div class="aquarium-actions">
+            @if (definition().soundProfile) {
+              <ds-button
+                variant="subtle"
+                ariaLabel="Toggle aquarium sound"
+                [pressed]="soundEnabled()"
+                (click)="toggleSound()"
+              >
+                {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
+              </ds-button>
+            }
             <ds-button
               variant="subtle"
               ariaLabel="Toggle aquarium interaction"
@@ -81,7 +105,8 @@
       <div class="scene-bottom scene-chrome">
         <div class="scene-caption">
           <span class="scene-kicker">{{
-            definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS'
+            definition().sceneKicker ??
+              (definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS')
           }}</span>
           <strong>{{ definition().tagline }}</strong>
         </div>

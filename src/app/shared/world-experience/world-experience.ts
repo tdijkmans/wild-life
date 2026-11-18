@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
 import { DsButtonComponent } from '../design-system/button/button';
 import { FrameThrottle } from '../simulation/frame-throttle';
 import { SimulationRunner } from '../simulation/simulation-runner';
+import { WorldSoundscape } from './world-soundscape';
 import type {
   InteractiveWorld,
   WorldCanvasRenderer,
@@ -42,6 +43,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
 
   readonly metrics = signal<readonly WorldMetric[]>([]);
   readonly paused = signal(false);
+  readonly soundEnabled = signal(false);
   readonly speed = signal(1);
   readonly aquarium = signal(false);
   readonly interactionEnabled = signal(false);
@@ -64,12 +66,18 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private drawTimer = 0;
   private latestHistorySample?: WorldHistoryPoint;
   private readonly throttle = new FrameThrottle(60);
+  private readonly soundscape = new WorldSoundscape();
+  private lastCueId = 0;
   private readonly pointers = new Set<number>();
   private lastPointer: { x: number; y: number; at: number } | null = null;
   private previousBodyOverflow: string | null = null;
   private nativeFullscreen = false;
   private hideTimer?: ReturnType<typeof setTimeout>;
   private disposed = false;
+
+  private readonly onVisibility = (): void => {
+    void this.soundscape.setActive(!document.hidden && !this.paused());
+  };
 
   private readonly onKey = (event: KeyboardEvent): void => {
     const target = event.target as HTMLElement | null;
@@ -81,6 +89,11 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (event.key.toLowerCase() === 'f' && !event.repeat) {
       event.preventDefault();
       void this.toggleAquarium();
+      return;
+    }
+    if (event.key.toLowerCase() === 'm' && !event.repeat && this.definition().soundProfile) {
+      event.preventDefault();
+      void this.toggleSound();
       return;
     }
     if (event.code === 'Space') {
@@ -109,6 +122,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.observer.observe(this.canvas.nativeElement);
     window.addEventListener('keydown', this.onKey);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.addEventListener('visibilitychange', this.onVisibility);
   }
 
   ngOnDestroy(): void {
@@ -118,6 +132,9 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     clearTimeout(this.hideTimer);
     window.removeEventListener('keydown', this.onKey);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.removeEventListener('visibilitychange', this.onVisibility);
+    this.soundEnabled.set(false);
+    void this.soundscape.stop();
     this.pointers.clear();
     if (this.aquarium()) {
       if (document.fullscreenElement === this.stage.nativeElement && document.exitFullscreen) {
@@ -130,6 +147,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private startWorld(seed: number): void {
     const world = this.definition().createWorld(seed);
     this.world = world;
+    this.lastCueId = world.audioCues?.at(-1)?.id ?? 0;
     this.seed.set(seed);
     this.seedInput.set(seed);
     this.drawTimer = 0;
@@ -144,6 +162,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
       this.runner?.setWorld(world);
       this.runner?.setPaused(false);
       this.paused.set(false);
+      void this.soundscape.setActive(!document.hidden);
       this.renderer.resize();
     } else {
       this.renderer = this.definition().createRenderer(this.canvas.nativeElement, world);
@@ -162,10 +181,18 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
 
   private onFrame(nowMs: number, deltaSeconds: number): void {
     if (this.throttle.shouldRender(nowMs)) this.renderer?.render(nowMs);
+    const cues = this.world?.audioCues;
+    if (cues?.length) {
+      for (const cue of cues) {
+        if (cue.id > this.lastCueId && this.soundEnabled()) this.soundscape.cue(cue);
+      }
+      this.lastCueId = cues[cues.length - 1].id;
+    }
     this.drawTimer += deltaSeconds;
     if (this.drawTimer >= 0.28) {
       this.drawTimer = 0;
       this.metrics.set(this.world?.metrics() ?? []);
+      if (this.soundEnabled()) this.soundscape.modulate(nowMs);
       if (this.world && this.latestHistorySample !== this.world.history.at(-1)) {
         this.drawHistory();
       }
@@ -241,6 +268,31 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (!this.runner) return;
     this.runner.setPaused(!this.runner.isPaused);
     this.paused.set(this.runner.isPaused);
+    void this.soundscape.setActive(!this.runner.isPaused && !document.hidden);
+  }
+
+  /** Explicit opt-in. Browsers never start AudioContext on page load. */
+  async toggleSound(): Promise<void> {
+    if (this.soundEnabled()) {
+      this.soundEnabled.set(false);
+      await this.soundscape.stop();
+      return;
+    }
+    const profile = this.definition().soundProfile;
+    if (!profile) return;
+    this.lastCueId = this.world?.audioCues?.at(-1)?.id ?? 0;
+    const started = await this.soundscape.start(profile);
+    if (this.disposed) {
+      await this.soundscape.stop();
+      return;
+    }
+    this.soundEnabled.set(started);
+    if (!started) {
+      this.status.set('Sound is unavailable on this device.');
+    } else {
+      void this.soundscape.setActive(!this.paused() && !document.hidden);
+      this.status.set('Gentle ambient sound enabled. Press M or Sound to mute.');
+    }
   }
 
   cycleSpeed(): void {
@@ -277,6 +329,9 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     const point = this.toWorld(event);
     this.lastPointer = { ...point, at: event.timeStamp };
     this.world.influence(this.selectedTool(), point.x, point.y, 0, 0);
+    if (!this.world.audioCues && this.soundEnabled()) {
+      this.soundscape.cue({ kind: 'flow', strength: 0.38 });
+    }
   }
 
   onPointerMove(event: PointerEvent): void {
@@ -305,6 +360,9 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
         point.x - last.x,
         point.y - last.y,
       );
+      if (!this.world.audioCues && this.soundEnabled()) {
+        this.soundscape.cue({ kind: 'flow', strength: 0.3 });
+      }
       this.lastPointer = { ...point, at: event.timeStamp };
     }
   }
