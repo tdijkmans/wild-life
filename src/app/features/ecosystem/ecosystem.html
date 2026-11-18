@@ -37,7 +37,12 @@
       <ds-button variant="subtle" (click)="newWorld()" title="Seed a new world">
         <span class="action-icon">↻</span><span class="hide-sm"> New world</span>
       </ds-button>
-      <ds-button variant="subtle" (click)="cycleSpeed()" title="Change simulation speed">
+      <ds-button
+        variant="subtle"
+        ariaLabel="Change simulation speed"
+        (click)="cycleSpeed()"
+        title="Change simulation speed"
+      >
         {{ speed() }}×
       </ds-button>
       <ds-button
