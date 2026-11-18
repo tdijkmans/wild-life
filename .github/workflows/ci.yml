@@ -41,6 +41,15 @@ jobs:
         run: npm run build
       - name: Bundle size report
         run: npm run bundle:report
+      - name: Measure seeded engine CPU throughput (informational)
+        run: npm run perf:benchmark
+      - name: Upload performance artifact
+        uses: actions/upload-artifact@v5
+        if: success()
+        with:
+          name: wild-life-performance-snapshot
+          path: reports/performance.json
+          retention-days: 30
       - name: Upload bundle baseline artifact
         uses: actions/upload-artifact@v5
         if: success()

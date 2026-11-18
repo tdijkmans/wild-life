@@ -51,6 +51,8 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     onFrame: ({ nowMs, deltaSeconds }) => this.onSimulationFrame(nowMs, deltaSeconds),
   });
   private statsTimer = 0;
+  private lastHistorySample?: HistorySample;
+  private lastEvent?: WorldEvent;
   private interactionTimer = 0;
   private pointers = new Map<number, { x: number; y: number }>();
   private pinchDistance = 0;
@@ -215,10 +217,20 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   }
   private updateUi() {
     this.stats.set(this.world.stats());
-    this.history.set([...this.world.history]);
-    this.events.set([...this.world.events]);
+    // Engine history is sampled roughly every 1.1 s, not on every UI refresh.
+    // Redrawing the charts every 220 ms repeats the same expensive Canvas work.
+    const latestSample = this.world.history.at(-1);
+    if (this.lastHistorySample !== latestSample) {
+      this.lastHistorySample = latestSample;
+      this.history.set([...this.world.history]);
+      this.paintCharts();
+    }
+    const latestEvent = this.world.events[0];
+    if (this.lastEvent !== latestEvent) {
+      this.lastEvent = latestEvent;
+      this.events.set([...this.world.events]);
+    }
     this.selected.set(this.world.getSelected());
-    this.paintCharts();
   }
   private onResize() {
     if (!this.renderer) return;
