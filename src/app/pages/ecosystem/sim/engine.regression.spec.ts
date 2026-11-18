@@ -268,7 +268,8 @@ describe('WILD ecosystem — regression and invariants', () => {
     it('ignores invalid bloom quantities rather than entering an unbounded loop', () => {
       const world = new WorldEngine(212, 0, 0);
       const before = world.stats().food;
-      for (const quantity of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -9, 0]) {
+      const invalidAmounts = [NaN, Infinity, -Infinity, -9, 0];
+      for (const quantity of invalidAmounts) {
         world.bloom(400, 360, quantity);
       }
       expect(world.stats().food).toBe(before);
