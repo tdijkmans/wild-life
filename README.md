@@ -33,9 +33,32 @@ See `docs/architecture.md` and `docs/simulation-catalog.md` for module boundarie
 
 Angular component styles are already locally scoped (style encapsulation), which is the framework-native equivalent of CSS modules.
 
+## Coding-agent instructions
+
+**[AGENTS.md](AGENTS.md)** is the canonical project contract for Codex and
+other AI coding agents. Specific directories have small additional `AGENTS.md`
+files; GitHub Copilot and Claude entry points refer to the same contract.
+The rules protect the catalogue, architectural boundaries and reproducible
+experiment format rather than imposing a new framework.
+
+After changing module boundaries, scripts or behavior, update the relevant
+instructions and docs in the same PR. `npm run agent:check` catches missing
+instruction files, broken core references and stale command names.
+
 ## Validation
 
 ```bash
+npm ci
+npm run agent:check
+npm run typecheck
+npm run lint
+npm run format:check
+npm run test:ci
 npm run build
-npm test -- --watch=false
 ```
+
+For changes involving routes, Canvas, user interactions or experiment
+import/export, install Chromium and run `npm run test:e2e`.
+
+See [quality gates](docs/quality-gates.md) and
+[reproducible experiments](docs/experiments.md) for more information.

@@ -41,6 +41,10 @@ The catalog rejects invalid/duplicate routes and IDs, and more than one
 featured entry. Its loader functions are dynamic imports, so merely rendering
 the home route does not statically import world engines.
 
+Experiment replay and browser end-to-end tests are implemented in
+`features/ecosystem/domain/experiment.ts` and `e2e/ecosystem.spec.ts`,
+respectively. New worlds can adopt these patterns without coupling their
+domain code to Home or the catalogue.
+
 **Not in scope:** a runtime plugin marketplace, backend persistence or
-reworking biological simulation rules. Experiment replay and browser
-end-to-end tests belong to roadmap step 9.
+reworking biological simulation rules.
