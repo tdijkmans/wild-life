@@ -7,8 +7,16 @@ multiple independent copies.
 
 ## Mission and workflow
 
-- WILD LIFE is a gallery of interactive, evolving, biology-inspired worlds.
-  Protect scientific reproducibility, interactive behavior and visual quality.
+- WILD LIFE is a gallery of autonomous, evolving, biology-inspired worlds.
+  Read the product positioning, design principles and future concepts in
+  `README.md` before designing or changing any world. Build emergent behavior
+  from local interactions with gentle environmental influence, not scripted
+  spectacle, direct commands or win conditions. The proposed worlds in the
+  README are **ideas**, not registered or implemented features.
+- Preserve scientific reproducibility, interactive behavior and visual quality.
+  Distinguish biology-inspired models from scientifically validated ones.
+- Write all repository-facing text **in English**: docs, UI copy, comments,
+  test descriptions, agent files and contributor-facing instructions.
 - Inspect the actual code, tests and relevant docs before changing a feature.
   Treat source code, lockfile and CI as authoritative if documentation differs;
   fix stale documentation in the same change.
