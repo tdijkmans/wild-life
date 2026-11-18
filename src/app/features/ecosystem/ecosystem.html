@@ -37,7 +37,12 @@
       <ds-button variant="subtle" (click)="newWorld()" title="Seed a new world">
         <span class="action-icon">↻</span><span class="hide-sm"> New world</span>
       </ds-button>
-      <ds-button variant="subtle" (click)="cycleSpeed()" title="Change simulation speed">
+      <ds-button
+        variant="subtle"
+        ariaLabel="Change simulation speed"
+        (click)="cycleSpeed()"
+        title="Change simulation speed"
+      >
         {{ speed() }}×
       </ds-button>
       <ds-button
@@ -69,6 +74,99 @@
       >
     </div>
   </div>
+
+  <section class="experiment-panel" aria-label="Experiment controls">
+    <div class="experiment-heading">
+      <span class="experiment-kicker">EXPERIMENT / REPRODUCIBLE RUN</span>
+      <span class="experiment-detail">SEED {{ seed() }} · {{ experimentTicks() }} TICKS</span>
+    </div>
+    <div class="experiment-controls">
+      <label>
+        Seed
+        <input
+          type="number"
+          min="0"
+          max="4294967295"
+          step="1"
+          [value]="configuredSeed()"
+          (input)="setExperimentInput('seed', $event)"
+        />
+      </label>
+      <label>
+        Grazers
+        <input
+          type="number"
+          min="0"
+          max="720"
+          step="1"
+          [value]="configuredPrey()"
+          (input)="setExperimentInput('prey', $event)"
+        />
+      </label>
+      <label>
+        Hunters
+        <input
+          type="number"
+          min="0"
+          max="120"
+          step="1"
+          [value]="configuredPredators()"
+          (input)="setExperimentInput('predators', $event)"
+        />
+      </label>
+      <ds-button
+        variant="subtle"
+        ariaLabel="Start configured world"
+        [disabled]="experimentBusy()"
+        (click)="startConfiguredExperiment()"
+      >
+        Start seed
+      </ds-button>
+      <ds-button
+        variant="subtle"
+        ariaLabel="Save experiment"
+        [disabled]="experimentBusy()"
+        (click)="saveExperiment()"
+      >
+        ↓ Save run
+      </ds-button>
+      <ds-button
+        variant="subtle"
+        ariaLabel="Load experiment"
+        [disabled]="experimentBusy()"
+        (click)="experimentFile.click()"
+      >
+        ↑ Load run
+      </ds-button>
+      <ds-button
+        variant="subtle"
+        ariaLabel="Replay experiment"
+        [disabled]="experimentBusy()"
+        (click)="replayExperiment()"
+      >
+        ↺ Replay
+      </ds-button>
+      <input
+        #experimentFile
+        class="experiment-file"
+        type="file"
+        accept=".json,application/json"
+        aria-label="Experiment JSON file"
+        (change)="loadExperimentFile($event)"
+      />
+    </div>
+    @if (experimentBusy()) {
+      <p class="experiment-feedback" role="status">Replaying… {{ experimentProgress() }}%</p>
+    } @else if (experimentStatus()) {
+      <p class="experiment-feedback" role="status">{{ experimentStatus() }}</p>
+    }
+    @if (comparison(); as values) {
+      <p class="experiment-comparison">
+        Previous: {{ values.previous.prey }} grazers / {{ values.previous.predators }} hunters ·
+        Imported: {{ values.restored.prey }} grazers / {{ values.restored.predators }} hunters
+      </p>
+    }
+  </section>
 
   <main class="main-layout">
     <section class="world-section" aria-label="Living ecosystem">
