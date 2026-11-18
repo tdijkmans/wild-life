@@ -8,16 +8,12 @@ import { SimulationRunner } from '../../shared/simulation/simulation-runner';
 import { DsLiveIndicatorComponent } from '../../shared/design-system/live-indicator/live-indicator';
 import { EcosystemTimelineCardComponent } from './components/ecosystem-timeline-card/ecosystem-timeline-card';
 import { EcosystemInsightsPanelComponent } from './components/ecosystem-insights-panel/ecosystem-insights-panel';
-
-type Tool = 'bloom' | 'current' | 'heat' | 'cold' | 'inspect';
-type AquariumCard = 'population' | 'evolution' | 'timeline' | 'journal';
-type AquariumPreset = 'zen' | 'glance' | 'study' | 'custom';
-const aquariumDefaults: Record<AquariumPreset, Record<AquariumCard, boolean>> = {
-  zen: { population: false, evolution: false, timeline: false, journal: false },
-  glance: { population: true, evolution: false, timeline: false, journal: false },
-  study: { population: true, evolution: true, timeline: true, journal: true },
-  custom: { population: false, evolution: false, timeline: false, journal: false },
-};
+import {
+  AquariumController,
+  type AquariumCard,
+  type AquariumPreset,
+} from './controllers/aquarium.controller';
+import { WorldPointerController, type Tool } from './controllers/world-pointer.controller';
 
 @Component({
   selector: 'app-ecosystem',
@@ -53,26 +49,6 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private statsTimer = 0;
   private lastHistorySample?: HistorySample;
   private lastEvent?: WorldEvent;
-  private interactionTimer = 0;
-  private pointers = new Map<number, { x: number; y: number }>();
-  private pinchDistance = 0;
-  private pinchZoom = 1;
-  private pointerXY: { x: number; y: number } | null = null;
-  private movingFrom: { x: number; y: number } | null = null;
-  private aquariumChromeTimer?: ReturnType<typeof setTimeout>;
-  private usingNativeFullscreen = false;
-  private priorBodyOverflow = '';
-  private readonly fullscreenHandler = () => {
-    if (
-      this.usingNativeFullscreen &&
-      document.fullscreenElement !== this.worldFrame.nativeElement
-    ) {
-      this.usingNativeFullscreen = false;
-      this.finishAquariumExit();
-    }
-    requestAnimationFrame(() => this.onResize());
-  };
-
   readonly stats = signal<WorldStats>(this.world.stats());
   readonly history = signal<HistorySample[]>([...this.world.history]);
   readonly events = signal<WorldEvent[]>([...this.world.events]);
@@ -85,18 +61,26 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly showGuide = signal(true);
   readonly interaction = signal('Leave a little life behind.');
   readonly zoomLevel = signal(1);
-  readonly aquariumMode = signal(false);
-  readonly aquariumSettingsOpen = signal(false);
-  readonly aquariumIdle = signal(false);
-  readonly aquariumInteract = signal(false);
-  readonly aquariumPreset = signal<AquariumPreset>('zen');
-  readonly aquariumCards = signal<Record<AquariumCard, boolean>>({ ...aquariumDefaults.zen });
-  readonly aquariumCardOptions: { id: AquariumCard; title: string; subtitle: string }[] = [
-    { id: 'population', title: 'Populations', subtitle: 'Grazers & hunters' },
-    { id: 'evolution', title: 'Evolution', subtitle: 'Genes & generation' },
-    { id: 'timeline', title: 'Live graph', subtitle: 'Population history' },
-    { id: 'journal', title: 'Field journal', subtitle: 'Recent events' },
-  ];
+  private readonly aquarium = new AquariumController({
+    onEnter: () => {
+      this.showGuide.set(false);
+      this.closeInspector();
+    },
+    onExit: () => this.pointerController.reset(),
+    onInteractionDisabled: () => {
+      this.pointerController.reset();
+      this.closeInspector();
+    },
+    onResize: () => this.onResize(),
+    onDisplayChanged: () => requestAnimationFrame(() => this.paintCharts()),
+  });
+  readonly aquariumMode = this.aquarium.active;
+  readonly aquariumSettingsOpen = this.aquarium.settingsOpen;
+  readonly aquariumIdle = this.aquarium.idle;
+  readonly aquariumInteract = this.aquarium.interactionEnabled;
+  readonly aquariumPreset = this.aquarium.preset;
+  readonly aquariumCards = this.aquarium.cards;
+  readonly aquariumCardOptions = this.aquarium.cardOptions;
 
   readonly tools: {
     id: Tool;
@@ -148,6 +132,17 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     },
   ];
 
+  private readonly pointerController = new WorldPointerController({
+    getWorld: () => this.world,
+    getViewport: () => this.renderer,
+    getTool: () => this.mode(),
+    isPaused: () => this.paused(),
+    canInteract: () => !this.aquariumMode() || this.aquariumInteract(),
+    onInspect: (organism) => this.selected.set(organism),
+    onZoom: (zoom) => this.zoomLevel.set(zoom),
+    onDismissGuide: () => this.showGuide.set(false),
+  });
+
   private readonly keyHandler = (event: KeyboardEvent) => {
     const target = event.target as HTMLElement | null;
     if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
@@ -156,7 +151,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       void this.toggleAquarium();
       return;
     }
-    if (event.key === 'Escape' && this.aquariumMode() && !this.usingNativeFullscreen) {
+    if (event.key === 'Escape' && this.aquariumMode() && !this.aquarium.usingNativeFullscreen) {
       this.exitAquarium();
       return;
     }
@@ -174,20 +169,16 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.resizeObserver = new ResizeObserver(() => this.onResize());
     this.resizeObserver.observe(this.worldCanvas.nativeElement);
     window.addEventListener('keydown', this.keyHandler);
-    document.addEventListener('fullscreenchange', this.fullscreenHandler);
+    this.aquarium.attach(this.worldFrame.nativeElement);
     this.onResize();
     this.runner.start();
   }
   ngOnDestroy() {
-    if (document.fullscreenElement === this.worldFrame?.nativeElement) {
-      void document.exitFullscreen().catch(() => {});
-    }
     this.runner.stop();
     this.resizeObserver?.disconnect();
     window.removeEventListener('keydown', this.keyHandler);
-    document.removeEventListener('fullscreenchange', this.fullscreenHandler);
-    clearTimeout(this.aquariumChromeTimer);
-    document.body.style.overflow = this.priorBodyOverflow;
+    this.aquarium.dispose();
+    this.pointerController.reset();
   }
 
   private onSimulationFrame(now: number, delta: number): void {
@@ -197,23 +188,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       this.statsTimer = 0;
       this.updateUi();
     }
-    if (
-      this.pointers.size === 1 &&
-      !this.paused() &&
-      this.pointerXY &&
-      (!this.aquariumMode() || this.aquariumInteract())
-    ) {
-      this.interactionTimer += delta;
-      const tool = this.mode();
-      if (tool === 'bloom' && this.interactionTimer > 0.13) {
-        this.world.bloom(this.pointerXY.x, this.pointerXY.y, 4);
-        this.interactionTimer = 0;
-      }
-      if ((tool === 'heat' || tool === 'cold') && this.interactionTimer > 0.4) {
-        this.world.climate(this.pointerXY.x, this.pointerXY.y, tool);
-        this.interactionTimer = 0;
-      }
-    }
+    this.pointerController.tick(delta);
   }
   private updateUi() {
     this.stats.set(this.world.stats());
@@ -295,7 +270,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.statsTimer = 0;
     this.renderer.zoom = 1;
     this.zoomLevel.set(1);
-    this.pointers.clear();
+    this.pointerController.reset();
     this.world.selectedId = null;
     this.interaction.set('An entirely new evolutionary story starts.');
     this.updateUi();
@@ -308,174 +283,41 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.showGuide.update((p) => !p);
   }
 
-  async toggleAquarium() {
-    if (this.aquariumMode()) {
-      this.exitAquarium();
-      return;
-    }
-    this.showGuide.set(false);
-    this.closeInspector();
-    this.aquariumInteract.set(false); // watching never changes the ecosystem accidentally
-    this.aquariumSettingsOpen.set(false);
-    this.priorBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    this.aquariumMode.set(true);
-    this.wakeAquarium();
-    // User-initiated native fullscreen when available; CSS immersive fallback for iOS.
-    const element = this.worldFrame.nativeElement;
-    if (element.requestFullscreen) {
-      try {
-        await element.requestFullscreen();
-        this.usingNativeFullscreen = true;
-      } catch {
-        this.usingNativeFullscreen = false;
-      }
-    }
-    requestAnimationFrame(() => this.onResize());
+  toggleAquarium(): Promise<void> {
+    return this.aquarium.toggle();
   }
-  exitAquarium() {
-    if (document.fullscreenElement === this.worldFrame.nativeElement) {
-      void document.exitFullscreen().catch(() => this.finishAquariumExit());
-    } else this.finishAquariumExit();
+  exitAquarium(): void {
+    this.aquarium.exit();
   }
-  private finishAquariumExit() {
-    document.body.style.overflow = this.priorBodyOverflow;
-    this.aquariumMode.set(false);
-    this.aquariumSettingsOpen.set(false);
-    this.aquariumIdle.set(false);
-    this.aquariumInteract.set(false);
-    this.usingNativeFullscreen = false;
-    clearTimeout(this.aquariumChromeTimer);
-    this.renderer.hover = false;
-    this.pointers.clear();
-    this.pointerXY = null;
-    requestAnimationFrame(() => this.onResize());
+  wakeAquarium(): void {
+    this.aquarium.wake();
   }
-  wakeAquarium() {
-    if (!this.aquariumMode()) return;
-    this.aquariumIdle.set(false);
-    clearTimeout(this.aquariumChromeTimer);
-    if (!this.aquariumSettingsOpen())
-      this.aquariumChromeTimer = setTimeout(() => this.aquariumIdle.set(true), 4200);
+  toggleAquariumSettings(): void {
+    this.aquarium.toggleSettings();
   }
-  toggleAquariumSettings() {
-    this.aquariumSettingsOpen.update((v) => !v);
-    this.wakeAquarium();
+  setAquariumPreset(preset: Exclude<AquariumPreset, 'custom'>): void {
+    this.aquarium.setPreset(preset);
   }
-  setAquariumPreset(preset: Exclude<AquariumPreset, 'custom'>) {
-    this.aquariumPreset.set(preset);
-    this.aquariumCards.set({ ...aquariumDefaults[preset] });
-    requestAnimationFrame(() => this.paintCharts());
+  toggleAquariumCard(card: AquariumCard): void {
+    this.aquarium.toggleCard(card);
   }
-  toggleAquariumCard(card: AquariumCard) {
-    this.aquariumPreset.set('custom');
-    this.aquariumCards.update((old) => ({ ...old, [card]: !old[card] }));
-    requestAnimationFrame(() => this.paintCharts());
+  toggleAquariumInteraction(): void {
+    this.aquarium.toggleInteraction();
   }
-  toggleAquariumInteraction() {
-    this.aquariumInteract.update((v) => !v);
-    if (!this.aquariumInteract()) {
-      this.pointers.clear();
-      this.pointerXY = null;
-      this.renderer.hover = false;
-      this.closeInspector();
-    }
-    this.wakeAquarium();
+  onWheel(event: WheelEvent): void {
+    this.pointerController.onWheel(event);
   }
-  onWheel(event: WheelEvent) {
-    event.preventDefault();
-    if (this.aquariumMode() && !this.aquariumInteract()) return;
-    this.renderer.zoom = Math.max(
-      1,
-      Math.min(2.8, this.renderer.zoom * (event.deltaY > 0 ? 0.92 : 1.08)),
-    );
-    this.zoomLevel.set(this.renderer.zoom);
+  onPointerDown(event: PointerEvent): void {
+    this.pointerController.onPointerDown(event);
   }
-  onPointerDown(event: PointerEvent) {
-    if (this.aquariumMode() && !this.aquariumInteract()) return;
-    event.preventDefault();
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (this.pointers.size === 2) {
-      const p = [...this.pointers.values()];
-      this.pinchDistance = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
-      this.pinchZoom = this.renderer.zoom;
-      return;
-    }
-    const pos = this.renderer.screenToWorld(event.clientX, event.clientY);
-    this.pointerXY = pos;
-    this.movingFrom = pos;
-    this.renderer.pointer = pos;
-    this.renderer.hover = true;
-    this.interactionTimer = 0;
-    this.applyInteraction(pos, 0, 0, true);
-    this.showGuide.set(false);
+  onPointerMove(event: PointerEvent): void {
+    this.pointerController.onPointerMove(event);
   }
-  onPointerMove(event: PointerEvent) {
-    if (this.aquariumMode() && !this.aquariumInteract()) {
-      this.renderer.hover = false;
-      return;
-    }
-    const pos = this.renderer.screenToWorld(event.clientX, event.clientY);
-    this.renderer.pointer = pos;
-    this.renderer.hover = true;
-    if (!this.pointers.has(event.pointerId)) return;
-    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (this.pointers.size > 1) {
-      const points = [...this.pointers.values()],
-        distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-      if (this.pinchDistance) {
-        this.renderer.zoom = Math.max(
-          1,
-          Math.min(2.8, (this.pinchZoom * distance) / this.pinchDistance),
-        );
-        this.zoomLevel.set(this.renderer.zoom);
-      }
-      return;
-    }
-    const prev = this.movingFrom ?? pos;
-    this.pointerXY = pos;
-    this.movingFrom = pos;
-    this.applyInteraction(pos, pos.x - prev.x, pos.y - prev.y, false);
+  onPointerUp(event: PointerEvent): void {
+    this.pointerController.onPointerUp(event);
   }
-  onPointerUp(event: PointerEvent) {
-    this.pointers.delete(event.pointerId);
-    this.movingFrom = null;
-    this.interactionTimer = 0;
-    if (this.pointers.size === 0) this.pointerXY = null;
-    if (this.pointers.size === 1) {
-      const p = [...this.pointers.values()][0];
-      this.movingFrom = this.renderer.screenToWorld(p.x, p.y);
-    }
-  }
-  onPointerLeave() {
-    this.renderer.hover = false;
-  }
-  private applyInteraction(pos: { x: number; y: number }, dx: number, dy: number, first: boolean) {
-    if (this.paused() && this.mode() !== 'inspect') return;
-    switch (this.mode()) {
-      case 'bloom':
-        this.world.bloom(pos.x, pos.y, first ? 15 : 2);
-        break;
-      case 'current':
-        if (!first) this.world.flow(pos.x, pos.y, dx, dy);
-        break;
-      case 'heat':
-        if (first || this.interactionTimer > 0.15) {
-          this.world.climate(pos.x, pos.y, 'heat');
-          this.interactionTimer = 0;
-        }
-        break;
-      case 'cold':
-        if (first || this.interactionTimer > 0.15) {
-          this.world.climate(pos.x, pos.y, 'cold');
-          this.interactionTimer = 0;
-        }
-        break;
-      case 'inspect':
-        if (first) this.selected.set(this.world.findNearest(pos.x, pos.y, 48));
-        break;
-    }
+  onPointerLeave(): void {
+    this.pointerController.onPointerLeave();
   }
   formatGeneration(n: number) {
     return Number.isFinite(n) ? n.toFixed(1) : '—';

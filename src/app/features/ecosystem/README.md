@@ -12,6 +12,8 @@ Aquarium mode offers fullscreen Zen, Glance, and Discover views with individuall
 - `rendering/renderer.ts`: Canvas 2D world visualization (reads from the engine)
 - `rendering/charts.ts`: time-series and trait chart rendering
 - `components/`: feature-owned timeline and insights UI
+- `controllers/aquarium.controller.ts`: fullscreen, HUD presets, idle display controls and cleanup
+- `controllers/world-pointer.controller.ts`: pointer/touch input, zoom and ecology tools
 - `ecosystem.ts/html/css`: route-level Angular page composing the feature
 
 The ecosystem's component styles remain in `ecosystem.css`; Angular's existing component-style budgets still apply.
@@ -20,5 +22,5 @@ The ecosystem's component styles remain in `ecosystem.css`; Angular's existing c
 
 The shared `SimulationRunner` under `src/app/shared/simulation/` owns requestAnimationFrame,
 fixed-time integration, pause, speed, visibility handling and cleanup. The route page retains
-UI-specific timers (chart refresh and pointer tools); it does not advance the engine itself.
+chart refresh and page orchestration. Pointer controls and fullscreen behavior live in feature-local controllers; the page does not advance the engine itself.
 Both the landing-page preview and the full world now use the same runner.
