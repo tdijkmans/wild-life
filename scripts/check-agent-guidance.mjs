@@ -97,7 +97,9 @@ if (!workflow.includes('npm run test:e2e')) {
 }
 
 if (failures.length) {
-  console.error('Agent guidance integrity failed:\n' + failures.map((item) => `- ${item}`).join('\n'));
+  console.error(
+    'Agent guidance integrity failed:\n' + failures.map((item) => `- ${item}`).join('\n'),
+  );
   process.exitCode = 1;
 } else {
   console.log(
