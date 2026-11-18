@@ -34,7 +34,7 @@ export class ReefRenderer implements WorldCanvasRenderer {
   }
 
   private populate(): void {
-    const random = new SeededRandom(this.world.seed ^ 0x91de20c4);
+    const random = new SeededRandom((this.world.seed ^ 0x91de20c4) >>> 0);
     this.motes.length = 0;
     for (let i = 0; i < 185; i++) {
       this.motes.push({
