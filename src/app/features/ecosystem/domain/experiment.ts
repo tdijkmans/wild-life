@@ -62,7 +62,11 @@ function parseIntervention(raw: unknown, maxTick: number): RecordedIntervention 
     return { kind, tick, x, y, amount: raw['amount'] };
   }
   if (kind === 'current') {
-    if (!finiteCoordinate(raw['dx']) || !finiteCoordinate(raw['dy']) || Math.hypot(raw['dx'], raw['dy']) < 1) {
+    if (
+      !finiteCoordinate(raw['dx']) ||
+      !finiteCoordinate(raw['dy']) ||
+      Math.hypot(raw['dx'], raw['dy']) < 1
+    ) {
       throw new Error('Invalid flow vector');
     }
     return { kind, tick, x, y, dx: raw['dx'], dy: raw['dy'] };
