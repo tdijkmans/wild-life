@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { WorldEngine } from '../ecosystem/sim/engine';
 import { WorldRenderer } from '../ecosystem/sim/renderer';
 import { SIMULATIONS } from './simulation-catalog';
+import { DsEyebrowComponent } from '../../shared/design-system/eyebrow/eyebrow';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, DsEyebrowComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

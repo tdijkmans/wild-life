@@ -102,16 +102,11 @@
   align-items: center;
 }
 .wl-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #94c2ab;
-}
-.wl-eyebrow i {
-  height: 1px;
-  width: 25px;
-  background: #7fdbb4;
-  display: inline-block;
+  --ds-eyebrow-color: #94c2ab;
+  --ds-eyebrow-line-color: #7fdbb4;
+  --ds-eyebrow-line-width: 25px;
+  --ds-eyebrow-size: 10px;
+  --ds-eyebrow-spacing: 1.2px;
 }
 .wl-intro h1 {
   font:

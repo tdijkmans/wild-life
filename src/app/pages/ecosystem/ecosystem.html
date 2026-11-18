@@ -53,10 +53,9 @@
       <p>Nothing is scripted. Every movement, encounter and mutation shapes what comes next.</p>
     </div>
     <div class="intro-right">
-      <span class="live-indicator"
-        ><span class="live-ring"></span>
-        {{ paused() ? 'SIMULATION PAUSED' : 'SIMULATION ACTIVE' }}</span
-      >
+      <ds-live-indicator class="live-indicator">
+        {{ paused() ? 'SIMULATION PAUSED' : 'SIMULATION ACTIVE' }}
+      </ds-live-indicator>
       <span class="session-label"
         >DAY {{ stats().day.toFixed(0).padStart(3, '0') }}
         <span class="intro-separator">·</span> GEN {{ formatGeneration(stats().generations) }}</span
@@ -350,117 +349,19 @@
           <span class="dot sage"></span> FOOD</span
         >
       </div>
-      <section class="timeline-card">
-        <div class="timeline-heading">
-          <div>
-            <div class="eyebrow">THE STORY SO FAR</div>
-            <h2>Population dynamics</h2>
-          </div>
-          <div class="timeline-controls">
-            <button
-              [class.active]="chartMode() === 'population'"
-              (click)="setChartMode('population')"
-            >
-              Population</button
-            ><button [class.active]="chartMode() === 'traits'" (click)="setChartMode('traits')">
-              Traits
-            </button>
-          </div>
-        </div>
-        <div class="chart-legend">
-          <span
-            ><i class="line mint"></i>
-            {{ chartMode() === 'population' ? 'Grazers' : 'Average speed' }}</span
-          >
-          <span
-            ><i class="line coral"></i>
-            {{ chartMode() === 'population' ? 'Hunters' : 'Camouflage' }}</span
-          >
-          <span class="chart-note"
-            >RECORDED FROM THE SIMULATION <span class="chart-rec">●</span></span
-          >
-        </div>
-        <canvas #popChart class="main-chart" aria-label="Live population timeline"></canvas>
-      </section>
+      <app-ecosystem-timeline-card
+        [chartMode]="chartMode()"
+        (chartModeChange)="setChartMode($event)"
+        (chartCanvasReady)="onTimelineChartCanvasReady($event)"
+      />
     </section>
 
-    <aside class="insights-panel" aria-label="Live ecosystem statistics">
-      <div class="insights-heading">
-        <span>FIELD NOTES <span class="panel-number">/ 001</span></span
-        ><span class="insights-live"><span></span> LIVE DATA</span>
-      </div>
-      <div class="panel-title">A world in<br /><em>constant motion.</em></div>
-      <div class="panel-subtitle">
-        Every number is alive. They change because of what happens out there.
-      </div>
-      <div class="stat-row">
-        <div class="stat-main">
-          <span class="stat-dot mint"></span><span class="stat-name">GRAZERS</span>
-          <div class="stat-value">{{ stats().prey | number }}</div>
-          <div class="stat-description">Foraging · fleeing · evolving</div>
-        </div>
-        <canvas #preySpark class="spark" aria-hidden="true"></canvas>
-      </div>
-      <div class="stat-row">
-        <div class="stat-main">
-          <span class="stat-dot coral"></span><span class="stat-name">HUNTERS</span>
-          <div class="stat-value coral-text">{{ stats().predators | number }}</div>
-          <div class="stat-description">Tracking · hunting · adapting</div>
-        </div>
-        <canvas #predatorSpark class="spark" aria-hidden="true"></canvas>
-      </div>
-      <div class="metrics-header">EVOLUTIONARY SIGNALS <span>↗</span></div>
-      <div class="metrics-grid">
-        <div class="metric">
-          <span class="metric-label">GENETIC DIVERSITY</span
-          ><strong>{{ stats().diversity.toFixed(0) }}<small>%</small></strong>
-          <div class="progress"><i [style.width.%]="stats().diversity"></i></div>
-        </div>
-        <div class="metric">
-          <span class="metric-label">AVG. SPEED GENE</span
-          ><strong>{{ stats().meanSpeed.toFixed(2) }}<small>×</small></strong>
-          <div class="progress">
-            <i class="warm" [style.width.%]="(stats().meanSpeed / 1.6) * 100"></i>
-          </div>
-        </div>
-        <div class="metric">
-          <span class="metric-label">NEW LIVES</span><strong>{{ stats().births | number }}</strong
-          ><span class="metric-caption">CUMULATIVE BIRTHS</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">PREDATION EVENTS</span
-          ><strong>{{ stats().kills | number }}</strong
-          ><span class="metric-caption">CUMULATIVE HUNTS</span>
-        </div>
-      </div>
-      <div class="facts">
-        <div>
-          <span>AVAILABLE FOOD</span
-          ><strong>{{ stats().food | number }} <span class="fact-unit">SPORES</span></strong>
-        </div>
-        <div>
-          <span>AVERAGE GENERATION</span
-          ><strong>{{ formatGeneration(stats().generations) }}</strong>
-        </div>
-        <div>
-          <span>AMBIENT TEMPERATURE</span
-          ><strong>{{ stats().temperature.toFixed(1) }}° <span class="fact-unit">C</span></strong>
-        </div>
-      </div>
-      <section class="field-log">
-        <div class="log-heading">FIELD JOURNAL <span>↗</span></div>
-        @for (e of events().slice(0, 3); track e.key) {
-          <div class="log-entry">
-            <span class="log-node" [class.log-coral]="e.type === 'hunt'"></span>
-            <div>
-              <span class="log-date">DAY {{ e.day.toString().padStart(3, '0') }}</span>
-              <p>{{ e.message }}</p>
-            </div>
-          </div>
-        }
-      </section>
-      <div class="insights-footer">WILD LABORATORY <span>© AN OPEN EXPERIMENT</span></div>
-    </aside>
+    <app-ecosystem-insights-panel
+      [stats]="stats()"
+      [events]="events()"
+      [generationLabel]="formatGeneration(stats().generations)"
+      (sparkCanvasesReady)="onInsightsSparkCanvasesReady($event)"
+    />
   </main>
   <footer class="app-footer">
     <span>AN ARTIFICIAL WORLD. REAL EMERGENCE.</span

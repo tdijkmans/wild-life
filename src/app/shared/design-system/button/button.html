@@ -1,0 +1,11 @@
+<button
+  class="ds-button"
+  [ngClass]="classes()"
+  [attr.type]="type()"
+  [attr.title]="title() || null"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-pressed]="pressed() === null ? null : pressed()"
+  [disabled]="disabled()"
+>
+  <ng-content />
+</button>

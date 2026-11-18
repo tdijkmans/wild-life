@@ -1,0 +1,28 @@
+<section class="timeline-card">
+  <div class="timeline-heading">
+    <div>
+      <ds-eyebrow class="eyebrow" [showLine]="false">THE STORY SO FAR</ds-eyebrow>
+      <h2>Population dynamics</h2>
+    </div>
+    <div class="timeline-controls">
+      <button [class.active]="chartMode() === 'population'" (click)="setChartMode('population')">
+        Population
+      </button>
+      <button [class.active]="chartMode() === 'traits'" (click)="setChartMode('traits')">
+        Traits
+      </button>
+    </div>
+  </div>
+  <div class="chart-legend">
+    <span
+      ><i class="line mint"></i>
+      {{ chartMode() === 'population' ? 'Grazers' : 'Average speed' }}</span
+    >
+    <span
+      ><i class="line coral"></i>
+      {{ chartMode() === 'population' ? 'Hunters' : 'Camouflage' }}</span
+    >
+    <span class="chart-note">RECORDED FROM THE SIMULATION <span class="chart-rec">●</span></span>
+  </div>
+  <canvas #popChart class="main-chart" aria-label="Live population timeline"></canvas>
+</section>

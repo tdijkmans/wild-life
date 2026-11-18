@@ -1,0 +1,13 @@
+:host {
+  display: inline-flex;
+}
+
+.ds-button {
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}

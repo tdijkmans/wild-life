@@ -1,0 +1,26 @@
+:host {
+  display: inline-block;
+}
+
+.ds-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-live-gap, 8px);
+}
+
+.ds-live-indicator-dot {
+  width: var(--ds-live-size, 6px);
+  height: var(--ds-live-size, 6px);
+  background: var(--ds-live-color, #90f0bd);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 12px var(--ds-live-color, #67d9b0);
+  animation: ds-live-pulse var(--ds-live-pulse-speed, 1.8s) infinite;
+}
+
+@keyframes ds-live-pulse {
+  50% {
+    opacity: 0.32;
+    transform: scale(0.75);
+  }
+}
