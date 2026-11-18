@@ -100,7 +100,7 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
       const angle = (role === 1 ? 0.8 : 3.3) + this.random.range(-0.45, 0.45);
       const x = Math.round(nicheX + Math.cos(angle) * offset);
       const y = Math.round(nicheY + Math.sin(angle) * offset);
-      const species = ((role) + 1) as MicrobeSpecies;
+      const species = (role + 1) as MicrobeSpecies;
       for (let dy = -2; dy <= 2; dy++) {
         for (let dx = -2; dx <= 2; dx++) {
           const px = x + dx;
