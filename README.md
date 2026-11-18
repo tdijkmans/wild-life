@@ -18,11 +18,17 @@ Open the app at `http://localhost:4200/`.
 
 To add another experiment: register it in `src/app/pages/home/simulation-catalog.ts` and register a lazily loaded route in `src/app/app.routes.ts`.
 
+## Scalable UI structure
+
+- `src/app/shared/design-system/`: reusable design primitives (for example `button`, `eyebrow`, and `live-indicator`).
+- `src/app/features/ecosystem/components/`: ecosystem feature components, split by responsibility (timeline card, insights panel, etc.).
+- Page-level components keep orchestration/state, while feature components render focused UI blocks.
+
+Angular component styles are already locally scoped (style encapsulation), which is the framework-native equivalent of CSS modules.
+
 ## Validation
 
 ```bash
 npm run build
 npm test -- --watch=false
 ```
-
-The production build disables Angular's automatic font inlining so the font request cannot exceed component-style budgets. Fonts are requested directly by the page's HTML; large simulation CSS lives in `src/styles.css`.

@@ -4,6 +4,9 @@ import { RouterLink } from '@angular/router';
 import { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './sim/engine';
 import { WorldRenderer } from './sim/renderer';
 import { drawChart, drawTinyChart } from './sim/charts';
+import { DsLiveIndicatorComponent } from '../../shared/design-system/live-indicator/live-indicator';
+import { EcosystemTimelineCardComponent } from '../../features/ecosystem/components/ecosystem-timeline-card/ecosystem-timeline-card';
+import { EcosystemInsightsPanelComponent } from '../../features/ecosystem/components/ecosystem-insights-panel/ecosystem-insights-panel';
 
 type Tool = 'bloom' | 'current' | 'heat' | 'cold' | 'inspect';
 type AquariumCard = 'population' | 'evolution' | 'timeline' | 'journal';
@@ -18,7 +21,13 @@ const aquariumDefaults: Record<AquariumPreset, Record<AquariumCard, boolean>> = 
 @Component({
   selector: 'app-ecosystem',
   standalone: true,
-  imports: [DecimalPipe, RouterLink],
+  imports: [
+    DecimalPipe,
+    RouterLink,
+    DsLiveIndicatorComponent,
+    EcosystemTimelineCardComponent,
+    EcosystemInsightsPanelComponent,
+  ],
   templateUrl: './ecosystem.html',
   styleUrl: './ecosystem.css',
 })
@@ -26,9 +35,9 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   @ViewChild('worldFrame', { static: true }) worldFrame!: ElementRef<HTMLElement>;
   @ViewChild('worldCanvas', { static: true }) worldCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('aquariumChart') aquariumChart?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('popChart', { static: true }) popChart!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('preySpark', { static: true }) preySpark!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('predatorSpark', { static: true }) predatorSpark!: ElementRef<HTMLCanvasElement>;
+  private popChart?: HTMLCanvasElement;
+  private preySpark?: HTMLCanvasElement;
+  private predatorSpark?: HTMLCanvasElement;
 
   private world = new WorldEngine(20261116);
   private renderer!: WorldRenderer;
@@ -157,7 +166,6 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.renderer = new WorldRenderer(this.worldCanvas.nativeElement, this.world);
     this.resizeObserver = new ResizeObserver(() => this.onResize());
     this.resizeObserver.observe(this.worldCanvas.nativeElement);
-    this.resizeObserver.observe(this.popChart.nativeElement);
     window.addEventListener('keydown', this.keyHandler);
     document.addEventListener('fullscreenchange', this.fullscreenHandler);
     this.onResize();
@@ -227,11 +235,23 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   }
   private paintCharts() {
     if (!this.popChart) return;
-    drawChart(this.popChart.nativeElement, this.world.history, this.chartMode());
+    drawChart(this.popChart, this.world.history, this.chartMode());
     if (this.aquariumMode() && this.aquariumCards().timeline && this.aquariumChart)
       drawChart(this.aquariumChart.nativeElement, this.world.history, 'population');
-    drawTinyChart(this.preySpark.nativeElement, this.world.history, 'prey');
-    drawTinyChart(this.predatorSpark.nativeElement, this.world.history, 'predators');
+    if (this.preySpark) drawTinyChart(this.preySpark, this.world.history, 'prey');
+    if (this.predatorSpark) drawTinyChart(this.predatorSpark, this.world.history, 'predators');
+  }
+  onTimelineChartCanvasReady(canvas: HTMLCanvasElement) {
+    this.popChart = canvas;
+    this.resizeObserver?.observe(canvas);
+    this.paintCharts();
+  }
+  onInsightsSparkCanvasesReady(canvases: { prey: HTMLCanvasElement; predator: HTMLCanvasElement }) {
+    this.preySpark = canvases.prey;
+    this.predatorSpark = canvases.predator;
+    this.resizeObserver?.observe(canvases.prey);
+    this.resizeObserver?.observe(canvases.predator);
+    this.paintCharts();
   }
 
   setMode(value: Tool) {
