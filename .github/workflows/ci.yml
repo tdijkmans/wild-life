@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: quality-${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
       - name: Node 24
         uses: actions/setup-node@v4
         with:
@@ -31,14 +33,20 @@ jobs:
       # After the lockfile from this run is committed, switch to npm ci only.
       - name: Resolve lint dependencies for lockfile update
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - name: Save resolved lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-lockfile-candidate
-          path: package-lock.json
-          retention-days: 7
       - name: Install pinned dependencies
         run: npm ci --no-audit --no-fund
+      - name: Format new CI files
+        run: npx prettier --write package.json eslint.config.cjs scripts/report-bundle.mjs docs/quality-gates.md .github/workflows/ci.yml
+      - name: Commit bootstrapped lockfile and formatting (one-time setup)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json package.json eslint.config.cjs scripts/report-bundle.mjs docs/quality-gates.md .github/workflows/ci.yml
+          if ! git diff --staged --quiet; then
+            git commit -m "ci: lock lint dependencies and format quality tooling"
+            git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
+          fi
       - name: TypeScript check
         run: npm run typecheck
       - name: ESLint

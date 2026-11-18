@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, ViewChild, input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild, input } from '@angular/core';
 import { DsEyebrowComponent } from '../../../../shared/design-system/eyebrow/eyebrow';
 
 @Component({
@@ -8,7 +8,7 @@ import { DsEyebrowComponent } from '../../../../shared/design-system/eyebrow/eye
   templateUrl: './ecosystem-timeline-card.html',
   styleUrl: './ecosystem-timeline-card.css',
 })
-export class EcosystemTimelineCardComponent {
+export class EcosystemTimelineCardComponent implements AfterViewInit {
   readonly chartMode = input<'population' | 'traits'>('population');
 
   @ViewChild('popChart', { static: true }) private popChart!: ElementRef<HTMLCanvasElement>;
