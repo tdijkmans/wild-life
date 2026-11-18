@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "test:ci": "ng test --watch=false",
-    "bundle:report": "node scripts/report-bundle.mjs"
+    "bundle:report": "node scripts/report-bundle.mjs",
+    "perf:benchmark": "node scripts/benchmark-engine.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.1",

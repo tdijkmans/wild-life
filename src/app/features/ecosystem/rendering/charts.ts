@@ -6,8 +6,11 @@ function fit(canvas: HTMLCanvasElement) {
     dpr = Math.min(2, window.devicePixelRatio || 1);
   const w = Math.max(1, r.width),
     h = Math.max(1, r.height);
-  canvas.width = Math.floor(w * dpr);
-  canvas.height = Math.floor(h * dpr);
+  const pixelWidth = Math.floor(w * dpr);
+  const pixelHeight = Math.floor(h * dpr);
+  // Reassigning canvas.width/height clears its backing store and GPU resources.
+  if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+  if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
   const c = canvas.getContext('2d');
   if (!c) throw new Error('2D canvas missing');
   c.setTransform(dpr, 0, 0, dpr, 0, 0);

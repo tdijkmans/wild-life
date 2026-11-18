@@ -44,8 +44,10 @@ export class WorldRenderer {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.canvas.width = Math.round(this.width * this.dpr);
-    this.canvas.height = Math.round(this.height * this.dpr);
+    const pixelWidth = Math.round(this.width * this.dpr);
+    const pixelHeight = Math.round(this.height * this.dpr);
+    if (this.canvas.width !== pixelWidth) this.canvas.width = pixelWidth;
+    if (this.canvas.height !== pixelHeight) this.canvas.height = pixelHeight;
   }
   private transform() {
     const s = Math.min(this.width / this.world.width, this.height / this.world.height) * this.zoom;
