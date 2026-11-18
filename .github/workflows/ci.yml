@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: quality-${{ github.workflow }}-${{ github.ref }}
@@ -22,42 +22,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
       - name: Node 24
         uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
           cache: npm
-      # Temporary bootstrap: resolves the pinned Playwright dependency and
-      # formats the new experiment files. Removed once the lockfile is committed.
-      - name: Resolve browser-test dependency graph
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install pinned dependencies
         run: npm ci --no-audit --no-fund
-      - name: Format experiment and browser test sources
-        run: >
-          npx prettier --write
-          src/app/features/ecosystem/domain/engine.ts
-          src/app/features/ecosystem/domain/experiment.ts
-          src/app/features/ecosystem/domain/experiment.spec.ts
-          src/app/features/ecosystem/ecosystem.ts
-          src/app/features/ecosystem/ecosystem.html
-          src/app/features/ecosystem/ecosystem.css
-          playwright.config.ts
-          e2e
-          docs/experiments.md
-          package.json
-      - name: Commit bootstrapped lockfile and formatting
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json src/app/features/ecosystem/domain/engine.ts src/app/features/ecosystem/domain/experiment.ts src/app/features/ecosystem/domain/experiment.spec.ts src/app/features/ecosystem/ecosystem.ts src/app/features/ecosystem/ecosystem.html src/app/features/ecosystem/ecosystem.css playwright.config.ts e2e docs/experiments.md package.json
-          if ! git diff --staged --quiet; then
-            git commit -m "ci: lock Playwright and normalize experiment formatting"
-            git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
-          fi
       - name: TypeScript check
         run: npm run typecheck
       - name: ESLint
