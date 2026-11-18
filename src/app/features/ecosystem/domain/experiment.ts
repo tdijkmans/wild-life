@@ -84,7 +84,8 @@ export function parseExperiment(value: unknown): ExperimentDocument {
   }
   if (!isRecord(value['config'])) throw new Error('Missing experiment configuration');
   const config = validateExperimentConfig(value['config'] as unknown as ExperimentConfig);
-  if (!isIntegerInRange(value['ticks'], 0, MAX_STEPS)) throw new Error('Invalid experiment duration');
+  if (!isIntegerInRange(value['ticks'], 0, MAX_STEPS))
+    throw new Error('Invalid experiment duration');
   if (!Array.isArray(value['interventions']) || value['interventions'].length > MAX_INTERVENTIONS) {
     throw new Error('Experiment contains too many interventions');
   }
