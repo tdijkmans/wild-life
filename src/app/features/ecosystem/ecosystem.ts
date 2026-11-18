@@ -69,6 +69,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly experimentProgress = signal(0);
   readonly experimentStatus = signal('');
   readonly comparison = signal<{ previous: WorldStats; restored: WorldStats } | null>(null);
+  readonly experimentTicks = signal(0);
   private destroyed = false;
   readonly mode = signal<Tool>('bloom');
   readonly chartMode = signal<'population' | 'traits'>('population');
@@ -160,6 +161,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   });
 
   private readonly keyHandler = (event: KeyboardEvent) => {
+    if (this.experimentBusy()) return;
     const target = event.target as HTMLElement | null;
     if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
     if (event.key.toLowerCase() === 'f' && !event.repeat) {
@@ -208,6 +210,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.pointerController.tick(delta);
   }
   private updateUi() {
+    this.experimentTicks.set(this.experiment.ticks);
     this.stats.set(this.world.stats());
     // Engine history is sampled roughly every 1.1 s, not on every UI refresh.
     // Redrawing the charts every 220 ms repeats the same expensive Canvas work.
@@ -338,12 +341,14 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   saveExperiment(): void {
     if (this.experimentBusy()) return;
     try {
-      const document = this.experiment.export();
-      const blob = new Blob([JSON.stringify(document, null, 2)], { type: 'application/json' });
+      const experimentDocument = this.experiment.export();
+      const blob = new Blob([JSON.stringify(experimentDocument, null, 2)], {
+        type: 'application/json',
+      });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `wild-life-seed-${document.config.seed}-tick-${document.ticks}.json`;
+      anchor.download = `wild-life-seed-${experimentDocument.config.seed}-tick-${experimentDocument.ticks}.json`;
       anchor.click();
       URL.revokeObjectURL(url);
       this.experimentStatus.set('Experiment exported with verification checksum.');
