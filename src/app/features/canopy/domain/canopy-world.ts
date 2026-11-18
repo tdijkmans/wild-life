@@ -386,10 +386,8 @@ export class CanopyWorld implements InteractiveWorld {
         const geom = this.branchGeometry(tree, leaf.branch);
         const branch = tree.branches[leaf.branch];
         const normal = branch.angle + Math.PI / 2;
-        leaf.x = geom.x1 + (geom.x2 - geom.x1) * leaf.position +
-          Math.cos(normal) * leaf.side * 5;
-        leaf.y = geom.y1 + (geom.y2 - geom.y1) * leaf.position +
-          Math.sin(normal) * leaf.side * 5;
+        leaf.x = geom.x1 + (geom.x2 - geom.x1) * leaf.position + Math.cos(normal) * leaf.side * 5;
+        leaf.y = geom.y1 + (geom.y2 - geom.y1) * leaf.position + Math.sin(normal) * leaf.side * 5;
         this.leafGrid.insert(this.leafRefs.length, leaf.x, leaf.y);
         this.leafRefs.push(leaf);
       }
