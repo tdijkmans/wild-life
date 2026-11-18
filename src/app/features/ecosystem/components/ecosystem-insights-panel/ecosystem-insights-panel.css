@@ -13,8 +13,7 @@
 }
 
 .insights-heading {
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   letter-spacing: 1.6px;
   color: #9db1af;
   display: flex;
@@ -97,8 +96,7 @@
 }
 
 .stat-name {
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   letter-spacing: 1.4px;
   color: #9ebbb3;
 }
@@ -119,8 +117,7 @@
 }
 
 .stat-description {
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   color: #77928d;
   margin-top: 6px;
 }
@@ -138,8 +135,7 @@
   justify-content: space-between;
   border-top: 1px solid var(--wl-border-subtle);
   padding: 19px 0 13px;
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   letter-spacing: 1.4px;
   color: #afc5bc;
 }
@@ -165,8 +161,7 @@
 }
 
 .metric-label {
-  font:
-    8px var(--wl-font-mono);
+  font: 8px var(--wl-font-mono);
   letter-spacing: 0.5px;
   color: #799f98;
   display: block;
@@ -191,8 +186,7 @@
 }
 
 .metric-caption {
-  font:
-    8px var(--wl-font-mono);
+  font: 8px var(--wl-font-mono);
   color: #627f7a;
   letter-spacing: 0.5px;
 }
@@ -231,8 +225,7 @@
 }
 
 .facts span {
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   letter-spacing: 0.55px;
   color: #8aa6a0;
 }
@@ -257,8 +250,7 @@
 }
 
 .log-heading {
-  font:
-    9px var(--wl-font-mono);
+  font: 9px var(--wl-font-mono);
   color: #b2c9c0;
   letter-spacing: 1.25px;
   display: flex;
@@ -293,8 +285,7 @@
 }
 
 .log-date {
-  font:
-    8px var(--wl-font-mono);
+  font: 8px var(--wl-font-mono);
   color: #81a59a;
   letter-spacing: 0.7px;
 }
@@ -307,8 +298,7 @@
 }
 
 .insights-footer {
-  font:
-    8px var(--wl-font-mono);
+  font: 8px var(--wl-font-mono);
   letter-spacing: 0.5px;
   color: #68837c;
   border-top: 1px solid var(--wl-border-subtle);

@@ -46,8 +46,7 @@
   align-items: center;
   gap: 19px;
   margin-top: 18px;
-  font:
-    10px var(--wl-font-mono);
+  font: 10px var(--wl-font-mono);
   color: #a1b1ae;
 }
 

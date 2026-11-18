@@ -40,7 +40,12 @@
       <ds-button variant="subtle" (click)="cycleSpeed()" title="Change simulation speed">
         {{ speed() }}×
       </ds-button>
-      <ds-button variant="primary" class="pause-btn" [class.is-paused]="paused()" (click)="togglePause()">
+      <ds-button
+        variant="primary"
+        class="pause-btn"
+        [class.is-paused]="paused()"
+        (click)="togglePause()"
+      >
         {{ paused() ? '▶ Resume' : 'Ⅱ Pause' }}
       </ds-button>
     </div>
