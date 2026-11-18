@@ -90,9 +90,9 @@ describe('ExperimentSession deterministic replay', () => {
     const altered = structuredClone(document);
     (altered.interventions[0] as { x: number }).x = 10;
     await expect(ExperimentSession.replay(altered)).rejects.toThrow('verification failed');
-    await expect(
-      ExperimentSession.replay({ ...document, checksum: '00000000' }),
-    ).rejects.toThrow('verification failed');
+    await expect(ExperimentSession.replay({ ...document, checksum: '00000000' })).rejects.toThrow(
+      'verification failed',
+    );
   });
 
   it('rejects incompatible versions, engine models, or timestep', () => {

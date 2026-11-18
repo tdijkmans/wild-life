@@ -2,11 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } fr
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import type { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
-import {
-  ExperimentSession,
-  parseExperiment,
-  type ExperimentDocument,
-} from './domain/experiment';
+import { ExperimentSession, parseExperiment, type ExperimentDocument } from './domain/experiment';
 import { WorldRenderer } from './rendering/renderer';
 import { drawChart, drawTinyChart } from './rendering/charts';
 import { SimulationRunner } from '../../shared/simulation/simulation-runner';

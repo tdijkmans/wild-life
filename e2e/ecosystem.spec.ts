@@ -45,7 +45,9 @@ test('seed, interaction, JSON download, file import and verified replay', async 
   const exported = JSON.parse(await readFile(await download.path(), 'utf8'));
   expect(exported.format).toBe('wild-life-experiment');
   expect(exported.config).toEqual({ seed: 12345, prey: 15, predators: 2 });
-  expect(exported.interventions.some((event: { kind: string }) => event.kind === 'bloom')).toBe(true);
+  expect(exported.interventions.some((event: { kind: string }) => event.kind === 'bloom')).toBe(
+    true,
+  );
   expect(exported.checksum).toMatch(/^[0-9a-f]{8}$/);
 
   await page.getByRole('button', { name: 'Start configured world' }).click();

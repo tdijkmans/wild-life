@@ -92,7 +92,11 @@ export function parseExperiment(value: unknown): ExperimentDocument {
     }
     actions.push(action);
   }
-  if (!isRecord(value.result) || typeof value.checksum !== 'string' || !/^[0-9a-f]{8}$/.test(value.checksum)) {
+  if (
+    !isRecord(value.result) ||
+    typeof value.checksum !== 'string' ||
+    !/^[0-9a-f]{8}$/.test(value.checksum)
+  ) {
     throw new Error('Missing experiment verification data');
   }
   const numeric = Object.values(value.result);
