@@ -83,12 +83,24 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
       }
     }
 
+    // Seed neighboring but distinct strains in shared resource niches.
+    // Cross-feeding then has an endogenous substrate: producer secretions
+    // can diffuse across the gap to a nearby consumer without user input.
+    let nicheX = MICRO_COLS * 0.5;
+    let nicheY = MICRO_ROWS * 0.5;
     for (let c = 0; c < clusters; c++) {
-      const theta = this.random.range(0, Math.PI * 2);
-      const r = Math.sqrt(this.random.next()) * 0.76;
-      const x = Math.round(MICRO_COLS * 0.5 + Math.cos(theta) * r * MICRO_COLS * 0.43);
-      const y = Math.round(MICRO_ROWS * 0.5 + Math.sin(theta) * r * MICRO_ROWS * 0.4);
-      const species = ((c % 3) + 1) as MicrobeSpecies;
+      const role = c % 3;
+      if (role === 0) {
+        const theta = this.random.range(0, Math.PI * 2);
+        const radius = Math.sqrt(this.random.next()) * 0.65;
+        nicheX = MICRO_COLS * 0.5 + Math.cos(theta) * radius * MICRO_COLS * 0.43;
+        nicheY = MICRO_ROWS * 0.5 + Math.sin(theta) * radius * MICRO_ROWS * 0.4;
+      }
+      const offset = role === 0 ? 0 : role === 1 ? 3.2 : 5.2;
+      const angle = (role === 1 ? 0.8 : 3.3) + this.random.range(-0.45, 0.45);
+      const x = Math.round(nicheX + Math.cos(angle) * offset);
+      const y = Math.round(nicheY + Math.sin(angle) * offset);
+      const species = ((role) + 1) as MicrobeSpecies;
       for (let dy = -2; dy <= 2; dy++) {
         for (let dx = -2; dx <= 2; dx++) {
           const px = x + dx;

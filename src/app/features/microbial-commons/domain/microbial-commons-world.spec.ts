@@ -48,6 +48,17 @@ describe('Microbial Commons — resource-driven colony growth', () => {
     expect(world.producerCount).toBeGreaterThan(0);
   });
 
+  it('creates endogenous metabolic exchange in a mixed, untouched colony community', () => {
+    const commons = new MicrobialCommonsWorld(20261124, 19);
+    const noPartners = new MicrobialCommonsWorld(20261124, 1);
+    advance(commons, 1500);
+    advance(noPartners, 1500);
+    expect(commons.exchanges).toBeGreaterThan(0);
+    expect(noPartners.exchanges).toBe(0);
+    expect(commons.producerCount).toBeGreaterThan(0);
+    expect(commons.crossfeederCount).toBeGreaterThan(0);
+  });
+
   it('cross-feeders actually consume metabolites, not just proximity graphics', () => {
     const world = new MicrobialCommonsWorld(13, 3);
     const index = world.species.findIndex((species) => species === 2);
