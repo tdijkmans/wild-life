@@ -45,13 +45,13 @@ of the collection.
 
 **Available**
 
-- **001 · [Predator–Prey Evolution](/ecosystem)** — a seeded ecological world
+- **001 · Predator–Prey Evolution** (`/ecosystem`) — a seeded ecological world
   of grazers, hunters, food, reproduction and inherited traits. Influence it
   through food, currents and localized warming or cooling.
-- **002 · [Murmuration](/murmuration)** — hundreds of independently moving
+- **002 · Murmuration** (`/murmuration`) — hundreds of independently moving
   starlings align, separate and cohere into living flocks. A roaming raptor
   creates disturbance; soft wind, thermals and still air change trajectories.
-- **003 · [Defensive Herd](/defensive-herd)** — grazing adults gather and face
+- **003 · Defensive Herd** (`/defensive-herd`) — grazing adults gather and face
   outward around young when predators approach. A protective ring forms through
   individual social rules; gaps remain dangerous. Influence grazing, predator
   scent and breeze.

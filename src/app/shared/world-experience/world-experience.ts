@@ -18,6 +18,7 @@ import type {
   WorldCanvasRenderer,
   WorldExperienceDefinition,
   WorldMetric,
+  WorldHistoryPoint,
 } from './world-protocol';
 
 /**
@@ -61,7 +62,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private runner?: SimulationRunner<InteractiveWorld>;
   private observer?: ResizeObserver;
   private drawTimer = 0;
-  private latestHistoryLength = -1;
+  private latestHistorySample?: WorldHistoryPoint;
   private readonly throttle = new FrameThrottle(60);
   private readonly pointers = new Set<number>();
   private lastPointer: { x: number; y: number; at: number } | null = null;
@@ -132,7 +133,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.seed.set(seed);
     this.seedInput.set(seed);
     this.drawTimer = 0;
-    this.latestHistoryLength = -1;
+    this.latestHistorySample = undefined;
     this.throttle.reset();
     this.pointers.clear();
     this.lastPointer = null;
@@ -165,7 +166,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (this.drawTimer >= 0.28) {
       this.drawTimer = 0;
       this.metrics.set(this.world?.metrics() ?? []);
-      if (this.world && this.latestHistoryLength !== this.world.history.length) {
+      if (this.world && this.latestHistorySample !== this.world.history.at(-1)) {
         this.drawHistory();
       }
     }
@@ -191,7 +192,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (!ctx) return;
     ctx.clearRect(0, 0, pixelWidth, pixelHeight);
     const series = this.world.history;
-    this.latestHistoryLength = series.length;
+    this.latestHistorySample = series.at(-1);
     if (series.length < 2) return;
     const padding = 9;
     const plotWidth = pixelWidth - padding * 2;

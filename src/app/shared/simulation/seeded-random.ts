@@ -1,4 +1,4 @@
-/** Deterministic Mulberry32 stream. Never use it for rendering-only randomness. */
+/** Deterministic Mulberry32 stream. Use separate instances for domain and visual decoration. */
 export class SeededRandom {
   private state: number;
 
