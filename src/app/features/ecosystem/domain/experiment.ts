@@ -50,7 +50,7 @@ export function validateExperimentConfig(config: ExperimentConfig): ExperimentCo
 }
 
 function parseIntervention(raw: unknown, maxTick: number): RecordedIntervention {
-  if (!isRecord(raw) || !isIntegerInRange(raw.tick, 0, maxTick)) {
+  if (!isRecord(raw) || !isIntegerInRange(raw['tick'], 0, maxTick)) {
     throw new Error('Invalid intervention tick');
   }
   const { kind, tick, x, y } = raw;
@@ -58,48 +58,48 @@ function parseIntervention(raw: unknown, maxTick: number): RecordedIntervention 
     throw new Error('Invalid intervention coordinates');
   }
   if (kind === 'bloom') {
-    if (!isIntegerInRange(raw.amount, 1, 780)) throw new Error('Invalid food quantity');
-    return { kind, tick, x, y, amount: raw.amount };
+    if (!isIntegerInRange(raw['amount'], 1, 780)) throw new Error('Invalid food quantity');
+    return { kind, tick, x, y, amount: raw['amount'] };
   }
   if (kind === 'current') {
-    if (!finiteCoordinate(raw.dx) || !finiteCoordinate(raw.dy) || Math.hypot(raw.dx, raw.dy) < 1) {
+    if (!finiteCoordinate(raw['dx']) || !finiteCoordinate(raw['dy']) || Math.hypot(raw['dx'], raw['dy']) < 1) {
       throw new Error('Invalid flow vector');
     }
-    return { kind, tick, x, y, dx: raw.dx, dy: raw.dy };
+    return { kind, tick, x, y, dx: raw['dx'], dy: raw['dy'] };
   }
   if (kind === 'heat' || kind === 'cold') return { kind, tick, x, y };
   throw new Error('Unknown intervention type');
 }
 
 export function parseExperiment(value: unknown): ExperimentDocument {
-  if (!isRecord(value) || value.format !== 'wild-life-experiment' || value.version !== 1) {
+  if (!isRecord(value) || value['format'] !== 'wild-life-experiment' || value['version'] !== 1) {
     throw new Error('Unsupported experiment file format');
   }
-  if (value.model !== EXPERIMENT_MODEL || value.timestep !== EXPERIMENT_STEP_SECONDS) {
+  if (value['model'] !== EXPERIMENT_MODEL || value['timestep'] !== EXPERIMENT_STEP_SECONDS) {
     throw new Error('Experiment model or timestep is incompatible');
   }
-  if (!isRecord(value.config)) throw new Error('Missing experiment configuration');
-  const config = validateExperimentConfig(value.config as unknown as ExperimentConfig);
-  if (!isIntegerInRange(value.ticks, 0, MAX_STEPS)) throw new Error('Invalid experiment duration');
-  if (!Array.isArray(value.interventions) || value.interventions.length > MAX_INTERVENTIONS) {
+  if (!isRecord(value['config'])) throw new Error('Missing experiment configuration');
+  const config = validateExperimentConfig(value['config'] as unknown as ExperimentConfig);
+  if (!isIntegerInRange(value['ticks'], 0, MAX_STEPS)) throw new Error('Invalid experiment duration');
+  if (!Array.isArray(value['interventions']) || value['interventions'].length > MAX_INTERVENTIONS) {
     throw new Error('Experiment contains too many interventions');
   }
   const actions: RecordedIntervention[] = [];
-  for (const raw of value.interventions) {
-    const action = parseIntervention(raw, value.ticks);
+  for (const raw of value['interventions']) {
+    const action = parseIntervention(raw, value['ticks']);
     if (actions.length && action.tick < actions[actions.length - 1].tick) {
       throw new Error('Experiment interventions must be chronologically ordered');
     }
     actions.push(action);
   }
   if (
-    !isRecord(value.result) ||
-    typeof value.checksum !== 'string' ||
-    !/^[0-9a-f]{8}$/.test(value.checksum)
+    !isRecord(value['result']) ||
+    typeof value['checksum'] !== 'string' ||
+    !/^[0-9a-f]{8}$/.test(value['checksum'])
   ) {
     throw new Error('Missing experiment verification data');
   }
-  const numeric = Object.values(value.result);
+  const numeric = Object.values(value['result']);
   if (numeric.length !== 13 || numeric.some((v) => typeof v !== 'number' || !Number.isFinite(v))) {
     throw new Error('Invalid experiment result');
   }
@@ -109,10 +109,10 @@ export function parseExperiment(value: unknown): ExperimentDocument {
     model: EXPERIMENT_MODEL,
     config,
     timestep: EXPERIMENT_STEP_SECONDS,
-    ticks: value.ticks,
+    ticks: value['ticks'],
     interventions: actions,
-    result: value.result as unknown as WorldStats,
-    checksum: value.checksum,
+    result: value['result'] as unknown as WorldStats,
+    checksum: value['checksum'],
   };
 }
 
