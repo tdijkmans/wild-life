@@ -42,6 +42,30 @@ module.exports = tseslint.config(
     },
   },
   {
+    // Home is a catalogue-driven view, not an owner of biological or Canvas modules.
+    files: ['src/app/features/home/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '../*/domain/**',
+                '../*/rendering/**',
+                '../*/preview/**',
+                '../../features/*/domain/**',
+                '../../features/*/rendering/**',
+                '../../features/*/preview/**',
+              ],
+              message: 'Home must use the simulation catalogue and lazy preview contract.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/**/*.html'],
     extends: [...angular.configs.templateRecommended],
   },
