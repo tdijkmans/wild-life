@@ -16,6 +16,8 @@ light, warmth, nutrients, habitat or terrain—and discover what emerges.
 - **Aquarium — experience life.** An immersive, visually spectacular world that
   remains interesting without interaction. The interface recedes; subtle gestures
   can shape events without interrupting the atmosphere.
+  Shared worlds offer three Aquarium stats levels: None, Few (two key metrics),
+  or All. Predator–Prey Evolution offers individual information cards.
 - **Laboratory — understand life.** The same underlying world, with visible
   mechanisms, statistics, populations, histories, experiments and deterministic
   replay where supported.
@@ -87,6 +89,10 @@ of the collection.
   guides vessel sprouts, loop formation, perfusion and flow-dependent remodeling.
   Influence demand, oxygen and rest.
 
+- **014 · Pollen Paths** (`/pollen-paths`) — shared pollinators carry pollen on different contact surfaces; shape the meadow with sunlight and rain.
+- **015 · Night Chorus** (`/night-chorus`) — inherited calls and listening windows shape pairings in a shared pond; influence their timing with warmth and shade.
+- **016 · Silver Shoals** (`/silver-shoals`) — two parent forms meet at a tidal confluence and produce viable, sterile hybrids; influence encounters with current and shelter.
+
 **Future concepts — not yet implemented**
 
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
@@ -109,9 +115,9 @@ npm start
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
 `/murmuration`, `/defensive-herd`, `/canopy`, `/abyssal-bloom`,
 `/synchrony`, `/reef`, `/microbial-commons`, `/neuroplasticity`,
-`/morphogenesis`, `/chromatic-commons`, `/island-evolution` and `/vascular-garden`.
+`/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus` and `/silver-shoals`.
 
-**Optional procedural sound:** all thirteen worlds offer distinct, quiet,
+**Optional procedural sound:** all sixteen worlds offer distinct, quiet,
 ethereal synthesized ambience and model-driven event accents. Soft attacks,
 filtered tones, diffuse reverberation and spaced cues keep the sound unobtrusive.
 Audio is muted by default and starts only after the visitor explicitly enables

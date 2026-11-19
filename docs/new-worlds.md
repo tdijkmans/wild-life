@@ -219,6 +219,28 @@ growth and loop formation receive soft event accents.
 Pressure relaxation, radius-dependent conductance and oxygen delivery are
 simplified and dimensionless. This is not a clinical blood-flow prediction.
 
+## Reproductive isolation worlds
+
+**Pollen Paths** models two inherited distributions of flower shape. Visitor
+contact usually deposits and picks up pollen on the same body surface for a
+given shape. Rare differences in contact bridge the two forms. Sunlight
+changes bloom timing and foraging, and rain changes seed establishment.
+Aquarium traces indicate the donor and recipient of recent deliveries.
+
+**Night Chorus** models inherited calling rhythms, listening preferences and
+activity timing. Warmth and shade move local windows forward or back. Compare
+mixed encounters against successful mixed pairings. Every drawn ripple follows
+a model call and the optional soundscape distinguishes low and high call patterns.
+
+**Silver Shoals** models two parent lineages whose tidal ranges overlap.
+Current and eddy shelter change local encounters. Hybrid offspring grow, swim
+and age normally, but never become parents. The Laboratory retains the most
+recent hybrid's parent and offspring IDs.
+
+All three use abstract forms, seeded dynamics, fixed steps and bounded
+populations. Each uses the shared Aquarium stats levels and offers an
+opt-in soundscape tied to model activity.
+
 ## Procedural sound and listening consent
 
 Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
@@ -233,14 +255,14 @@ Sound button or keyboard (M) activation.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- All thirteen worlds have distinct sound palettes. The original ecosystem
+- All sixteen worlds have distinct sound palettes. The original ecosystem
   derives cues from birth, predation and intervention counters, preserving its
   versioned deterministic model. Murmuration and Defensive Herd also emit
   semantic event cues.
 
 ## Reproducibility and performance
 
-All twelve shared models accept fixed integer seeds, run at 60 fixed time steps per
+All fifteen shared models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -248,7 +270,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These twelve shared worlds currently provide **seeded resets and deterministic
+These fifteen shared worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

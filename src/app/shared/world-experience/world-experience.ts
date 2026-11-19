@@ -47,6 +47,17 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   readonly soundBusy = signal(false);
   readonly speed = signal(1);
   readonly aquarium = signal(false);
+  readonly aquariumStats = signal<'None' | 'Few' | 'All'>('None');
+  readonly aquariumMetrics = computed(() => {
+    switch (this.aquariumStats()) {
+      case 'None':
+        return [];
+      case 'Few':
+        return this.metrics().slice(0, 2);
+      case 'All':
+        return this.metrics();
+    }
+  });
   readonly interactionEnabled = signal(false);
   readonly hudVisible = signal(true);
   readonly seed = signal(0);
@@ -437,6 +448,13 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     }
     this.pointers.clear();
     this.scheduleResize();
+  }
+
+  cycleAquariumStats(): void {
+    this.aquariumStats.update((mode) =>
+      mode === 'None' ? 'Few' : mode === 'Few' ? 'All' : 'None',
+    );
+    this.wakeHud();
   }
 
   toggleAquariumInteraction(): void {

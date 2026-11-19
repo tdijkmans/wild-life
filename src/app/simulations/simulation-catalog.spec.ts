@@ -47,7 +47,7 @@ describe('Simulation catalog registration', () => {
     expect(featuredSimulation([example('fallback', '/fallback')]).id).toBe('fallback');
   });
 
-  it('registers thirteen distinct living worlds with independent lazy routes', () => {
+  it('registers sixteen distinct living worlds with independent lazy routes', () => {
     const registered = SIMULATIONS.map((world) => ({ id: world.id, path: world.path }));
     expect(registered).toEqual([
       { id: 'ecosystem', path: '/ecosystem' },
@@ -63,8 +63,11 @@ describe('Simulation catalog registration', () => {
       { id: 'chromatic-commons', path: '/chromatic-commons' },
       { id: 'island-evolution', path: '/island-evolution' },
       { id: 'vascular-garden', path: '/vascular-garden' },
+      { id: 'pollen-paths', path: '/pollen-paths' },
+      { id: 'night-chorus', path: '/night-chorus' },
+      { id: 'silver-shoals', path: '/silver-shoals' },
     ]);
-    expect(simulationRoutes(SIMULATIONS)).toHaveLength(13);
+    expect(simulationRoutes(SIMULATIONS)).toHaveLength(16);
     expect(SIMULATIONS.filter((world) => world.featured)).toHaveLength(1);
   });
 

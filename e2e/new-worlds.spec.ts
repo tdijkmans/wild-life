@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 const newWorlds = [
+  { title: 'Pollen Paths', path: '/pollen-paths', tool: 'Sunlight', metric: 'POLLEN DELIVERIES' },
+  { title: 'Night Chorus', path: '/night-chorus', tool: 'Warmth', metric: 'UNANSWERED SIGNALS' },
+  {
+    title: 'Silver Shoals',
+    path: '/silver-shoals',
+    tool: 'Tidal current',
+    metric: 'HYBRID HATCHES',
+  },
   { title: 'Neuroplasticity', path: '/neuroplasticity', tool: 'Stimulus', metric: 'SYNAPSES' },
   { title: 'Morphogenesis', path: '/morphogenesis', tool: 'Growth factor', metric: 'PROGENITORS' },
   {
@@ -70,6 +78,31 @@ for (const world of newWorlds) {
   });
 }
 
+test('Aquarium statistics cycle through none, few and all, and remember the selection on re-entry', async ({
+  page,
+}) => {
+  for (const route of ['/reef', '/pollen-paths', '/night-chorus', '/silver-shoals']) {
+    await page.goto(route);
+    const opening = page.getByRole('button', { name: 'Open fullscreen aquarium' });
+    await opening.click();
+    const stats = page.locator('dl[aria-label="Aquarium live statistics"]');
+    await expect(stats).toHaveCount(0);
+    await page.getByRole('button', { name: 'Stats: None' }).press('Space');
+    await expect(stats.locator('dt')).toHaveCount(2);
+    await page.getByRole('button', { name: 'Stats: Few' }).click();
+    const metricCount = await page
+      .getByRole('region', { name: 'World observations' })
+      .locator('.metric')
+      .count();
+    await expect(stats.locator('dt')).toHaveCount(metricCount);
+    await page.getByRole('button', { name: 'Exit aquarium' }).click();
+    await opening.click();
+    await expect(stats.locator('dt')).toHaveCount(metricCount);
+    await page.getByRole('button', { name: 'Stats: All' }).click();
+    await expect(stats).toHaveCount(0);
+  }
+});
+
 test('mobile viewport keeps every shared world and environmental controls usable', async ({
   page,
 }) => {
@@ -80,6 +113,9 @@ test('mobile viewport keeps every shared world and environmental controls usable
     '/chromatic-commons',
     '/island-evolution',
     '/vascular-garden',
+    '/pollen-paths',
+    '/night-chorus',
+    '/silver-shoals',
     '/murmuration',
     '/defensive-herd',
     '/canopy',
@@ -106,6 +142,9 @@ for (const route of [
   '/chromatic-commons',
   '/island-evolution',
   '/vascular-garden',
+  '/pollen-paths',
+  '/night-chorus',
+  '/silver-shoals',
   '/canopy',
   '/abyssal-bloom',
   '/synchrony',
