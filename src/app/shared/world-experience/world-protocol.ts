@@ -19,7 +19,10 @@ export type WorldSoundProfile =
   | 'tissue'
   | 'chromatic'
   | 'islands'
-  | 'vascular';
+  | 'vascular'
+  | 'pollen'
+  | 'pond'
+  | 'estuary';
 
 export interface WorldAudioCue {
   readonly id: number;
@@ -38,7 +41,11 @@ export interface WorldAudioCue {
     | 'bleach'
     | 'graze'
     | 'exchange'
-    | 'division';
+    | 'division'
+    | 'seed-set'
+    | 'low-call'
+    | 'high-call'
+    | 'hybrid-hatch';
   readonly strength: number;
 }
 

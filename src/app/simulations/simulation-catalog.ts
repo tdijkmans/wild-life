@@ -176,6 +176,39 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     loadComponent: () =>
       import('../features/vascular-garden/vascular-garden').then((m) => m.VascularGardenComponent),
   },
+  {
+    id: 'pollen-paths',
+    number: '014',
+    name: 'Pollen Paths',
+    description:
+      'Small differences in floral geometry change where visitors carry pollen. Watch those contacts reshape the meadow over generations.',
+    path: '/pollen-paths',
+    tags: ['Reproductive isolation', 'Pollination', 'Evolution'],
+    loadComponent: () =>
+      import('../features/pollen-paths/pollen-paths').then((m) => m.PollenPathsComponent),
+  },
+  {
+    id: 'night-chorus',
+    number: '015',
+    name: 'Night Chorus',
+    description:
+      'Two overlapping distributions of call rhythms and listening preferences share a pond. The water carries the evidence of every call.',
+    path: '/night-chorus',
+    tags: ['Reproductive isolation', 'Mate preference', 'Evolution'],
+    loadComponent: () =>
+      import('../features/night-chorus/night-chorus').then((m) => m.NightChorusComponent),
+  },
+  {
+    id: 'silver-shoals',
+    number: '016',
+    name: 'Silver Shoals',
+    description:
+      'Two parent forms gather in tributaries and meet as the tide shifts. Their silver offspring live alongside them and have no descendants.',
+    path: '/silver-shoals',
+    tags: ['Reproductive isolation', 'Hybrid sterility', 'Evolution'],
+    loadComponent: () =>
+      import('../features/silver-shoals/silver-shoals').then((m) => m.SilverShoalsComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */

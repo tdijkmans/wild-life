@@ -30,6 +30,9 @@ const palettes: Record<
   chromatic: { root: 82.4, overtone: 164.8, windCutoff: 540, noiseLevel: 0.011 },
   islands: { root: 65.4, overtone: 130.8, windCutoff: 820, noiseLevel: 0.018 },
   vascular: { root: 48.9, overtone: 97.8, windCutoff: 340, noiseLevel: 0.012 },
+  pollen: { root: 87, overtone: 139, windCutoff: 1120, noiseLevel: 0.024 },
+  pond: { root: 64, overtone: 99, windCutoff: 505, noiseLevel: 0.023 },
+  estuary: { root: 43, overtone: 86, windCutoff: 350, noiseLevel: 0.033 },
 };
 
 /**
@@ -195,27 +198,57 @@ export class WorldSoundscape {
       graze: [550, 415],
       exchange: [440, 570],
       division: [660, 505],
+      'seed-set': [720, 860],
+      'low-call': [285, 220],
+      'high-call': [525, 430],
+      'hybrid-hatch': [790, 465],
     };
     const [start, end] = frequencies[event.kind];
-    const oscillator = context.createOscillator();
-    oscillator.type = ['rustle', 'flow', 'graze', 'division'].includes(event.kind)
-      ? 'triangle'
-      : 'sine';
-    const pitch = palettes[this.profile].root / 100;
-    oscillator.frequency.setValueAtTime(start * pitch, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(
-      Math.max(30, end * pitch),
-      context.currentTime + 0.9,
-    );
-    const envelope = context.createGain();
+    const call = event.kind === 'low-call' || event.kind === 'high-call';
+    const high = event.kind === 'high-call';
+    const count = call ? (high ? 3 : 2) : 1;
+    const spacing = high ? 0.17 : 0.34;
+    const duration = call ? (high ? 0.13 : 0.28) : 1.6;
     const volume = Math.max(0.001, Math.min(0.016, 0.012 * event.strength));
-    envelope.gain.setValueAtTime(0.00001, context.currentTime);
-    envelope.gain.exponentialRampToValueAtTime(volume, context.currentTime + 0.15);
-    envelope.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 1.6);
+    const pitch = palettes[this.profile].root / 100;
+    const type =
+      call || ['rustle', 'flow', 'graze', 'division'].includes(event.kind) ? 'triangle' : 'sine';
+    for (let i = 0; i < count; i++) {
+      this.playAccent(
+        context,
+        master,
+        context.currentTime + i * spacing,
+        start * pitch,
+        end * pitch,
+        volume,
+        duration,
+        type,
+      );
+    }
+  }
+
+  private playAccent(
+    context: AudioContext,
+    destination: GainNode,
+    at: number,
+    start: number,
+    end: number,
+    volume: number,
+    duration: number,
+    type: OscillatorType,
+  ): void {
+    const oscillator = context.createOscillator();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(start, at);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(30, end), at + duration * 0.56);
+    const envelope = context.createGain();
+    envelope.gain.setValueAtTime(0.00001, at);
+    envelope.gain.exponentialRampToValueAtTime(volume, at + Math.min(0.15, duration * 0.26));
+    envelope.gain.exponentialRampToValueAtTime(0.00001, at + duration);
     oscillator.connect(envelope);
-    envelope.connect(master);
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + 1.65);
+    envelope.connect(destination);
+    oscillator.start(at);
+    oscillator.stop(at + duration + 0.05);
     oscillator.onended = () => {
       oscillator.disconnect();
       envelope.disconnect();

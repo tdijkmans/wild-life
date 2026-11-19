@@ -83,6 +83,13 @@
         <span class="scene-slogan">AUTONOMOUS BEHAVIOR / NO SCRIPTED FORMATIONS</span>
         @if (aquarium()) {
           <div class="aquarium-actions">
+            <ds-button
+              variant="subtle"
+              (keydown.space)="$event.stopPropagation()"
+              (click)="cycleAquariumStats()"
+            >
+              Stats: {{ aquariumStats() }}
+            </ds-button>
             @if (definition().soundProfile) {
               <ds-button
                 variant="subtle"
@@ -107,6 +114,16 @@
           </div>
         }
       </div>
+      @if (aquarium() && aquariumMetrics().length) {
+        <dl class="aquarium-stats" aria-label="Aquarium live statistics">
+          @for (metric of aquariumMetrics(); track metric.label) {
+            <div [class]="'aquarium-stat metric-' + metric.tone">
+              <dt>{{ metric.label }}</dt>
+              <dd>{{ metric.value }}</dd>
+            </div>
+          }
+        </dl>
+      }
       <div class="scene-bottom scene-chrome">
         <div class="scene-caption">
           <span class="scene-kicker">{{
