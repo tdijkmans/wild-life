@@ -71,6 +71,22 @@ of the collection.
   strategies compete for habitat and exchange metabolites. Shape growth
   with nutrients, oxygen and gentle chemical buffering.
 
+- **009 · Neuroplasticity** (`/neuroplasticity`) — firing neurons reinforce
+  coactive connections, sprout pathways and prune weak synapses. Influence
+  activity with stimulus, nourishment and quiet.
+- **010 · Morphogenesis** (`/morphogenesis`) — progenitor cells divide and
+  commit to tissue fates as activator and inhibitor signals diffuse. Shape
+  local growth factors, inhibition and renewal.
+- **011 · Chromatic Commons** (`/chromatic-commons`) — four reproducing,
+  heritable color populations gather by affinity and exchange energy across
+  boundaries. Influence nutrients, mixing and stillness.
+- **012 · Island Evolution** (`/island-evolution`) — isolated populations
+  inherit and mutate traits under distinct habitat pressures. Open temporary
+  passages, restore isolation or add rain to explore divergence and gene flow.
+- **013 · Vascular Garden** (`/vascular-garden`) — tissue oxygen demand
+  guides vessel sprouts, loop formation, perfusion and flow-dependent remodeling.
+  Influence demand, oxygen and rest.
+
 **Future concepts — not yet implemented**
 
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
@@ -92,13 +108,14 @@ npm start
 
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
 `/murmuration`, `/defensive-herd`, `/canopy`, `/abyssal-bloom`,
-`/synchrony`, `/reef` and `/microbial-commons`.
+`/synchrony`, `/reef`, `/microbial-commons`, `/neuroplasticity`,
+`/morphogenesis`, `/chromatic-commons`, `/island-evolution` and `/vascular-garden`.
 
-**Optional procedural sound:** shared Aquarium/Laboratory worlds (002–008)
-offer quiet, synthesized ambient and event cues. Audio is muted by default
-and starts only after the visitor explicitly enables Sound (or presses M);
-it follows pause, hidden-tab and component teardown. The original
-Predator–Prey world (001) retains its existing silent interface.
+**Optional procedural sound:** all thirteen worlds offer distinct, quiet,
+ethereal synthesized ambience and model-driven event accents. Soft attacks,
+filtered tones, diffuse reverberation and spaced cues keep the sound unobtrusive.
+Audio is muted by default and starts only after the visitor explicitly enables
+Sound (or presses M); it follows pause, hidden-tab and component teardown.
 
 Add new worlds as feature folders and register them **once** in
 [`src/app/simulations/simulation-catalog.ts`](src/app/simulations/simulation-catalog.ts).

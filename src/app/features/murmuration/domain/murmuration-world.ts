@@ -2,6 +2,7 @@ import { SeededRandom } from '../../../shared/simulation/seeded-random';
 import { SpatialGrid } from '../../../shared/simulation/spatial-grid';
 import type {
   InteractiveWorld,
+  WorldAudioCue,
   WorldHistoryPoint,
   WorldMetric,
 } from '../../../shared/world-experience/world-protocol';
@@ -47,6 +48,12 @@ export interface Raptor {
 }
 
 export class MurmurationWorld implements InteractiveWorld {
+  readonly audioCues: WorldAudioCue[] = [];
+  private nextCueId = 0;
+  private cue(kind: WorldAudioCue['kind'], strength = 0.3): void {
+    this.audioCues.push({ id: ++this.nextCueId, kind, strength });
+    if (this.audioCues.length > 16) this.audioCues.shift();
+  }
   readonly width = MURMURATION_WIDTH;
   readonly height = MURMURATION_HEIGHT;
   readonly seed: number;
@@ -133,6 +140,7 @@ export class MurmurationWorld implements InteractiveWorld {
       remaining: kind === 'wind' ? 9 : 12,
     });
     if (this.fields.length > 24) this.fields.shift();
+    this.cue(kind === 'calm' ? 'hush' : 'flow');
   }
 
   step(dt: number): void {
@@ -289,6 +297,7 @@ export class MurmurationWorld implements InteractiveWorld {
     if (predator.cooldown <= 0 && nearest && nearestDistance < 14 * 14) {
       this.birds.splice(this.birds.indexOf(nearest), 1);
       this.caught++;
+      this.cue('rustle', 0.35);
       predator.cooldown = 7;
     }
   }
@@ -318,6 +327,7 @@ export class MurmurationWorld implements InteractiveWorld {
         baby.parent,
       );
       this.births++;
+      this.cue('growth');
     }
   }
 

@@ -1,3 +1,4 @@
+import { WorldSoundscape } from '../../shared/world-experience/world-soundscape';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -67,6 +68,66 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly comparison = signal<{ previous: WorldStats; restored: WorldStats } | null>(null);
   readonly experimentTicks = signal(0);
   private destroyed = false;
+  private readonly soundscape = new WorldSoundscape();
+  readonly soundEnabled = signal(false);
+  readonly soundBusy = signal(false);
+  private heardBirths = 0;
+  private heardKills = 0;
+  private heardInterventions = 0;
+  private readonly soundVisibility = () => {
+    void this.soundscape.setActive(!document.hidden && !this.paused() && !this.experimentBusy());
+  };
+  async toggleSound(): Promise<void> {
+    if (this.soundBusy()) return;
+    this.soundBusy.set(true);
+    try {
+      if (this.soundEnabled()) {
+        this.soundEnabled.set(false);
+        await this.soundscape.stop();
+      } else {
+        this.resetSoundEvents();
+        const started = await this.soundscape.start('ecosystem');
+        if (this.destroyed) {
+          await this.soundscape.stop();
+          return;
+        }
+        this.soundEnabled.set(started);
+        this.soundVisibility();
+        if (!started) this.experimentStatus.set('Sound is unavailable on this device.');
+      }
+    } finally {
+      this.soundBusy.set(false);
+    }
+  }
+  private resetSoundEvents(): void {
+    this.heardBirths = this.world.births;
+    this.heardKills = this.world.kills;
+    this.heardInterventions = this.experiment.interventions.length;
+  }
+  private updateSound(now: number): void {
+    if (this.soundEnabled() && !this.paused() && !this.experimentBusy()) {
+      const actions = this.experiment.interventions;
+      if (actions.length > this.heardInterventions) {
+        const kind = actions.at(-1)!.kind;
+        this.soundscape.cue({
+          kind:
+            kind === 'bloom'
+              ? 'bloom'
+              : kind === 'current'
+                ? 'flow'
+                : kind === 'heat'
+                  ? 'shimmer'
+                  : 'hush',
+          strength: 0.35,
+        });
+      } else if (this.world.kills > this.heardKills)
+        this.soundscape.cue({ kind: 'rustle', strength: 0.28 });
+      else if (this.world.births > this.heardBirths)
+        this.soundscape.cue({ kind: 'growth', strength: 0.3 });
+      this.soundscape.modulate(now);
+    }
+    this.resetSoundEvents();
+  }
   readonly mode = signal<Tool>('bloom');
   readonly chartMode = signal<'population' | 'traits'>('population');
   readonly paused = signal(false);
@@ -160,6 +221,11 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     if (this.experimentBusy()) return;
     const target = event.target as HTMLElement | null;
     if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+    if (event.key.toLowerCase() === 'm' && !event.repeat) {
+      event.preventDefault();
+      void this.toggleSound();
+      return;
+    }
     if (event.key.toLowerCase() === 'f' && !event.repeat) {
       event.preventDefault();
       void this.toggleAquarium();
@@ -183,12 +249,15 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.resizeObserver = new ResizeObserver(() => this.onResize());
     this.resizeObserver.observe(this.worldCanvas.nativeElement);
     window.addEventListener('keydown', this.keyHandler);
+    document.addEventListener('visibilitychange', this.soundVisibility);
     this.aquarium.attach(this.worldFrame.nativeElement);
     this.onResize();
     this.runner.start();
   }
   ngOnDestroy() {
     this.destroyed = true;
+    document.removeEventListener('visibilitychange', this.soundVisibility);
+    void this.soundscape.stop();
     this.runner.stop();
     this.resizeObserver?.disconnect();
     window.removeEventListener('keydown', this.keyHandler);
@@ -198,6 +267,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
 
   private onSimulationFrame(now: number, delta: number): void {
     this.renderer.render(now);
+    this.updateSound(now);
     this.statsTimer += delta;
     if (this.statsTimer > 0.22) {
       this.statsTimer = 0;
@@ -269,6 +339,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   togglePause() {
     this.runner.setPaused(!this.runner.isPaused);
     this.paused.set(this.runner.isPaused);
+    this.soundVisibility();
   }
   cycleSpeed() {
     const current = this.runner.playbackSpeed;
@@ -278,6 +349,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private installExperiment(session: ExperimentSession, pause = false): void {
     this.experiment = session;
     this.world = session.world;
+    this.resetSoundEvents();
     this.renderer.setWorld(this.world);
     this.runner.setWorld(this.experiment);
     this.runner.setPaused(pause);
@@ -287,6 +359,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.configuredPredators.set(session.config.predators);
     this.selected.set(null);
     this.paused.set(pause);
+    this.soundVisibility();
     this.statsTimer = 0;
     this.lastHistorySample = undefined;
     this.lastEvent = undefined;
@@ -381,6 +454,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.experimentProgress.set(0);
     this.runner.setPaused(true);
     this.paused.set(true);
+    this.soundVisibility();
     let succeeded = false;
 
     try {
@@ -411,7 +485,10 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         this.runner.setPaused(wasPaused);
         this.paused.set(wasPaused);
       }
-      if (!this.destroyed) this.experimentBusy.set(false);
+      if (!this.destroyed) {
+        this.experimentBusy.set(false);
+        this.soundVisibility();
+      }
     }
   }
   closeInspector() {

@@ -117,6 +117,65 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
         (m) => m.MicrobialCommonsComponent,
       ),
   },
+  {
+    id: 'neuroplasticity',
+    number: '009',
+    name: 'Neuroplasticity',
+    description:
+      'A luminous neural garden learns through activity, strengthens coactive connections and lets unused pathways fade.',
+    path: '/neuroplasticity',
+    tags: ['Emergence', 'Interactive', 'Living systems'],
+    loadComponent: () =>
+      import('../features/neuroplasticity/neuroplasticity').then((m) => m.NeuroplasticityComponent),
+  },
+  {
+    id: 'morphogenesis',
+    number: '010',
+    name: 'Morphogenesis',
+    description:
+      'Watch a living sheet of cells grow and differentiate as competing growth factors diffuse through the tissue.',
+    path: '/morphogenesis',
+    tags: ['Emergence', 'Interactive', 'Living systems'],
+    loadComponent: () =>
+      import('../features/morphogenesis/morphogenesis').then((m) => m.MorphogenesisComponent),
+  },
+  {
+    id: 'chromatic-commons',
+    number: '011',
+    name: 'Chromatic Commons',
+    description:
+      'Four luminous cell populations reproduce, sort through affinity and exchange energy across their shifting boundaries.',
+    path: '/chromatic-commons',
+    tags: ['Emergence', 'Interactive', 'Living systems'],
+    loadComponent: () =>
+      import('../features/chromatic-commons/chromatic-commons').then(
+        (m) => m.ChromaticCommonsComponent,
+      ),
+  },
+  {
+    id: 'island-evolution',
+    number: '012',
+    name: 'Island Evolution',
+    description:
+      'Separated island populations inherit and mutate adaptive traits. Local conditions select different descendants; temporary passages restore gene flow.',
+    path: '/island-evolution',
+    tags: ['Emergence', 'Interactive', 'Living systems'],
+    loadComponent: () =>
+      import('../features/island-evolution/island-evolution').then(
+        (m) => m.IslandEvolutionComponent,
+      ),
+  },
+  {
+    id: 'vascular-garden',
+    number: '013',
+    name: 'Vascular Garden',
+    description:
+      'A luminous vascular network sprouts toward unmet tissue demand, connects into loops and remodels around flowing blood.',
+    path: '/vascular-garden',
+    tags: ['Emergence', 'Interactive', 'Living systems'],
+    loadComponent: () =>
+      import('../features/vascular-garden/vascular-garden').then((m) => m.VascularGardenComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */

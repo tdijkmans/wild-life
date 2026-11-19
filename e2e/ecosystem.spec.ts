@@ -87,3 +87,43 @@ test('mobile layout keeps the experiment inputs and simulation accessible', asyn
   await expect(page.getByRole('status')).toContainText('deterministic experiment started');
   await expect(page.locator('canvas.world-canvas')).toBeVisible();
 });
+
+for (const route of ['/ecosystem', '/neuroplasticity']) {
+  test(route + ': audio context follows consent, pause, mute and navigation', async ({ page }) => {
+    await page.addInitScript(() => {
+      const contexts: AudioContext[] = [];
+      Object.assign(window, { testAudioContexts: contexts });
+      const NativeContext = window.AudioContext;
+      window.AudioContext = class extends NativeContext {
+        constructor(options?: AudioContextOptions) {
+          super(options);
+          contexts.push(this);
+        }
+      };
+    });
+    const states = () =>
+      page.evaluate(() =>
+        (window as unknown as { testAudioContexts: AudioContext[] }).testAudioContexts.map(
+          (c) => c.state,
+        ),
+      );
+    await page.goto(route);
+    expect(await states()).toEqual([]);
+    const toggle = page.getByRole('button', { name: 'Toggle ambient sound', exact: true });
+    await toggle.click();
+    await expect.poll(states).toEqual(['running']);
+    await page.keyboard.press('Space');
+    await expect.poll(states).toEqual(['suspended']);
+    await page.keyboard.press('Space');
+    await expect.poll(states).toEqual(['running']);
+    await toggle.click();
+    await expect.poll(states).toEqual(['closed']);
+    await toggle.click();
+    await expect.poll(states).toEqual(['closed', 'running']);
+    if (route === '/ecosystem')
+      await page.getByRole('link', { name: 'Back to WILD LIFE worlds' }).click();
+    else await page.getByRole('link', { name: 'WILD LIFE home', exact: true }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect.poll(states).toEqual(['closed', 'closed']);
+  });
+}

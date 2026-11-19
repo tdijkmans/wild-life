@@ -13,6 +13,14 @@
       {{ (seed() % 10000).toString().padStart(4, '0') }}
     </div>
     <div class="top-actions">
+      <ds-button
+        variant="subtle"
+        ariaLabel="Toggle ambient sound"
+        [pressed]="soundEnabled()"
+        [disabled]="soundBusy()"
+        (click)="toggleSound()"
+        >{{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}</ds-button
+      >
       <a class="subtle-btn demo-return" routerLink="/" aria-label="Back to WILD LIFE worlds"
         >← All worlds</a
       >
@@ -198,6 +206,15 @@
               <span class="aquarium-brand-dot"></span> WILD <span> / A LIVING WORLD</span>
             </div>
             <div class="aquarium-toolbar" role="toolbar" aria-label="Aquarium display controls">
+              <button
+                class="aquarium-ui-button"
+                aria-label="Toggle aquarium sound"
+                [attr.aria-pressed]="soundEnabled()"
+                [disabled]="soundBusy()"
+                (click)="toggleSound()"
+              >
+                {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
+              </button>
               <button
                 class="aquarium-ui-button"
                 (click)="toggleAquariumSettings()"
