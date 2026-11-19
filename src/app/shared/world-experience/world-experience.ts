@@ -44,6 +44,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   readonly metrics = signal<readonly WorldMetric[]>([]);
   readonly paused = signal(false);
   readonly soundEnabled = signal(false);
+  readonly soundBusy = signal(false);
   readonly speed = signal(1);
   readonly aquarium = signal(false);
   readonly interactionEnabled = signal(false);
@@ -273,25 +274,31 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
 
   /** Explicit opt-in. Browsers never start AudioContext on page load. */
   async toggleSound(): Promise<void> {
-    if (this.soundEnabled()) {
-      this.soundEnabled.set(false);
-      await this.soundscape.stop();
-      return;
-    }
-    const profile = this.definition().soundProfile;
-    if (!profile) return;
-    this.lastCueId = this.world?.audioCues?.at(-1)?.id ?? 0;
-    const started = await this.soundscape.start(profile);
-    if (this.disposed) {
-      await this.soundscape.stop();
-      return;
-    }
-    this.soundEnabled.set(started);
-    if (!started) {
-      this.status.set('Sound is unavailable on this device.');
-    } else {
-      void this.soundscape.setActive(!this.paused() && !document.hidden);
-      this.status.set('Gentle ambient sound enabled. Press M or Sound to mute.');
+    if (this.soundBusy()) return;
+    this.soundBusy.set(true);
+    try {
+      if (this.soundEnabled()) {
+        this.soundEnabled.set(false);
+        await this.soundscape.stop();
+        return;
+      }
+      const profile = this.definition().soundProfile;
+      if (!profile) return;
+      this.lastCueId = this.world?.audioCues?.at(-1)?.id ?? 0;
+      const started = await this.soundscape.start(profile);
+      if (this.disposed) {
+        await this.soundscape.stop();
+        return;
+      }
+      this.soundEnabled.set(started);
+      if (!started) {
+        this.status.set('Sound is unavailable on this device.');
+      } else {
+        void this.soundscape.setActive(!this.paused() && !document.hidden);
+        this.status.set('Gentle ambient sound enabled. Press M or Sound to mute.');
+      }
+    } finally {
+      this.soundBusy.set(false);
     }
   }
 

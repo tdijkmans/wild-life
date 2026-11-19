@@ -7,7 +7,19 @@ export interface WorldMetric {
 }
 
 export type WorldSoundProfile =
-  'forest' | 'abyss' | 'sky' | 'meadow' | 'twilight' | 'reef' | 'microbial';
+  | 'forest'
+  | 'abyss'
+  | 'sky'
+  | 'meadow'
+  | 'twilight'
+  | 'reef'
+  | 'microbial'
+  | 'ecosystem'
+  | 'neural'
+  | 'tissue'
+  | 'chromatic'
+  | 'islands'
+  | 'vascular';
 
 export interface WorldAudioCue {
   readonly id: number;

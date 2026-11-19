@@ -24,6 +24,7 @@
           variant="subtle"
           ariaLabel="Toggle ambient sound"
           [pressed]="soundEnabled()"
+          [disabled]="soundBusy()"
           (click)="toggleSound()"
         >
           {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
@@ -87,6 +88,7 @@
                 variant="subtle"
                 ariaLabel="Toggle aquarium sound"
                 [pressed]="soundEnabled()"
+                [disabled]="soundBusy()"
                 (click)="toggleSound()"
               >
                 {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}

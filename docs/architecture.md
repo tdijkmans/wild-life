@@ -123,11 +123,16 @@ world. `FrameThrottle` limits **drawing** to 30 fps; the domain's fixed
 timestep remains independent of display refresh.
 
 Murmuration, Defensive Herd, Canopy, Abyssal Bloom, Synchrony, Reef and
-Microbial Commons each use their own deterministic engine and Canvas renderer. They use `shared/world-experience/`
+Microbial Commons, Neuroplasticity, Morphogenesis, Chromatic Commons,
+Island Evolution and Vascular Garden each use their own deterministic engine and Canvas renderer. They use `shared/world-experience/`
 to provide consistent Aquarium, gentle pointer tools, keyboard shortcuts,
 pause, speed, seed reset, statistics and history. A separate, opt-in
 `WorldSoundscape` produces low-volume ambient and event sounds without
-changing simulation state. These worlds do **not** yet implement
+changing simulation state. The ecosystem route uses the same sound engine,
+with cues derived from existing experiment counters. The five cellular/network
+worlds share bounded field/history bookkeeping in `LivingWorld` and drawing
+primitives in `living-canvas.ts`; biological equations remain feature-owned.
+These shared-shell worlds do **not** yet implement
 the versioned JSON experiment replay protocol of Predator–Prey Evolution;
 their seeds and unit tests make their model runs reproducible.
 

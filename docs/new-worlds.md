@@ -159,11 +159,71 @@ No specific organisms, pathogens, culturing recipes or empirically
 calibrated kinetics are represented. This is an abstract computational
 ecology model, not a biological laboratory protocol.
 
+## Neuroplasticity (`/neuroplasticity`)
+
+A spatial network of excitatory and inhibitory integrate-and-fire neurons has
+refractory periods and decaying activity traces. Coactive neurons reinforce
+weighted connections; neighboring active neurons can sprout new connections,
+while weak connections are pruned. Stimulus raises local input, Nourish supports
+plasticity and Quiet reduces activity. Curved links and firing glows expose the
+actual network state. Sound marks activity and structural changes.
+
+This is a Hebbian-inspired abstraction, not a model of cognition, therapy,
+clinical neuroplasticity or a specific brain region.
+
+## Morphogenesis (`/morphogenesis`)
+
+Activator and inhibitor signals diffuse over a bounded grid with autonomous
+sources. Progenitors integrate local exposure before committing to one of two differentiated
+fates; daughters inherit their parent's fate. Energy, space and age regulate
+cell division and turnover. Growth factor, Inhibitor and Renewal interventions
+change local conditions. Membranes, nuclei and signal haze reveal tissue state;
+quiet accents mark divisions and differentiation.
+
+Signals and fate thresholds are dimensionless artistic abstractions, not
+molecularly calibrated kinetics or a real developmental protocol.
+
+## Chromatic Commons (`/chromatic-commons`)
+
+Four heritable color populations have short-range repulsion and longer-range
+pair affinities. Like colors attract; unlike colors can attract or repel,
+and compatible close neighbors exchange energy. Crowding, basal resources,
+aging and inherited affinity variation regulate reproduction. Nutrients,
+Mixing current and Still haven change local growth and mixing. Colored bodies
+and neighbor links reveal clusters without prescribing their boundaries.
+
+These are abstract cells; color is a categorical inherited trait, not a
+claim about real cell recognition. Exchanges count individual transfer steps.
+
+## Island Evolution (`/island-evolution`)
+
+Three islands begin with similar trait distributions but different habitat
+optima. Fitness affects energy and reproduction, offspring inherit small
+mutations, and finite habitat capacity and aging regulate populations.
+Passage temporarily connects islands for migration; Isolation closes nearby
+passages; Rain supports resources. Trait colors and population statistics
+show local adaptation and divergence. Sound marks births and migration.
+
+This is an asexual island-population model. Divergence measures differences in
+mean trait; it does not establish reproductive isolation or prove speciation.
+
+## Vascular Garden (`/vascular-garden`)
+
+A source-to-sink vessel network supplies tissue through pressure-driven flow.
+Hypoxic tissue emits a VEGF-like signal that guides new sprouts; nearby branches
+can fuse into perfused loops. Flow changes vessel radius, and unused terminal
+branches regress. Demand, Oxygen and Rest modify local tissue conditions.
+Glowing vessels and moving particles show actual network geometry and flow;
+growth and loop formation receive soft event accents.
+
+Pressure relaxation, radius-dependent conductance and oxygen delivery are
+simplified and dimensionless. This is not a clinical blood-flow prediction.
+
 ## Procedural sound and listening consent
 
 Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
 `WorldSoundscape` uses the browser Web Audio API to synthesize quiet,
-original ambient textures and short non-musical event accents. Audio is
+original ambient textures and soft, reverberant event accents. Audio is
 **muted by default** and no `AudioContext` is created until a deliberate
 Sound button or keyboard (M) activation.
 
@@ -173,12 +233,14 @@ Sound button or keyboard (M) activation.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- Procedural sound currently covers worlds 002–008. Predator–Prey
-  Evolution continues to use its original interface without sound.
+- All thirteen worlds have distinct sound palettes. The original ecosystem
+  derives cues from birth, predation and intervention counters, preserving its
+  versioned deterministic model. Murmuration and Defensive Herd also emit
+  semantic event cues.
 
 ## Reproducibility and performance
 
-All seven newer models accept fixed integer seeds, run at 60 fixed time steps per
+All twelve shared models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -186,7 +248,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These seven newer worlds currently provide **seeded resets and deterministic
+These twelve shared worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

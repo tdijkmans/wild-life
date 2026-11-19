@@ -1,6 +1,21 @@
 import { expect, test } from '@playwright/test';
 
 const newWorlds = [
+  { title: 'Neuroplasticity', path: '/neuroplasticity', tool: 'Stimulus', metric: 'SYNAPSES' },
+  { title: 'Morphogenesis', path: '/morphogenesis', tool: 'Growth factor', metric: 'PROGENITORS' },
+  {
+    title: 'Chromatic Commons',
+    path: '/chromatic-commons',
+    tool: 'Mixing current',
+    metric: 'LIKE NEIGHBORS',
+  },
+  { title: 'Island Evolution', path: '/island-evolution', tool: 'Passage', metric: 'DIVERGENCE' },
+  {
+    title: 'Vascular Garden',
+    path: '/vascular-garden',
+    tool: 'Metabolic demand',
+    metric: 'OXYGENATION',
+  },
   { title: 'Murmuration', path: '/murmuration', tool: 'Thermal', metric: 'STARLINGS' },
   { title: 'Defensive Herd', path: '/defensive-herd', tool: 'Scent', metric: 'GUARDIANS' },
   { title: 'Canopy', path: '/canopy', tool: 'Rain', metric: 'FOLIAGE' },
@@ -60,6 +75,11 @@ test('mobile viewport keeps every shared world and environmental controls usable
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
+    '/neuroplasticity',
+    '/morphogenesis',
+    '/chromatic-commons',
+    '/island-evolution',
+    '/vascular-garden',
     '/murmuration',
     '/defensive-herd',
     '/canopy',
@@ -78,7 +98,20 @@ test('mobile viewport keeps every shared world and environmental controls usable
   }
 });
 
-for (const route of ['/canopy', '/abyssal-bloom', '/synchrony', '/reef', '/microbial-commons']) {
+for (const route of [
+  '/murmuration',
+  '/defensive-herd',
+  '/neuroplasticity',
+  '/morphogenesis',
+  '/chromatic-commons',
+  '/island-evolution',
+  '/vascular-garden',
+  '/canopy',
+  '/abyssal-bloom',
+  '/synchrony',
+  '/reef',
+  '/microbial-commons',
+]) {
   test(`${route}: sound is opt-in, user-mutable and available inside Aquarium`, async ({
     page,
   }) => {

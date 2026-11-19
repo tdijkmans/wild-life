@@ -1,6 +1,7 @@
 import { SeededRandom } from '../../../shared/simulation/seeded-random';
 import type {
   InteractiveWorld,
+  WorldAudioCue,
   WorldHistoryPoint,
   WorldMetric,
 } from '../../../shared/world-experience/world-protocol';
@@ -53,6 +54,12 @@ export interface MeadowInfluence {
 }
 
 export class DefensiveHerdWorld implements InteractiveWorld {
+  readonly audioCues: WorldAudioCue[] = [];
+  private nextCueId = 0;
+  private cue(kind: WorldAudioCue['kind'], strength = 0.3): void {
+    this.audioCues.push({ id: ++this.nextCueId, kind, strength });
+    if (this.audioCues.length > 16) this.audioCues.shift();
+  }
   readonly seed: number;
   readonly width = HERD_WIDTH;
   readonly height = HERD_HEIGHT;
@@ -147,6 +154,8 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     )
       return;
 
+    if (['pasture', 'scent', 'breeze'].includes(kind))
+      this.cue(kind === 'pasture' ? 'graze' : kind === 'scent' ? 'hush' : 'flow');
     if (kind === 'pasture') {
       const nearby = this.pastures.find((patch) => Math.hypot(patch.x - x, patch.y - y) < 68);
       if (nearby) {
@@ -439,6 +448,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
         if (index >= 0) {
           this.herd.splice(index, 1);
           this.losses++;
+          this.cue('rustle', 0.35);
           wolf.cooldown = 13;
           wolf.hunger = 0;
         }
@@ -450,6 +460,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     for (const animal of this.herd) {
       if (animal.kind === 'calf' && animal.age >= 70) {
         animal.kind = 'adult';
+        this.cue('shimmer', 0.2);
         animal.energy = Math.max(animal.energy, 0.8);
       }
     }
@@ -465,6 +476,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
       parent.y + this.random.range(-15, 15),
     );
     this.births++;
+    this.cue('growth');
     parent.energy *= 0.78;
   }
 
