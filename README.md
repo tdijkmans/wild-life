@@ -95,6 +95,11 @@ of the collection.
 
 - **017 · Membrane Tide** (`/membrane-tide`) — drifting lipid patches bend and seal into vesicles. Swirl the fluid or drop a pebble to stretch and open nearby membranes.
 
+- **018 · Osmotic Glass** (`/osmotic-glass`) — colored molecules diffuse across a selective membrane as the chambers respond to osmotic pressure.
+- **019 · Mitotic Bloom** (`/mitotic-bloom`) — follow chromosomes and spindle fibers from interphase to two daughter cells.
+- **020 · Hyphal Network** (`/hyphal-network`) — grow a connected mycelium and follow cytoplasmic flow through septal pores.
+- **021 · Flagellar Drift** (`/flagellar-drift`) — three flagellar forms swim, mate, and pass down evolving propulsion traits.
+
 **Future concepts — not yet implemented**
 
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
@@ -117,9 +122,9 @@ npm start
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
 `/murmuration`, `/defensive-herd`, `/canopy`, `/abyssal-bloom`,
 `/synchrony`, `/reef`, `/microbial-commons`, `/neuroplasticity`,
-`/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus`, `/silver-shoals` and `/membrane-tide`.
+`/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus`, `/silver-shoals`, `/membrane-tide`, `/osmotic-glass`, `/mitotic-bloom`, `/hyphal-network` and `/flagellar-drift`.
 
-**Optional procedural sound:** all seventeen worlds offer distinct, quiet,
+**Optional procedural sound:** all twenty-one worlds offer distinct, quiet,
 ethereal synthesized ambience and model-driven event accents. Soft attacks,
 filtered tones, diffuse reverberation and spaced cues keep the sound unobtrusive.
 Audio is muted by default and starts only after the visitor explicitly enables

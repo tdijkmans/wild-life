@@ -1,6 +1,15 @@
 import { expect, test } from '@playwright/test';
 
 const newWorlds = [
+  { title: 'Osmotic Glass', path: '/osmotic-glass', tool: 'Stir', metric: 'TRACER CROSSINGS' },
+  { title: 'Mitotic Bloom', path: '/mitotic-bloom', tool: 'Focus cell', metric: 'FOCUSED PHASE' },
+  {
+    title: 'Hyphal Network',
+    path: '/hyphal-network',
+    tool: 'Food patch',
+    metric: 'CYTOPLASMIC FLOW',
+  },
+  { title: 'Flagellar Drift', path: '/flagellar-drift', tool: 'Food bloom', metric: 'SWIMMERS' },
   { title: 'Membrane Tide', path: '/membrane-tide', tool: 'Swirl', metric: 'SEALED VESICLES' },
   { title: 'Pollen Paths', path: '/pollen-paths', tool: 'Sunlight', metric: 'POLLEN DELIVERIES' },
   { title: 'Night Chorus', path: '/night-chorus', tool: 'Warmth', metric: 'UNANSWERED SIGNALS' },
@@ -88,6 +97,10 @@ test('Aquarium statistics cycle through none, few and all, and remember the sele
     '/night-chorus',
     '/silver-shoals',
     '/membrane-tide',
+    '/osmotic-glass',
+    '/mitotic-bloom',
+    '/hyphal-network',
+    '/flagellar-drift',
   ]) {
     await page.goto(route);
     const opening = page.getByRole('button', { name: 'Open fullscreen aquarium' });
@@ -126,6 +139,17 @@ test('Membrane Tide drops one pebble per press even if the pointer moves', async
   await expect(page.getByText(/Pebble impacts: 1$/)).toBeVisible();
 });
 
+test('Osmotic Glass adds retained solute only to the chamber that was tapped', async ({ page }) => {
+  await page.goto('/osmotic-glass');
+  await expect(page.getByText('14 / 72', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Add solute', exact: true }).click();
+  const canvas = page.locator('canvas.world-canvas');
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error('Expected to find the glass chamber');
+  await canvas.click({ position: { x: bounds.width * 0.32, y: bounds.height * 0.52 } });
+  await expect(page.getByText('32 / 72', { exact: true })).toBeVisible();
+});
+
 test('mobile viewport keeps every shared world and environmental controls usable', async ({
   page,
 }) => {
@@ -140,6 +164,10 @@ test('mobile viewport keeps every shared world and environmental controls usable
     '/night-chorus',
     '/silver-shoals',
     '/membrane-tide',
+    '/osmotic-glass',
+    '/mitotic-bloom',
+    '/hyphal-network',
+    '/flagellar-drift',
     '/murmuration',
     '/defensive-herd',
     '/canopy',
@@ -170,6 +198,10 @@ for (const route of [
   '/night-chorus',
   '/silver-shoals',
   '/membrane-tide',
+  '/osmotic-glass',
+  '/mitotic-bloom',
+  '/hyphal-network',
+  '/flagellar-drift',
   '/canopy',
   '/abyssal-bloom',
   '/synchrony',

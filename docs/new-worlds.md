@@ -255,6 +255,41 @@ This is a coarse-grained model of membrane closure, inspired by the balance
 between [bending energy and exposed-edge cost](https://pmc.ncbi.nlm.nih.gov/articles/PMC5449011/).
 The simulation represents vesicles and omits organelles and metabolism.
 
+## Osmotic Glass (`/osmotic-glass`)
+
+Three molecule types diffuse with seeded Brownian motion. Blue water and
+gold tracer can cross. Violet solute is retained, and its concentration
+in each chamber biases net water flux. The membrane displaces as water
+redistributes, introducing an opposing pressure. Stir locally or add
+retained solute on either side and compare the two chamber counts.
+
+## Mitotic Bloom (`/mitotic-bloom`)
+
+Cells progress through [the cell cycle](https://openstax.org/books/biology/pages/10-2-the-cell-cycle).
+The renderer shows condensation, alignment, chromatid separation, nuclear
+envelope re-formation, and the cleavage furrow. At cytokinesis, the model
+creates two independently progressing cells with identical chromosome sets.
+Focus can follow one daughter, nutrient patches accelerate local cycles,
+and crowding blocks entry into division.
+
+## Hyphal Network (`/hyphal-network`)
+
+A connected mycelium extends, branches, and fuses. Nutrient uptake supplies
+the network, and growing tips draw through hyphae that conduct cytoplasm
+through septal pores. Each segment's flow is computed from the pressure
+difference between its ends. Moving particles show the direction and speed
+of this flux. Adding food increases nearby uptake, and mist raises local
+conductance. The model is inspired by
+[transport through contiguous fungal cytoplasm](https://pmc.ncbi.nlm.nih.gov/articles/PMC7244713/).
+
+## Flagellar Drift (`/flagellar-drift`)
+
+Whip, twin, and helix forms have distinct swimming speed, agility,
+resistance to drift, and energy costs. Nearby well-fed adults can mate.
+Offspring inherit a propulsor form and a blend of beat traits, with
+occasional mutations. Food blooms and eddies modify local conditions
+while the population and its trait frequencies evolve.
+
 ## Procedural sound and listening consent
 
 Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
@@ -269,14 +304,14 @@ Sound button or keyboard (M) activation.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- All seventeen worlds have distinct sound palettes. The original ecosystem
+- All twenty-one worlds have distinct sound palettes. The original ecosystem
   derives cues from birth, predation and intervention counters, preserving its
   versioned deterministic model. Murmuration and Defensive Herd also emit
   semantic event cues.
 
 ## Reproducibility and performance
 
-All sixteen shared models accept fixed integer seeds, run at 60 fixed time steps per
+All twenty shared models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -284,7 +319,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These sixteen shared worlds currently provide **seeded resets and deterministic
+These twenty shared worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

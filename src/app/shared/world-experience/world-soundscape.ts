@@ -34,6 +34,10 @@ const palettes: Record<
   pond: { root: 64, overtone: 99, windCutoff: 505, noiseLevel: 0.023 },
   estuary: { root: 43, overtone: 86, windCutoff: 350, noiseLevel: 0.033 },
   membrane: { root: 58, overtone: 153, windCutoff: 437, noiseLevel: 0.022 },
+  osmotic: { root: 61, overtone: 123, windCutoff: 575, noiseLevel: 0.011 },
+  mitotic: { root: 78, overtone: 118, windCutoff: 460, noiseLevel: 0.016 },
+  hyphal: { root: 47, overtone: 95, windCutoff: 745, noiseLevel: 0.028 },
+  flagellar: { root: 64, overtone: 143, windCutoff: 830, noiseLevel: 0.021 },
 };
 
 /**
@@ -206,6 +210,12 @@ export class WorldSoundscape {
       'pebble-impact': [258, 52],
       'membrane-seal': [755, 1090],
       'membrane-rupture': [567, 233],
+      'solute-drop': [590, 416],
+      'pore-crossing': [670, 806],
+      'mitotic-phase': [372, 496],
+      'hyphal-growth': [224, 353],
+      'hyphal-fusion': [370, 613],
+      'flagellar-mating': [483, 694],
     };
     const [start, end] = frequencies[event.kind];
     const call = event.kind === 'low-call' || event.kind === 'high-call';
