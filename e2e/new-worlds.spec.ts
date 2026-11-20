@@ -283,7 +283,7 @@ test('volume changes the actual mix and follows the user between views and world
     };
   });
   await page.goto('/reef');
-  const volume = page.getByRole('slider', { name: 'Sound volume' });
+  const volume = page.getByRole('banner').getByRole('slider', { name: 'Sound volume' });
   await expect(volume).toHaveValue('75');
   await volume.press('Home');
   await expect(volume).toHaveValue('0');
@@ -315,6 +315,7 @@ test('volume changes the actual mix and follows the user between views and world
   await aquariumVolume.press('ArrowLeft');
   await expect(aquariumVolume).toHaveValue('99');
   await page.getByRole('button', { name: 'Exit aquarium' }).click();
+  await expect(aquariumVolume).toHaveCount(0);
   await expect(volume).toHaveValue('99');
 
   await page.goto('/hyphal-network');
