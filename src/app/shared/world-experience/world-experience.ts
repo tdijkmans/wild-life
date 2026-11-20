@@ -363,6 +363,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (
       !this.world ||
       !this.pointers.has(event.pointerId) ||
+      this.activeTool()?.gesture === 'press' ||
       this.paused() ||
       (this.aquarium() && !this.interactionEnabled())
     )

@@ -241,6 +241,20 @@ All three use abstract forms, seeded dynamics, fixed steps and bounded
 populations. Each uses the shared Aquarium stats levels and offers an
 opt-in soundscape tied to model activity.
 
+## Membrane Tide (`/membrane-tide`)
+
+Short, open bilayer ribbons and loose patches move in a two-dimensional
+fluid field. Aligned tips can bond, and flexible ribbons can seal around a
+pocket of fluid when their tips meet. Swirls advect and strain nearby patches.
+A pebble drops once per press and launches a pressure wave. A sufficiently
+sharp difference in pressure across a bond can open a membrane. Detached
+patches stay in the world and can rejoin. The Aquarium draws opposing
+rows of lipid heads. Opt-in audio marks impacts, sealing and rupture.
+
+This is a coarse-grained model of membrane closure, inspired by the balance
+between [bending energy and exposed-edge cost](https://pmc.ncbi.nlm.nih.gov/articles/PMC5449011/).
+The simulation represents vesicles and omits organelles and metabolism.
+
 ## Procedural sound and listening consent
 
 Shared `WorldExperienceComponent` worlds may provide a `soundProfile`.
@@ -255,14 +269,14 @@ Sound button or keyboard (M) activation.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- All sixteen worlds have distinct sound palettes. The original ecosystem
+- All seventeen worlds have distinct sound palettes. The original ecosystem
   derives cues from birth, predation and intervention counters, preserving its
   versioned deterministic model. Murmuration and Defensive Herd also emit
   semantic event cues.
 
 ## Reproducibility and performance
 
-All fifteen shared models accept fixed integer seeds, run at 60 fixed time steps per
+All sixteen shared models accept fixed integer seeds, run at 60 fixed time steps per
 simulation second, reject invalid timing, bound entities/inputs and expose
 deterministic simulation state for unit tests. Canvas rendering never changes
 domain state. The shared visual shell reuses Aquarium fullscreen/escape,
@@ -270,7 +284,7 @@ pause, speed, seed restart, tool input, responsive layout and chart rendering.
 
 The old Predator–Prey Evolution world retains its stronger versioned
 JSON export, intervention logging and checksum-verified replay.
-These fifteen shared worlds currently provide **seeded resets and deterministic
+These sixteen shared worlds currently provide **seeded resets and deterministic
 model tests**, not imported/exported replay files. A future feature
 could generalize experiment recording without weakening the existing
 versioned format.

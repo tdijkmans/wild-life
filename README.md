@@ -93,6 +93,8 @@ of the collection.
 - **015 · Night Chorus** (`/night-chorus`) — inherited calls and listening windows shape pairings in a shared pond; influence their timing with warmth and shade.
 - **016 · Silver Shoals** (`/silver-shoals`) — two parent forms meet at a tidal confluence and produce viable, sterile hybrids; influence encounters with current and shelter.
 
+- **017 · Membrane Tide** (`/membrane-tide`) — drifting lipid patches bend and seal into vesicles. Swirl the fluid or drop a pebble to stretch and open nearby membranes.
+
 **Future concepts — not yet implemented**
 
 - **Living Networks** — slime-mold-inspired networks explore, reinforce useful
@@ -115,9 +117,9 @@ npm start
 Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
 `/murmuration`, `/defensive-herd`, `/canopy`, `/abyssal-bloom`,
 `/synchrony`, `/reef`, `/microbial-commons`, `/neuroplasticity`,
-`/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus` and `/silver-shoals`.
+`/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus`, `/silver-shoals` and `/membrane-tide`.
 
-**Optional procedural sound:** all sixteen worlds offer distinct, quiet,
+**Optional procedural sound:** all seventeen worlds offer distinct, quiet,
 ethereal synthesized ambience and model-driven event accents. Soft attacks,
 filtered tones, diffuse reverberation and spaced cues keep the sound unobtrusive.
 Audio is muted by default and starts only after the visitor explicitly enables

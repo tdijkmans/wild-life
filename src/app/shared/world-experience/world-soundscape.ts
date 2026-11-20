@@ -33,6 +33,7 @@ const palettes: Record<
   pollen: { root: 87, overtone: 139, windCutoff: 1120, noiseLevel: 0.024 },
   pond: { root: 64, overtone: 99, windCutoff: 505, noiseLevel: 0.023 },
   estuary: { root: 43, overtone: 86, windCutoff: 350, noiseLevel: 0.033 },
+  membrane: { root: 58, overtone: 153, windCutoff: 437, noiseLevel: 0.022 },
 };
 
 /**
@@ -202,6 +203,9 @@ export class WorldSoundscape {
       'low-call': [285, 220],
       'high-call': [525, 430],
       'hybrid-hatch': [790, 465],
+      'pebble-impact': [258, 52],
+      'membrane-seal': [755, 1090],
+      'membrane-rupture': [567, 233],
     };
     const [start, end] = frequencies[event.kind];
     const call = event.kind === 'low-call' || event.kind === 'high-call';
