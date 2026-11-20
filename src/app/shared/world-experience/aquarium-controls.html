@@ -5,16 +5,14 @@
     </div>
     <div class="aquarium-toolbar" role="group" aria-label="Aquarium controls">
       @if (soundAvailable()) {
-        <button
-          type="button"
-          class="aquarium-ui-button"
-          aria-label="Toggle aquarium sound"
-          [attr.aria-pressed]="soundEnabled()"
-          [disabled]="soundBusy()"
-          (click)="soundToggle.emit()"
-        >
-          {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
-        </button>
+        <app-world-audio-controls
+          [aquarium]="true"
+          [enabled]="soundEnabled()"
+          [busy]="soundBusy()"
+          [level]="soundVolume()"
+          (soundToggle)="soundToggle.emit()"
+          (volumeChange)="volumeChange.emit($event)"
+        />
       }
       <button
         #display

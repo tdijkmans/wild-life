@@ -43,6 +43,13 @@ const DEFENSIVE_HERD: WorldExperienceDefinition = {
   scientificNote:
     'Biology-inspired herd defense, informed by the protective formations of animals such as musk oxen. The model is stylized and not calibrated to field data; protection depends on simulated interposition.',
   createWorld: (seed) => new DefensiveHerdWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as DefensiveHerdWorld;
+    return {
+      activity: world.ringCoverage / 100,
+      detail: world.herd.filter((animal) => animal.kind === 'calf').length / 22,
+    };
+  },
   createRenderer: (canvas, world) => new DefensiveHerdRenderer(canvas, world as DefensiveHerdWorld),
 };
 

@@ -44,6 +44,14 @@ const CANOPY: WorldExperienceDefinition = {
   scientificNote:
     'Biology-inspired structural growth and herbivory. Branching, shade, water use and insect feeding are deliberately simplified, not a validated forest ecology model.',
   createWorld: (seed) => new CanopyWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as CanopyWorld;
+    return {
+      activity: world.insects.length / 65,
+      detail: world.trees.reduce((sum, tree) => sum + tree.leaves.length, 0) / 465,
+      pan: ((world.fields.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new CanopyRenderer(canvas, world as CanopyWorld),
 };
 

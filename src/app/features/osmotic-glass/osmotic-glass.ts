@@ -39,6 +39,14 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A two-dimensional particle model of selective permeability and osmotic pressure. Particle sizes and time scales use model units.',
   createWorld: (seed) => new OsmoticGlassWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as OsmoticGlassWorld;
+    return {
+      activity: Math.abs(world.waterRight - world.waterLeft) / 120,
+      detail: world.fields.filter((field) => field.kind === 'stir').length / 5,
+      pan: (world.waterRight - world.waterLeft) / 160,
+    };
+  },
   createRenderer: (canvas, world) => new OsmoticGlassRenderer(canvas, world as OsmoticGlassWorld),
 };
 

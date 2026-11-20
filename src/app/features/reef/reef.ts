@@ -44,6 +44,15 @@ const REEF: WorldExperienceDefinition = {
   scientificNote:
     'Biology-inspired coral–algae–grazer ecology. Branching, bleaching thresholds, fish behavior and nutrient effects are intentionally simplified, not field-calibrated reef forecasts.',
   createWorld: (seed) => new ReefWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as ReefWorld;
+    return {
+      activity:
+        world.fish.length / 36 +
+        world.fields.filter((field) => field.kind === 'current').length * 0.1,
+      detail: world.meanSymbiosis,
+    };
+  },
   createRenderer: (canvas, world) => new ReefRenderer(canvas, world as ReefWorld),
 };
 

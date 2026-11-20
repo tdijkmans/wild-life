@@ -29,6 +29,13 @@ export type WorldSoundProfile =
   | 'hyphal'
   | 'flagellar';
 
+/** Bounded audio-only observations supplied by each world. */
+export interface WorldAudioScene {
+  readonly activity: number;
+  readonly detail: number;
+  readonly pan?: number;
+}
+
 export interface WorldAudioCue {
   readonly id: number;
   readonly kind:
@@ -56,6 +63,7 @@ export interface WorldAudioCue {
     | 'membrane-rupture'
     | 'solute-drop'
     | 'pore-crossing'
+    | 'apoptosis'
     | 'mitotic-phase'
     | 'hyphal-growth'
     | 'hyphal-fusion'
@@ -103,6 +111,7 @@ export interface WorldExperienceDefinition {
   readonly theme: 'sky' | 'tundra' | 'forest' | 'abyss' | 'twilight' | 'reef' | 'microbial';
   readonly sceneKicker?: string;
   readonly soundProfile?: WorldSoundProfile;
+  readonly soundScene?: (world: InteractiveWorld) => WorldAudioScene;
   readonly seed: number;
   readonly tools: readonly WorldTool[];
   readonly primaryHistoryLabel: string;

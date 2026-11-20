@@ -46,6 +46,15 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A stylized animal-like cell cycle. Prometaphase is grouped with prophase, and cycle lengths and tissue geometry use model units.',
   createWorld: (seed) => new MitoticBloomWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as MitoticBloomWorld;
+    return {
+      activity:
+        world.cells.filter((cell) => cell.cycle >= 0.57 && cell.dyingAt === null).length / 17,
+      detail: world.coverage,
+      pan: ((world.selected?.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new MitoticBloomRenderer(canvas, world as MitoticBloomWorld),
 };
 

@@ -38,6 +38,14 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired model of abstract forms and lineages. Traits, lifetimes, and rates use simulation units.',
   createWorld: (seed) => new NightChorusWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as NightChorusWorld;
+    return {
+      activity: world.voices.filter((voice) => world.time - voice.lastCall < 1.8).length / 12,
+      detail: world.pairTraces.length / 8,
+      pan: ((world.pairTraces.at(-1)?.caller.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new NightChorusRenderer(canvas, world as NightChorusWorld),
 };
 

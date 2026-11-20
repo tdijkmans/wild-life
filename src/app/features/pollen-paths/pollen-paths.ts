@@ -38,6 +38,14 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired model of abstract forms and lineages. Traits, lifetimes, and rates use simulation units.',
   createWorld: (seed) => new PollenPathsWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as PollenPathsWorld;
+    return {
+      activity: world.deliveries.length / 12,
+      detail: world.flowers.filter((flower) => world.flowering(flower)).length / 150,
+      pan: ((world.deliveries.at(-1)?.to.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new PollenPathsRenderer(canvas, world as PollenPathsWorld),
 };
 

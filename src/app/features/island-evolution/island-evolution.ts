@@ -43,6 +43,13 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired computational model with simplified rules and accelerated time. It is not a calibrated biological or medical prediction.',
   createWorld: (seed) => new IslandEvolutionWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as IslandEvolutionWorld;
+    return {
+      activity: world.organisms.length / 220,
+      detail: world.divergence() + world.passages.length * 0.16,
+    };
+  },
   createRenderer: (canvas, world) =>
     new IslandEvolutionRenderer(canvas, world as IslandEvolutionWorld),
 };

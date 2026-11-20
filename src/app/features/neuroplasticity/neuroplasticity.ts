@@ -43,6 +43,13 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired computational model with simplified rules and accelerated time. It is not a calibrated biological or medical prediction.',
   createWorld: (seed) => new NeuroplasticityWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as NeuroplasticityWorld;
+    return {
+      activity: world.neurons.filter((neuron) => neuron.trace > 0.3).length / 45,
+      detail: world.synapses.reduce((sum, synapse) => sum + synapse.activity, 0) / 140,
+    };
+  },
   createRenderer: (canvas, world) =>
     new NeuroplasticityRenderer(canvas, world as NeuroplasticityWorld),
 };

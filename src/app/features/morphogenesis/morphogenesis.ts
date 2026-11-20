@@ -43,6 +43,13 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired computational model with simplified rules and accelerated time. It is not a calibrated biological or medical prediction.',
   createWorld: (seed) => new MorphogenesisWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as MorphogenesisWorld;
+    return {
+      activity: world.cells.filter((cell) => cell.fate > 0).length / 320,
+      detail: world.cells.length / 440,
+    };
+  },
   createRenderer: (canvas, world) => new MorphogenesisRenderer(canvas, world as MorphogenesisWorld),
 };
 @Component({

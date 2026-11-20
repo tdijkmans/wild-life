@@ -39,6 +39,15 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'Fictional flagellate forms with simplified swimming and sexual inheritance. Propulsion differences are illustrative model rules.',
   createWorld: (seed) => new FlagellarDriftWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as FlagellarDriftWorld;
+    return {
+      activity: world.swimmers.reduce((sum, animal) => sum + animal.drive, 0) / 120,
+      detail:
+        world.swimmers.filter((animal) => animal.propulsion === 2).length /
+        Math.max(1, world.swimmers.length),
+    };
+  },
   createRenderer: (canvas, world) =>
     new FlagellarDriftRenderer(canvas, world as FlagellarDriftWorld),
 };

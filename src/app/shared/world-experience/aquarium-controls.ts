@@ -6,6 +6,7 @@ import {
   viewChild,
   ElementRef,
 } from '@angular/core';
+import { WorldAudioControlsComponent } from './world-audio-controls';
 import type { AquariumCardOption, AquariumPreset, DisplayPreset } from './aquarium.controller';
 
 export interface AquariumTool {
@@ -17,6 +18,7 @@ export interface AquariumTool {
 
 @Component({
   selector: 'app-aquarium-controls',
+  imports: [WorldAudioControlsComponent],
   templateUrl: './aquarium-controls.html',
   styleUrl: './aquarium-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +35,8 @@ export class AquariumControlsComponent {
   readonly soundAvailable = input(true);
   readonly soundEnabled = input.required<boolean>();
   readonly soundBusy = input.required<boolean>();
+  readonly soundVolume = input.required<number>();
+  readonly volumeChange = output<number>();
   readonly displayToggle = output();
   readonly exit = output();
   readonly soundToggle = output();

@@ -39,6 +39,14 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A coarse-grained, pressure-driven model of cytoplasmic transport in a septate mycelium. Rates and geometry use model units.',
   createWorld: (seed) => new HyphalNetworkWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as HyphalNetworkWorld;
+    return {
+      activity: world.hyphae.reduce((sum, edge) => sum + Math.abs(edge.streamingFlux), 0) / 32,
+      detail: world.hyphae.filter((edge) => edge.growth < 1).length / 23,
+      pan: world.hyphae.reduce((sum, edge) => sum + edge.streamingFlux, 0) / 14,
+    };
+  },
   createRenderer: (canvas, world) => new HyphalNetworkRenderer(canvas, world as HyphalNetworkWorld),
 };
 

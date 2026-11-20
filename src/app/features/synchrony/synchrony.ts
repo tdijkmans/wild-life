@@ -44,6 +44,13 @@ const SYNCHRONY: WorldExperienceDefinition = {
   scientificNote:
     'A Kuramoto-inspired, biology-inspired firefly model. Phase coupling is not a verified species-specific model of synchronous insects or their signaling.',
   createWorld: (seed) => new SynchronyWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as SynchronyWorld;
+    return {
+      activity: world.activeFlashes / Math.max(1, world.fireflies.length * 0.38),
+      detail: world.coherence,
+    };
+  },
   createRenderer: (canvas, world) => new SynchronyRenderer(canvas, world as SynchronyWorld),
 };
 

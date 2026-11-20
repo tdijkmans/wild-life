@@ -10,6 +10,9 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { WorldAudioControlsComponent } from './world-audio-controls';
+import { WorldAudioVolume } from './world-audio-volume';
+import { inject } from '@angular/core';
 import { WorldCatalogueFooterComponent } from './world-catalogue-footer';
 import { DsButtonComponent } from '../design-system/button/button';
 import { FrameThrottle } from '../simulation/frame-throttle';
@@ -36,6 +39,7 @@ import type {
     RouterLink,
     DsButtonComponent,
     AquariumControlsComponent,
+    WorldAudioControlsComponent,
     WorldCatalogueFooterComponent,
   ],
   templateUrl: './world-experience.html',
@@ -103,6 +107,12 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private latestHistorySample?: WorldHistoryPoint;
   private readonly throttle = new FrameThrottle(60);
   private readonly soundscape = new WorldSoundscape();
+  readonly audioVolume = inject(WorldAudioVolume);
+
+  setSoundVolume(percent: number): void {
+    this.audioVolume.set(percent);
+    this.soundscape.setVolume(this.audioVolume.level());
+  }
   private lastCueId = 0;
   private readonly pointers = new Set<number>();
   private lastPointer: { x: number; y: number; at: number } | null = null;
@@ -214,7 +224,9 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (this.drawTimer >= 0.28) {
       this.drawTimer = 0;
       this.metrics.set(this.world?.metrics() ?? []);
-      if (this.soundEnabled()) this.soundscape.modulate(nowMs);
+      if (this.soundEnabled() && this.world) {
+        this.soundscape.modulate(nowMs, this.definition().soundScene?.(this.world));
+      }
       if (this.world && this.latestHistorySample !== this.world.history.at(-1)) {
         this.drawHistory();
       }
@@ -318,6 +330,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
       const profile = this.definition().soundProfile;
       if (!profile) return;
       this.lastCueId = this.world?.audioCues?.at(-1)?.id ?? 0;
+      this.soundscape.setVolume(this.audioVolume.level());
       const started = await this.soundscape.start(profile);
       if (this.disposed) {
         await this.soundscape.stop();
