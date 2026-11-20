@@ -9,6 +9,7 @@ interface Septum {
   reserves: number;
   tip: boolean;
   readyAt: number;
+  depth: number;
 }
 
 interface Hypha {
@@ -16,6 +17,8 @@ interface Hypha {
   end: number;
   flux: number;
   transport: number;
+  growth: number;
+  streamingFlux: number;
 }
 
 interface Food {
@@ -27,6 +30,7 @@ interface Food {
 
 const MAX_COMPARTMENTS = 250;
 const TAU = Math.PI * 2;
+const EXTENSION_SECONDS = 7.2;
 
 export class HyphalNetworkWorld extends LivingWorld {
   readonly nodes: Septum[] = [];
@@ -59,12 +63,18 @@ export class HyphalNetworkWorld extends LivingWorld {
     const founder = this.addNode(582, 345, 0, false);
     for (let i = 0; i < 5; i++) {
       const angle = (i * TAU) / 5 + this.random.range(-0.16, 0.16);
-      const tip = this.addNode(582 + Math.cos(angle) * 29, 345 + Math.sin(angle) * 29, angle, true);
-      this.link(founder, tip);
+      const tip = this.addNode(
+        582 + Math.cos(angle) * 29,
+        345 + Math.sin(angle) * 29,
+        angle,
+        true,
+        1,
+      );
+      this.link(founder, tip, 1);
     }
   }
 
-  private addNode(x: number, y: number, heading: number, tip: boolean): number {
+  private addNode(x: number, y: number, heading: number, tip: boolean, depth = 0): number {
     if (tip) this.tipCount++;
     this.neighbors.push([]);
     this.nodes.push({
@@ -74,16 +84,17 @@ export class HyphalNetworkWorld extends LivingWorld {
       tip,
       pressure: 0,
       reserves: 0.025,
-      readyAt: this.time + this.random.range(2.45, 3.18),
+      depth,
+      readyAt: this.time + EXTENSION_SECONDS + this.random.range(0.4, 2.5),
     });
     return this.nodes.length - 1;
   }
 
-  private link(start: number, end: number): void {
+  private link(start: number, end: number, growth = 0): void {
     const edge = this.hyphae.length;
     this.neighbors[start].push(edge);
     this.neighbors[end].push(edge);
-    this.hyphae.push({ start, end, flux: 0, transport: 0 });
+    this.hyphae.push({ start, end, growth, flux: 0, streamingFlux: 0, transport: 0 });
   }
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
@@ -102,7 +113,9 @@ export class HyphalNetworkWorld extends LivingWorld {
       this.growTips();
     }
     for (const edge of this.hyphae) {
-      const next = edge.transport + clamp(edge.flux * 6, -2, 2) * dt;
+      edge.growth = Math.min(1, edge.growth + dt / EXTENSION_SECONDS);
+      edge.streamingFlux += (edge.flux - edge.streamingFlux) * (1 - Math.exp(-1.8 * dt));
+      const next = edge.transport + Math.tanh(edge.streamingFlux * 4) * 0.76 * dt;
       edge.transport = next - Math.floor(next);
     }
     this.sample(this.hyphae.length, this.tipCount);
@@ -126,7 +139,7 @@ export class HyphalNetworkWorld extends LivingWorld {
       const a = this.nodes[edge.start];
       const b = this.nodes[edge.end];
       return (
-        (2.9 * (1 + (moisture[edge.start] + moisture[edge.end]) * 0.8)) /
+        (2.9 * edge.growth * (1 + (moisture[edge.start] + moisture[edge.end]) * 0.8)) /
         Math.max(0.45, Math.hypot(a.x - b.x, a.y - b.y) / 32)
       );
     });
@@ -215,7 +228,7 @@ export class HyphalNetworkWorld extends LivingWorld {
       this.fusions++;
       this.cue('hyphal-fusion', 0.55);
     } else {
-      const next = this.addNode(x, y, direction, true);
+      const next = this.addNode(x, y, direction, true, source.depth + 1);
       this.nodes[next].reserves = Math.max(0, (source.reserves - 0.045) * 0.5);
       this.nodes[next].pressure = source.pressure;
       this.link(index, next);

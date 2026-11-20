@@ -8,7 +8,8 @@ const DEFINITION: WorldExperienceDefinition = {
   number: '019',
   name: 'Mitotic Bloom',
   tagline: 'One cell becomes two.',
-  description: 'Watch chromosomes condense, line up, and separate as a growing culture divides.',
+  description:
+    'Watch dividing cells spread into a continuous tissue. As the dish fills, occasional cells break down through apoptosis.',
   theme: 'twilight',
   sceneKicker: 'LIVING SYSTEMS',
   soundProfile: 'mitotic',
@@ -34,12 +35,13 @@ const DEFINITION: WorldExperienceDefinition = {
       description: 'Slow the cycle in a small area.',
     },
   ],
-  primaryHistoryLabel: 'Living cells',
+  primaryHistoryLabel: 'Tissue coverage (%)',
   secondaryHistoryLabel: 'Cells in division',
   principles: [
     'Colored sister chromatids condense and line up across the spindle before they separate.',
     'Chromatids gather at opposite poles. The nuclear envelopes return before the cleavage furrow splits the cell.',
-    'Each daughter inherits the same chromosome set. Limited space slows entry into division.',
+    'Each daughter inherits the same chromosome set. Cells spread into open space and reshape against their neighbors.',
+    'Crowding slows division. After the dish fills, occasional cells dismantle through apoptosis and open a gap in the tissue.',
   ],
   scientificNote:
     'A stylized animal-like cell cycle. Prometaphase is grouped with prophase, and cycle lengths and tissue geometry use model units.',

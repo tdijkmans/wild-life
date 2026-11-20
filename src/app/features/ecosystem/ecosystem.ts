@@ -2,6 +2,7 @@ import { WorldSoundscape } from '../../shared/world-experience/world-soundscape'
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { WorldCatalogueFooterComponent } from '../../shared/world-experience/world-catalogue-footer';
 import type { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
 import { ExperimentSession, parseExperiment, type ExperimentDocument } from './domain/experiment';
 import { WorldRenderer } from './rendering/renderer';
@@ -29,6 +30,7 @@ import { WorldPointerController, type Tool } from './controllers/world-pointer.c
     EcosystemTimelineCardComponent,
     EcosystemInsightsPanelComponent,
     AquariumControlsComponent,
+    WorldCatalogueFooterComponent,
   ],
   templateUrl: './ecosystem.html',
   styleUrl: './ecosystem.css',
