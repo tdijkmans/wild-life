@@ -4,7 +4,7 @@ The ecosystem feature separates three concerns without introducing a global stor
 
 - `ecosystem.ts`: route-level composition, Simulation Runner, statistics,
   history, chart coordination, keyboard shortcuts and navigation.
-- `controllers/aquarium.controller.ts`: Aquarium/Zen state, card presets,
+- `shared/world-experience/aquarium.controller.ts`: Aquarium/Zen state, card presets,
   temporary HUD controls, native fullscreen with CSS fallback, body overflow,
   fullscreen event lifecycle and disposal.
 - `controllers/world-pointer.controller.ts`: pointer/touch gestures, pinch

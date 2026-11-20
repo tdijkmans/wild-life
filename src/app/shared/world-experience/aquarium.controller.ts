@@ -1,14 +1,14 @@
 import { signal } from '@angular/core';
 
-export type AquariumCard = 'population' | 'evolution' | 'timeline' | 'journal';
-export type AquariumPreset = 'zen' | 'glance' | 'study' | 'custom';
+export type DisplayPreset = 'zen' | 'glance' | 'discover';
+export type AquariumPreset = DisplayPreset | 'custom';
 
-const presetCards: Record<AquariumPreset, Record<AquariumCard, boolean>> = {
-  zen: { population: false, evolution: false, timeline: false, journal: false },
-  glance: { population: true, evolution: false, timeline: false, journal: false },
-  study: { population: true, evolution: true, timeline: true, journal: true },
-  custom: { population: false, evolution: false, timeline: false, journal: false },
-};
+export interface AquariumCardOption {
+  readonly id: string;
+  readonly title: string;
+  readonly subtitle: string;
+  readonly glance?: boolean;
+}
 
 interface AquariumCallbacks {
   onEnter(): void;
@@ -25,13 +25,7 @@ export class AquariumController {
   readonly idle = signal(false);
   readonly interactionEnabled = signal(false);
   readonly preset = signal<AquariumPreset>('zen');
-  readonly cards = signal<Record<AquariumCard, boolean>>({ ...presetCards.zen });
-  readonly cardOptions: { id: AquariumCard; title: string; subtitle: string }[] = [
-    { id: 'population', title: 'Populations', subtitle: 'Grazers & hunters' },
-    { id: 'evolution', title: 'Evolution', subtitle: 'Genes & generation' },
-    { id: 'timeline', title: 'Live graph', subtitle: 'Population history' },
-    { id: 'journal', title: 'Field journal', subtitle: 'Recent events' },
-  ];
+  readonly cards = signal<Readonly<Record<string, boolean>>>({});
 
   private frame?: HTMLElement;
   private fullscreenIsNative = false;
@@ -39,7 +33,21 @@ export class AquariumController {
   private chromeTimer?: ReturnType<typeof setTimeout>;
   private disposed = false;
 
-  constructor(private readonly callbacks: AquariumCallbacks) {}
+  constructor(
+    private readonly callbacks: AquariumCallbacks,
+    readonly cardOptions: readonly AquariumCardOption[],
+  ) {
+    this.cards.set(this.cardsFor('zen'));
+  }
+
+  private cardsFor(preset: DisplayPreset): Record<string, boolean> {
+    return Object.fromEntries(
+      this.cardOptions.map((card) => [
+        card.id,
+        preset === 'discover' || (preset === 'glance' && !!card.glance),
+      ]),
+    );
+  }
 
   get usingNativeFullscreen(): boolean {
     return this.fullscreenIsNative;
@@ -132,13 +140,14 @@ export class AquariumController {
     this.wake();
   }
 
-  setPreset(value: Exclude<AquariumPreset, 'custom'>): void {
+  setPreset(value: DisplayPreset): void {
     this.preset.set(value);
-    this.cards.set({ ...presetCards[value] });
+    this.cards.set(this.cardsFor(value));
     this.callbacks.onDisplayChanged();
   }
 
-  toggleCard(card: AquariumCard): void {
+  toggleCard(card: string): void {
+    if (!this.cardOptions.some((option) => option.id === card)) return;
     this.preset.set('custom');
     this.cards.update((previous) => ({ ...previous, [card]: !previous[card] }));
     this.callbacks.onDisplayChanged();

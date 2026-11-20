@@ -55,5 +55,6 @@ const MICROBIAL_COMMONS: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class MicrobialCommonsComponent {
+  static readonly previewDefinition = MICROBIAL_COMMONS;
   readonly definition = MICROBIAL_COMMONS;
 }

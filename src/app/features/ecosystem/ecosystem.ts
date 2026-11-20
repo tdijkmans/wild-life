@@ -13,9 +13,9 @@ import { EcosystemTimelineCardComponent } from './components/ecosystem-timeline-
 import { EcosystemInsightsPanelComponent } from './components/ecosystem-insights-panel/ecosystem-insights-panel';
 import {
   AquariumController,
-  type AquariumCard,
-  type AquariumPreset,
-} from './controllers/aquarium.controller';
+  type DisplayPreset,
+} from '../../shared/world-experience/aquarium.controller';
+import { AquariumControlsComponent } from '../../shared/world-experience/aquarium-controls';
 import { WorldPointerController, type Tool } from './controllers/world-pointer.controller';
 
 @Component({
@@ -28,6 +28,7 @@ import { WorldPointerController, type Tool } from './controllers/world-pointer.c
     DsButtonComponent,
     EcosystemTimelineCardComponent,
     EcosystemInsightsPanelComponent,
+    AquariumControlsComponent,
   ],
   templateUrl: './ecosystem.html',
   styleUrl: './ecosystem.css',
@@ -132,22 +133,30 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly chartMode = signal<'population' | 'traits'>('population');
   readonly paused = signal(false);
   readonly speed = signal(1);
-  readonly showGuide = signal(true);
+  readonly showGuide = signal(false);
   readonly interaction = signal('Leave a little life behind.');
   readonly zoomLevel = signal(1);
-  private readonly aquarium = new AquariumController({
-    onEnter: () => {
-      this.showGuide.set(false);
-      this.closeInspector();
+  private readonly aquarium = new AquariumController(
+    {
+      onEnter: () => {
+        this.showGuide.set(false);
+        this.closeInspector();
+      },
+      onExit: () => this.pointerController.reset(),
+      onInteractionDisabled: () => {
+        this.pointerController.reset();
+        this.closeInspector();
+      },
+      onResize: () => this.onResize(),
+      onDisplayChanged: () => requestAnimationFrame(() => this.paintCharts()),
     },
-    onExit: () => this.pointerController.reset(),
-    onInteractionDisabled: () => {
-      this.pointerController.reset();
-      this.closeInspector();
-    },
-    onResize: () => this.onResize(),
-    onDisplayChanged: () => requestAnimationFrame(() => this.paintCharts()),
-  });
+    [
+      { id: 'population', title: 'Populations', subtitle: 'Grazers and hunters', glance: true },
+      { id: 'evolution', title: 'Evolution', subtitle: 'Genes and generation' },
+      { id: 'timeline', title: 'Live graph', subtitle: 'Population history' },
+      { id: 'journal', title: 'Field journal', subtitle: 'Recent events' },
+    ],
+  );
   readonly aquariumMode = this.aquarium.active;
   readonly aquariumSettingsOpen = this.aquarium.settingsOpen;
   readonly aquariumIdle = this.aquarium.idle;
@@ -205,6 +214,18 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       color: 'white',
     },
   ];
+
+  readonly aquariumTools = this.tools.map(({ id, name, icon, description }) => ({
+    id,
+    title: name,
+    symbol: icon,
+    description,
+  }));
+
+  selectAquariumTool(id: string): void {
+    const tool = this.tools.find((option) => option.id === id);
+    if (tool) this.setMode(tool.id);
+  }
 
   private readonly pointerController = new WorldPointerController({
     getWorld: () => this.world,
@@ -301,7 +322,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private paintCharts() {
     if (!this.popChart) return;
     drawChart(this.popChart, this.world.history, this.chartMode());
-    if (this.aquariumMode() && this.aquariumCards().timeline && this.aquariumChart)
+    if (this.aquariumMode() && this.aquariumCards()['timeline'] && this.aquariumChart)
       drawChart(this.aquariumChart.nativeElement, this.world.history, 'population');
     if (this.preySpark) drawTinyChart(this.preySpark, this.world.history, 'prey');
     if (this.predatorSpark) drawTinyChart(this.predatorSpark, this.world.history, 'predators');
@@ -511,10 +532,10 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   toggleAquariumSettings(): void {
     this.aquarium.toggleSettings();
   }
-  setAquariumPreset(preset: Exclude<AquariumPreset, 'custom'>): void {
+  setAquariumPreset(preset: DisplayPreset): void {
     this.aquarium.setPreset(preset);
   }
-  toggleAquariumCard(card: AquariumCard): void {
+  toggleAquariumCard(card: string): void {
     this.aquarium.toggleCard(card);
   }
   toggleAquariumInteraction(): void {

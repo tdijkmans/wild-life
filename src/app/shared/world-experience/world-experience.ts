@@ -14,6 +14,8 @@ import { DsButtonComponent } from '../design-system/button/button';
 import { FrameThrottle } from '../simulation/frame-throttle';
 import { SimulationRunner } from '../simulation/simulation-runner';
 import { WorldSoundscape } from './world-soundscape';
+import { AquariumController } from './aquarium.controller';
+import { AquariumControlsComponent } from './aquarium-controls';
 import type {
   InteractiveWorld,
   WorldCanvasRenderer,
@@ -29,7 +31,7 @@ import type {
 @Component({
   selector: 'app-world-experience',
   standalone: true,
-  imports: [RouterLink, DsButtonComponent],
+  imports: [RouterLink, DsButtonComponent, AquariumControlsComponent],
   templateUrl: './world-experience.html',
   styleUrl: './world-experience.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,26 +42,42 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   @ViewChild('worldCanvas', { static: true }) private canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('historyCanvas', { static: true })
   private historyCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('aquariumHistory') private aquariumHistory?: ElementRef<HTMLCanvasElement>;
 
   readonly metrics = signal<readonly WorldMetric[]>([]);
   readonly paused = signal(false);
   readonly soundEnabled = signal(false);
   readonly soundBusy = signal(false);
   readonly speed = signal(1);
-  readonly aquarium = signal(false);
-  readonly aquariumStats = signal<'None' | 'Few' | 'All'>('None');
+  readonly display = new AquariumController(
+    {
+      onEnter: () => this.clearInteraction(),
+      onExit: () => this.clearInteraction(),
+      onInteractionDisabled: () => this.clearInteraction(),
+      onResize: () => this.resize(),
+      onDisplayChanged: () => this.scheduleHistory(),
+    },
+    [
+      {
+        id: 'highlights',
+        title: 'Live highlights',
+        subtitle: 'Two key measurements',
+        glance: true,
+      },
+      { id: 'details', title: 'World details', subtitle: 'Additional live measurements' },
+      { id: 'history', title: 'Live graph', subtitle: 'Recent simulation history' },
+    ],
+  );
+  readonly aquarium = this.display.active;
+  readonly interactionEnabled = this.display.interactionEnabled;
   readonly aquariumMetrics = computed(() => {
-    switch (this.aquariumStats()) {
-      case 'None':
-        return [];
-      case 'Few':
-        return this.metrics().slice(0, 2);
-      case 'All':
-        return this.metrics();
-    }
+    const cards = this.display.cards();
+    const metrics = this.metrics();
+    return [
+      ...(cards['highlights'] ? metrics.slice(0, 2) : []),
+      ...(cards['details'] ? metrics.slice(2) : []),
+    ];
   });
-  readonly interactionEnabled = signal(false);
-  readonly hudVisible = signal(true);
   readonly seed = signal(0);
   readonly seedInput = signal(0);
   readonly status = signal('');
@@ -94,8 +112,8 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private readonly onKey = (event: KeyboardEvent): void => {
     const target = event.target as HTMLElement | null;
     if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
-    if (event.key === 'Escape' && this.aquarium()) {
-      this.leaveAquarium();
+    if (event.key === 'Escape' && this.aquarium() && !this.display.usingNativeFullscreen) {
+      this.display.exit();
       return;
     }
     if (event.key.toLowerCase() === 'f' && !event.repeat) {
@@ -118,13 +136,6 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (index >= 0 && tool) this.selectedTool.set(tool.id);
   };
 
-  private readonly onFullscreenChange = (): void => {
-    if (this.nativeFullscreen && document.fullscreenElement !== this.stage.nativeElement) {
-      this.finishAquarium();
-    }
-    this.scheduleResize();
-  };
-
   ngAfterViewInit(): void {
     this.seed.set(this.definition().seed);
     this.seedInput.set(this.definition().seed);
@@ -133,7 +144,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.observer = new ResizeObserver(() => this.scheduleResize());
     this.observer.observe(this.canvas.nativeElement);
     window.addEventListener('keydown', this.onKey);
-    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.display.attach(this.stage.nativeElement);
     document.addEventListener('visibilitychange', this.onVisibility);
   }
 
@@ -141,19 +152,12 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.disposed = true;
     this.runner?.stop();
     this.observer?.disconnect();
-    clearTimeout(this.hideTimer);
     window.removeEventListener('keydown', this.onKey);
-    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.soundEnabled.set(false);
     void this.soundscape.stop();
     this.pointers.clear();
-    if (this.aquarium()) {
-      if (document.fullscreenElement === this.stage.nativeElement && document.exitFullscreen) {
-        void document.exitFullscreen().catch(() => {});
-      }
-      this.finishAquarium();
-    }
+    this.display.dispose();
   }
 
   private startWorld(seed: number): void {
@@ -212,16 +216,30 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   }
 
   private scheduleResize(): void {
+    requestAnimationFrame(() => this.resize());
+  }
+
+  private resize(): void {
+    if (this.disposed) return;
+    this.renderer?.resize();
+    this.drawHistory();
+  }
+
+  private scheduleHistory(): void {
     requestAnimationFrame(() => {
-      if (this.disposed) return;
-      this.renderer?.resize();
-      this.drawHistory();
+      if (!this.disposed) this.drawHistory();
     });
   }
 
   private drawHistory(): void {
     if (!this.world) return;
-    const canvas = this.historyCanvas.nativeElement;
+    const history = this.world.history;
+    this.latestHistorySample = history.at(-1);
+    this.paintHistory(this.historyCanvas.nativeElement, history);
+    if (this.aquariumHistory) this.paintHistory(this.aquariumHistory.nativeElement, history);
+  }
+
+  private paintHistory(canvas: HTMLCanvasElement, series: readonly WorldHistoryPoint[]): void {
     const rect = canvas.getBoundingClientRect();
     const pixelWidth = Math.max(1, Math.round(rect.width * Math.min(2, devicePixelRatio || 1)));
     const pixelHeight = Math.max(1, Math.round(rect.height * Math.min(2, devicePixelRatio || 1)));
@@ -230,8 +248,6 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, pixelWidth, pixelHeight);
-    const series = this.world.history;
-    this.latestHistorySample = series.at(-1);
     if (series.length < 2) return;
     const padding = 9;
     const plotWidth = pixelWidth - padding * 2;
@@ -395,71 +411,17 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.cursor.set(null);
   }
 
-  wakeHud(): void {
-    if (!this.aquarium()) return;
-    this.hudVisible.set(true);
-    clearTimeout(this.hideTimer);
-    this.hideTimer = setTimeout(() => this.hudVisible.set(false), 4300);
-  }
-
-  async toggleAquarium(): Promise<void> {
-    if (this.aquarium()) {
-      this.leaveAquarium();
-      return;
-    }
-    this.aquarium.set(true);
-    this.interactionEnabled.set(false);
-    this.previousBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    this.wakeHud();
-    const stage = this.stage.nativeElement;
-    if (stage.requestFullscreen) {
-      try {
-        await stage.requestFullscreen();
-        this.nativeFullscreen = this.aquarium() && document.fullscreenElement === stage;
-      } catch {
-        this.nativeFullscreen = false;
-      }
-    }
-    this.scheduleResize();
-  }
-
-  leaveAquarium(): void {
-    if (!this.aquarium()) return;
-    if (document.fullscreenElement === this.stage.nativeElement && document.exitFullscreen) {
-      void document.exitFullscreen().then(
-        () => this.finishAquarium(),
-        () => this.finishAquarium(),
-      );
-    } else {
-      this.finishAquarium();
-    }
-  }
-
-  private finishAquarium(): void {
-    if (!this.aquarium()) return;
-    this.aquarium.set(false);
-    this.interactionEnabled.set(false);
-    this.hudVisible.set(true);
-    this.nativeFullscreen = false;
-    clearTimeout(this.hideTimer);
-    if (this.previousBodyOverflow !== null) {
-      document.body.style.overflow = this.previousBodyOverflow;
-      this.previousBodyOverflow = null;
-    }
+  private clearInteraction(): void {
     this.pointers.clear();
-    this.scheduleResize();
+    this.lastPointer = null;
+    this.cursor.set(null);
   }
 
-  cycleAquariumStats(): void {
-    this.aquariumStats.update((mode) =>
-      mode === 'None' ? 'Few' : mode === 'Few' ? 'All' : 'None',
-    );
-    this.wakeHud();
+  wakeHud(): void {
+    this.display.wake();
   }
 
-  toggleAquariumInteraction(): void {
-    this.interactionEnabled.update((previous) => !previous);
-    this.wakeHud();
+  toggleAquarium(): Promise<void> {
+    return this.display.toggle();
   }
 }

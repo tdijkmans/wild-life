@@ -84,7 +84,6 @@
 }
 
 .experience-header ds-button,
-.aquarium-actions ds-button,
 .lab-actions ds-button {
   --ds-button-height: 38px;
 }
@@ -225,15 +224,6 @@
   pointer-events: auto;
 }
 
-.stage.chrome-hidden .scene-chrome {
-  opacity: 0;
-}
-
-.stage.chrome-hidden .scene-chrome:focus-within,
-.stage.chrome-hidden .scene-chrome:hover {
-  opacity: 1;
-}
-
 .stage-top {
   top: 24px;
 }
@@ -281,24 +271,7 @@
   background: var(--world-secondary);
 }
 
-.aquarium-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  pointer-events: auto;
-}
-
-.aquarium-actions ds-button {
-  --ds-button-bg: rgba(7, 23, 30, 0.86);
-  --ds-button-color: #edfff7;
-  --ds-button-height: 40px;
-}
-
 .aquarium-stats {
-  position: absolute;
-  z-index: 1;
-  right: clamp(12px, 3vw, 30px);
-  bottom: 72px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
@@ -321,17 +294,6 @@
   margin: 4px 0 0;
   color: var(--metric-ink, inherit);
   font: 600 20px var(--wl-font-display);
-}
-
-@media (max-width: 700px) {
-  .stage.aquarium .scene-number,
-  .stage.aquarium .scene-slogan {
-    display: none;
-  }
-
-  .stage.aquarium .aquarium-actions {
-    margin-left: auto;
-  }
 }
 
 .brush-indicator {
@@ -753,11 +715,6 @@
     --ds-button-height: 34px;
     font-size: 11px;
   }
-
-  .aquarium-actions {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
 }
 
 /* World palettes remain separate from their ecological Canvas renderers. */
@@ -786,4 +743,44 @@
   --world-panel: #211d35;
   --world-edge: rgba(204, 177, 240, 0.19);
   background: radial-gradient(ellipse at 71% -16%, #423352, transparent 51%), #141324;
+}
+
+.aquarium-readouts {
+  position: absolute;
+  z-index: 10;
+  inset: auto clamp(12px, 3vw, 30px) clamp(12px, 3vw, 25px);
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  pointer-events: none;
+}
+.aquarium-history {
+  width: min(420px, 46%);
+  padding: 10px;
+  border: 1px solid rgba(180, 228, 219, 0.23);
+  background: rgba(5, 17, 24, 0.86);
+  border-radius: 8px;
+}
+.aquarium-history .history-canvas {
+  height: clamp(42px, 12vh, 100px);
+}
+.aquarium-stats {
+  margin-left: auto;
+}
+@media (max-width: 560px) {
+  .aquarium-readouts {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .aquarium-history {
+    margin-left: auto;
+    width: min(310px, 100%);
+  }
+}
+@media (max-height: 420px) {
+  .aquarium-history .history-canvas {
+    height: 38px;
+  }
 }

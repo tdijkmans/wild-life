@@ -50,5 +50,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class FlagellarDriftComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

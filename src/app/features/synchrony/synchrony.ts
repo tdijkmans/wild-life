@@ -54,5 +54,6 @@ const SYNCHRONY: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class SynchronyComponent {
+  static readonly previewDefinition = SYNCHRONY;
   readonly definition = SYNCHRONY;
 }

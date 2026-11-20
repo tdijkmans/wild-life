@@ -1,5 +1,6 @@
 import type { Type } from '@angular/core';
-import type { Route, Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
+import type { WorldExperienceDefinition } from '../shared/world-experience/world-protocol';
 
 /**
  * Single source of truth for WILD LIFE worlds: cards, navigation, route loaders,
@@ -12,8 +13,9 @@ export interface SimulationDefinition {
   readonly description: string;
   readonly path: `/${string}`;
   readonly tags: readonly string[];
-  readonly featured?: boolean;
-  readonly loadComponent: NonNullable<Route['loadComponent']>;
+  readonly loadComponent: () => Promise<
+    Type<unknown> & { readonly previewDefinition?: WorldExperienceDefinition }
+  >;
   readonly preview?: {
     readonly title: string;
     readonly loadComponent: () => Promise<Type<unknown>>;
@@ -29,7 +31,6 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
       'A living ecosystem that feeds, hunts, reproduces and evolves. Alter its environment and watch what emerges.',
     path: '/ecosystem',
     tags: ['Evolution', 'Natural selection', 'Interactive'],
-    featured: true,
     loadComponent: () =>
       import('../features/ecosystem/ecosystem').then((m) => m.EcosystemComponent),
     preview: {
@@ -285,13 +286,11 @@ export function simulationRoutes(definitions: readonly SimulationDefinition[]): 
 
 export function featuredSimulation(
   definitions: readonly SimulationDefinition[],
+  random: number,
+  previousId: string | null = null,
 ): SimulationDefinition {
-  const featured = definitions.find((entry) => entry.featured) ?? definitions[0];
-  if (!featured) throw new Error('The WILD LIFE simulation catalog must not be empty');
-  if (definitions.filter((entry) => entry.featured).length > 1) {
-    throw new Error('Only one featured simulation can be configured');
-  }
-  return featured;
+  if (!definitions.length) throw new Error('The WILD LIFE simulation catalog must not be empty');
+  const candidates =
+    definitions.length > 1 ? definitions.filter((world) => world.id !== previousId) : definitions;
+  return candidates[Math.min(candidates.length - 1, Math.floor(random * candidates.length))];
 }
-
-export const FEATURED_SIMULATION = featuredSimulation(SIMULATIONS);

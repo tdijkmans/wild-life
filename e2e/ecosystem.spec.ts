@@ -6,7 +6,7 @@ test('catalogue navigates to the ecosystem and renders its Canvas', async ({ pag
   await expect(page.getByRole('heading', { name: 'Predator–Prey Evolution' })).toBeVisible();
   await page.locator('.wl-world-card').first().click();
   await expect(page).toHaveURL(/\/ecosystem$/);
-  await expect(page.locator('canvas.world-canvas')).toBeVisible();
+  await expect(page.locator('canvas.world-canvas')).toBeInViewport({ ratio: 0.45 });
   await expect(page.getByRole('region', { name: 'Experiment controls' })).toBeVisible();
 });
 
@@ -35,8 +35,6 @@ test('seed, interaction, JSON download, file import and verified replay', async 
   await page.getByRole('button', { name: 'Start configured world' }).click();
   await expect(page.getByRole('status')).toContainText('deterministic experiment started');
 
-  // The welcome overlay otherwise obscures the interactive canvas.
-  await page.getByRole('button', { name: 'Show instructions' }).click();
   await page.locator('.world-canvas').click({ position: { x: 330, y: 210 } });
 
   const downloadPromise = page.waitForEvent('download');

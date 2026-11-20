@@ -54,5 +54,6 @@ const REEF: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class ReefComponent {
+  static readonly previewDefinition = REEF;
   readonly definition = REEF;
 }

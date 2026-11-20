@@ -1,0 +1,118 @@
+<div (keydown.space)="$event.stopPropagation()">
+  <div class="aquarium-hud" [class.aquarium-hud-idle]="idle() && !open()">
+    <div class="aquarium-brand" aria-hidden="true">
+      <span class="aquarium-brand-dot"></span> WILD <span> / A LIVING WORLD</span>
+    </div>
+    <div class="aquarium-toolbar" role="group" aria-label="Aquarium controls">
+      @if (soundAvailable()) {
+        <button
+          type="button"
+          class="aquarium-ui-button"
+          aria-label="Toggle aquarium sound"
+          [attr.aria-pressed]="soundEnabled()"
+          [disabled]="soundBusy()"
+          (click)="soundToggle.emit()"
+        >
+          {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
+        </button>
+      }
+      <button
+        #display
+        type="button"
+        class="aquarium-ui-button"
+        (click)="displayToggle.emit()"
+        [attr.aria-expanded]="open()"
+        [attr.aria-controls]="open() ? 'aquarium-settings' : null"
+      >
+        <span aria-hidden="true">◈</span> Display
+      </button>
+      <button
+        type="button"
+        class="aquarium-ui-button aquarium-exit"
+        aria-label="Exit aquarium"
+        (click)="exit.emit()"
+      >
+        <span aria-hidden="true">✕</span> Exit
+      </button>
+    </div>
+  </div>
+  @if (open()) {
+    <section
+      id="aquarium-settings"
+      class="aquarium-settings"
+      aria-label="Aquarium display settings"
+    >
+      <div class="aquarium-settings-header">
+        <h2>Display atmosphere</h2>
+        <button
+          type="button"
+          class="aquarium-close"
+          (click)="close()"
+          aria-label="Close display settings"
+        >
+          ×
+        </button>
+      </div>
+      <div class="aquarium-control-caption">VIEW PRESETS</div>
+      <div class="aquarium-presets" role="group" aria-label="Information level">
+        @for (option of presets; track option.id) {
+          <button
+            type="button"
+            [class.is-active]="preset() === option.id"
+            [attr.aria-pressed]="preset() === option.id"
+            (click)="presetSelect.emit(option.id)"
+          >
+            <i aria-hidden="true">{{ option.symbol }}</i>
+            <span>{{ option.title }}</span>
+          </button>
+        }
+      </div>
+      <div class="aquarium-control-caption aquarium-divider">SHOW INFORMATION CARDS</div>
+      @for (card of cardOptions(); track card.id) {
+        <button
+          type="button"
+          class="aquarium-toggle-row"
+          (click)="cardToggle.emit(card.id)"
+          [attr.aria-pressed]="cards()[card.id]"
+        >
+          <span
+            ><strong>{{ card.title }}</strong
+            ><small>{{ card.subtitle }}</small></span
+          >
+          <span class="aquarium-switch" [class.on]="cards()[card.id]" aria-hidden="true"
+            ><i></i
+          ></span>
+        </button>
+      }
+      <button
+        type="button"
+        class="aquarium-interact"
+        aria-label="Toggle aquarium interaction"
+        (click)="interactionToggle.emit()"
+        [attr.aria-pressed]="interaction()"
+      >
+        <span
+          >Allow touch to shape the world
+          <small>{{ interaction() ? 'Interaction enabled' : 'View only' }}</small></span
+        >
+        <span class="aquarium-switch" [class.on]="interaction()" aria-hidden="true"><i></i></span>
+      </button>
+      @if (interaction()) {
+        <div class="aquarium-mini-tools" role="group" aria-label="Interaction tool">
+          @for (option of tools(); track option.id) {
+            <button
+              type="button"
+              [class.is-active]="tool() === option.id"
+              [attr.aria-pressed]="tool() === option.id"
+              [title]="option.description"
+              (click)="toolSelect.emit(option.id)"
+            >
+              <span aria-hidden="true">{{ option.symbol }}</span> {{ option.title }}
+            </button>
+          }
+        </div>
+      }
+      <div class="aquarium-help">Move or tap to reveal controls · F / Esc to leave</div>
+    </section>
+  }
+</div>

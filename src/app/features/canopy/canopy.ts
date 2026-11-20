@@ -54,5 +54,6 @@ const CANOPY: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class CanopyComponent {
+  static readonly previewDefinition = CANOPY;
   readonly definition = CANOPY;
 }

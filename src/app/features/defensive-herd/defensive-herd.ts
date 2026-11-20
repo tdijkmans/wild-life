@@ -53,5 +53,6 @@ const DEFENSIVE_HERD: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class DefensiveHerdComponent {
+  static readonly previewDefinition = DEFENSIVE_HERD;
   readonly definition = DEFENSIVE_HERD;
 }

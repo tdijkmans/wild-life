@@ -6,7 +6,7 @@ In addition to the repository-root `AGENTS.md`:
   `ExperimentSession`, `SimulationRunner`, renderer, controllers,
   signals and chart/insights components. Do not grow a second engine or
   animation loop inside the component.
-- `controllers/aquarium.controller.ts` owns native fullscreen/CSS fallback,
+- `shared/world-experience/aquarium.controller.ts` owns native fullscreen/CSS fallback,
   Zen/Glance/Discover presets, HUD timers, scroll locking and teardown.
   `controllers/world-pointer.controller.ts` owns touch, wheel, pinch,
   selection and user interventions. Keep their callback interfaces small.

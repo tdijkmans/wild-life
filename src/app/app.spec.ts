@@ -1,9 +1,5 @@
 import { routes } from './app.routes';
-import {
-  FEATURED_SIMULATION,
-  SIMULATIONS,
-  simulationRoutes,
-} from './simulations/simulation-catalog';
+import { SIMULATIONS, simulationRoutes } from './simulations/simulation-catalog';
 
 describe('WILD LIFE catalogue and routes', () => {
   it('starts at the experiment catalogue', () => {
@@ -43,9 +39,9 @@ describe('WILD LIFE catalogue and routes', () => {
       '/hyphal-network',
       '/flagellar-drift',
     ]);
-    expect(FEATURED_SIMULATION.id).toBe('ecosystem');
-    expect(FEATURED_SIMULATION.path).toBe('/ecosystem');
-    expect(FEATURED_SIMULATION.preview?.loadComponent).toBeTypeOf('function');
+    expect(SIMULATIONS[0].id).toBe('ecosystem');
+    expect(SIMULATIONS[0].path).toBe('/ecosystem');
+    expect(SIMULATIONS[0].preview?.loadComponent).toBeTypeOf('function');
   });
 
   it('keeps the wildcard route after the generated simulation routes', () => {

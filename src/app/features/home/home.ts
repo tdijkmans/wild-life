@@ -3,7 +3,8 @@ import { Component, DestroyRef, OnInit, Type, inject, signal } from '@angular/co
 import { RouterLink } from '@angular/router';
 import { DsEyebrowComponent } from '../../shared/design-system/eyebrow/eyebrow';
 import { PreviewMetricsStore } from '../../shared/simulation/preview-metrics';
-import { FEATURED_SIMULATION, SIMULATIONS } from '../../simulations/simulation-catalog';
+import { FEATURED_WORLD } from '../../simulations/featured-world';
+import { SIMULATIONS } from '../../simulations/simulation-catalog';
 
 @Component({
   selector: 'app-home',
@@ -17,26 +18,36 @@ export class HomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly simulations = SIMULATIONS;
-  readonly featuredSimulation = FEATURED_SIMULATION;
+  readonly featuredSimulation = inject(FEATURED_WORLD);
   readonly availableCountLabel = String(SIMULATIONS.length).padStart(2, '0');
   readonly activeWorldsLabel =
     SIMULATIONS.length === 1 ? 'ONE WORLD ACTIVE' : `${SIMULATIONS.length} WORLDS ACTIVE`;
   readonly previewMetrics = inject(PreviewMetricsStore);
   readonly previewComponent = signal<Type<unknown> | null>(null);
   readonly previewUnavailable = signal(false);
+  readonly previewInputs = signal<Record<string, unknown>>({});
 
-  ngOnInit(): void {
-    const loader = this.featuredSimulation.preview?.loadComponent;
-    if (!loader) return;
-
-    // Neither the ecosystem engine nor its Canvas renderer is imported by Home.
-    void loader().then(
-      (component) => {
+  async ngOnInit(): Promise<void> {
+    try {
+      const featured = this.featuredSimulation;
+      if (featured.preview) {
+        const component = await featured.preview.loadComponent();
         if (!this.destroyRef.destroyed) this.previewComponent.set(component);
-      },
-      () => {
-        if (!this.destroyRef.destroyed) this.previewUnavailable.set(true);
-      },
-    );
+        return;
+      }
+      const [world, preview] = await Promise.all([
+        featured.loadComponent(),
+        import('../../shared/world-experience/world-preview'),
+      ]);
+      if (this.destroyRef.destroyed) return;
+      if (world.previewDefinition) {
+        this.previewInputs.set({ definition: world.previewDefinition });
+        this.previewComponent.set(preview.WorldPreviewComponent);
+      } else {
+        this.previewUnavailable.set(true);
+      }
+    } catch {
+      if (!this.destroyRef.destroyed) this.previewUnavailable.set(true);
+    }
   }
 }

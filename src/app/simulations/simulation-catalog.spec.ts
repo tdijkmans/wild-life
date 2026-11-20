@@ -7,7 +7,7 @@ import {
 
 const loader: SimulationDefinition['loadComponent'] = async () => class ExampleComponent {};
 
-function example(id: string, path: `/${string}`, featured = false): SimulationDefinition {
+function example(id: string, path: `/${string}`): SimulationDefinition {
   return {
     id,
     number: '002',
@@ -15,7 +15,6 @@ function example(id: string, path: `/${string}`, featured = false): SimulationDe
     description: 'Test world',
     path,
     tags: [],
-    featured,
     loadComponent: loader,
   };
 }
@@ -41,10 +40,17 @@ describe('Simulation catalog registration', () => {
     }
   });
 
-  it('selects the configured featured world, not a hardcoded index', () => {
-    const definitions = [example('first', '/first'), example('selected', '/selected', true)];
-    expect(featuredSimulation(definitions).id).toBe('selected');
-    expect(featuredSimulation([example('fallback', '/fallback')]).id).toBe('fallback');
+  it('randomly selects throughout the catalogue and excludes the previous world', () => {
+    const definitions = [
+      example('first', '/first'),
+      example('middle', '/middle'),
+      example('last', '/last'),
+    ];
+    expect(featuredSimulation(definitions, 0).id).toBe('first');
+    expect(featuredSimulation(definitions, 0.55).id).toBe('middle');
+    expect(featuredSimulation(definitions, 0.99).id).toBe('last');
+    expect(featuredSimulation(definitions, 0.55, 'middle').id).toBe('last');
+    expect(featuredSimulation(definitions.slice(0, 1), 0.55, 'first').id).toBe('first');
   });
 
   it('registers twenty-one distinct living worlds with independent lazy routes', () => {
@@ -73,12 +79,9 @@ describe('Simulation catalog registration', () => {
       { id: 'flagellar-drift', path: '/flagellar-drift' },
     ]);
     expect(simulationRoutes(SIMULATIONS)).toHaveLength(21);
-    expect(SIMULATIONS.filter((world) => world.featured)).toHaveLength(1);
   });
 
-  it('requires a world and disallows multiple featured worlds', () => {
-    expect(() => featuredSimulation([])).toThrow('must not be empty');
-    const multipleFeatured = [example('a', '/a', true), example('b', '/b', true)];
-    expect(() => featuredSimulation(multipleFeatured)).toThrow('Only one featured simulation');
+  it('requires a world to choose a featured simulation', () => {
+    expect(() => featuredSimulation([], 0)).toThrow('must not be empty');
   });
 });

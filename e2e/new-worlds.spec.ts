@@ -51,7 +51,7 @@ for (const world of newWorlds) {
     await page.locator('.wl-world-card').filter({ hasText: world.title }).click();
     await expect(page).toHaveURL(new RegExp(`${world.path}$`));
     await expect(page.getByRole('heading', { name: new RegExp(world.title) })).toBeVisible();
-    await expect(page.locator('canvas.world-canvas')).toBeVisible();
+    await expect(page.locator('canvas.world-canvas')).toBeInViewport({ ratio: 0.45 });
     await expect(page.getByRole('region', { name: 'World controls' })).toBeVisible();
     await expect(page.getByText(world.metric, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: world.tool, exact: true }).click();
@@ -78,7 +78,9 @@ for (const world of newWorlds) {
 
     await page.getByRole('button', { name: 'Open fullscreen aquarium' }).click();
     await expect(page.locator('.stage.aquarium')).toBeVisible();
+    await page.getByRole('button', { name: 'Display', exact: true }).click();
     await page.getByRole('button', { name: 'Toggle aquarium interaction' }).click();
+    await expect(page.getByRole('group', { name: 'Interaction tool' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Toggle aquarium interaction' })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -88,39 +90,54 @@ for (const world of newWorlds) {
   });
 }
 
-test('Aquarium statistics cycle through none, few and all, and remember the selection on re-entry', async ({
+test('Aquarium Display presets, graph, and custom cards work in the shared worlds', async ({
   page,
 }) => {
-  for (const route of [
-    '/reef',
-    '/pollen-paths',
-    '/night-chorus',
-    '/silver-shoals',
-    '/membrane-tide',
-    '/osmotic-glass',
-    '/mitotic-bloom',
-    '/hyphal-network',
-    '/flagellar-drift',
-  ]) {
-    await page.goto(route);
-    const opening = page.getByRole('button', { name: 'Open fullscreen aquarium' });
-    await opening.click();
-    const stats = page.locator('dl[aria-label="Aquarium live statistics"]');
-    await expect(stats).toHaveCount(0);
-    await page.getByRole('button', { name: 'Stats: None' }).press('Space');
-    await expect(stats.locator('dt')).toHaveCount(2);
-    await page.getByRole('button', { name: 'Stats: Few' }).click();
-    const metricCount = await page
-      .getByRole('region', { name: 'World observations' })
-      .locator('.metric')
-      .count();
-    await expect(stats.locator('dt')).toHaveCount(metricCount);
-    await page.getByRole('button', { name: 'Exit aquarium' }).click();
-    await opening.click();
-    await expect(stats.locator('dt')).toHaveCount(metricCount);
-    await page.getByRole('button', { name: 'Stats: All' }).click();
-    await expect(stats).toHaveCount(0);
-  }
+  await page.goto('/osmotic-glass');
+  const opening = page.getByRole('button', { name: 'Open fullscreen aquarium' });
+  await expect(opening).toBeInViewport();
+  await opening.click();
+  const cards = page.locator('dl[aria-label="Aquarium live statistics"] dt');
+  const display = page.getByRole('button', { name: 'Display', exact: true });
+  const panel = page.getByRole('region', { name: 'Aquarium display settings' });
+  const graph = page.getByRole('region', { name: 'Aquarium live graph' });
+  await display.press('Space');
+  await expect(panel.getByRole('button', { name: 'Zen' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(cards).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Glance' }).click();
+  await expect(cards).toHaveCount(2);
+  await expect(graph).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Discover' }).click();
+  await expect(cards).toHaveCount(4);
+  await expect(graph).toBeVisible();
+  await panel.getByRole('button', { name: /Live graph/ }).click();
+  await expect(graph).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Discover' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  await page.getByRole('button', { name: 'Exit aquarium' }).click();
+  await opening.click();
+  await expect(cards).toHaveCount(4);
+  await display.click();
+  await panel.getByRole('button', { name: 'Zen' }).click();
+  await expect(cards).toHaveCount(0);
+});
+
+test('a hard reload picks a different featured world with a live preview', async ({ page }) => {
+  await page.goto('/');
+  const launch = page.getByRole('link', { name: /^Launch / });
+  await expect(launch.locator('canvas')).toBeVisible();
+  const first = await launch.getAttribute('href');
+  await page.reload();
+  await expect(launch.locator('canvas')).toBeVisible();
+  await expect(launch).not.toHaveAttribute('href', first ?? '');
+  const next = await launch.getAttribute('href');
+  await launch.click();
+  await expect(page).toHaveURL((url) => url.pathname === next);
+  await expect(page.locator('canvas.world-canvas')).toBeInViewport({ ratio: 0.45 });
+  await page.goBack();
+  await expect(launch).toHaveAttribute('href', next ?? '');
 });
 
 test('Membrane Tide drops one pebble per press even if the pointer moves', async ({ page }) => {

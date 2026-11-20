@@ -48,5 +48,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class NightChorusComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

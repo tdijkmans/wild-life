@@ -32,14 +32,17 @@
         [attr.aria-label]="'Launch ' + featuredSimulation.name"
       >
         @if (previewComponent(); as component) {
-          <ng-container [ngComponentOutlet]="component"></ng-container>
+          <ng-container
+            [ngComponentOutlet]="component"
+            [ngComponentOutletInputs]="previewInputs()"
+          ></ng-container>
         } @else if (previewUnavailable()) {
           <span class="wl-preview-fallback">Preview unavailable</span>
         }
         <div class="wl-preview-shade" aria-hidden="true"></div>
         <div class="wl-preview-top">
           <span>WORLD {{ featuredSimulation.number }}</span>
-          @if (featuredSimulation.preview && !previewUnavailable()) {
+          @if (previewComponent()) {
             <span class="wl-live"><i class="wl-dot"></i> LIVE PREVIEW</span>
           }
         </div>

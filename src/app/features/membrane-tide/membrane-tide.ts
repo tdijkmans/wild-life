@@ -49,5 +49,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class MembraneTideComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

@@ -25,15 +25,6 @@
         >← All worlds</a
       >
       <ds-button
-        class="aquarium-enter"
-        variant="subtle"
-        (click)="toggleAquarium()"
-        title="Aquarium mode (F)"
-        ariaLabel="Open fullscreen aquarium"
-      >
-        ⛶ <span class="hide-sm">Aquarium</span>
-      </ds-button>
-      <ds-button
         class="info-btn"
         variant="icon"
         (click)="toggleGuide()"
@@ -180,6 +171,7 @@
     <section class="world-section" aria-label="Living ecosystem">
       <div
         #worldFrame
+        data-world-stage
         class="world-frame"
         [class.aquarium-active]="aquariumMode()"
         (pointermove)="wakeAquarium()"
@@ -198,127 +190,27 @@
           (wheel)="onWheel($event)"
         ></canvas>
         @if (aquariumMode()) {
-          <div
-            class="aquarium-hud"
-            [class.aquarium-hud-idle]="aquariumIdle() && !aquariumSettingsOpen()"
-          >
-            <div class="aquarium-brand">
-              <span class="aquarium-brand-dot"></span> WILD <span> / A LIVING WORLD</span>
-            </div>
-            <div class="aquarium-toolbar" role="toolbar" aria-label="Aquarium display controls">
-              <button
-                class="aquarium-ui-button"
-                aria-label="Toggle aquarium sound"
-                [attr.aria-pressed]="soundEnabled()"
-                [disabled]="soundBusy()"
-                (click)="toggleSound()"
-              >
-                {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
-              </button>
-              <button
-                class="aquarium-ui-button"
-                (click)="toggleAquariumSettings()"
-                [attr.aria-expanded]="aquariumSettingsOpen()"
-                aria-controls="aquarium-settings"
-                title="Display settings"
-              >
-                ⚙ <span>Display</span>
-              </button>
-              <button
-                class="aquarium-ui-button aquarium-exit"
-                (click)="exitAquarium()"
-                title="Exit aquarium (F or Esc)"
-              >
-                ⤢ <span>Exit</span>
-              </button>
-            </div>
-          </div>
-          @if (aquariumSettingsOpen()) {
-            <section
-              id="aquarium-settings"
-              class="aquarium-settings"
-              aria-label="Aquarium display settings"
-            >
-              <div class="aquarium-settings-header">
-                <div>
-                  <span class="aquarium-kicker">MAKE THIS WORLD YOURS</span>
-                  <h2>Display atmosphere</h2>
-                </div>
-                <button
-                  class="aquarium-close"
-                  (click)="toggleAquariumSettings()"
-                  aria-label="Close display settings"
-                >
-                  ×
-                </button>
-              </div>
-              <div class="aquarium-control-caption">VIEW PRESETS</div>
-              <div class="aquarium-presets" role="group" aria-label="Information level">
-                <button
-                  [class.is-active]="aquariumPreset() === 'zen'"
-                  (click)="setAquariumPreset('zen')"
-                >
-                  ✧ <span>Zen</span>
-                </button>
-                <button
-                  [class.is-active]="aquariumPreset() === 'glance'"
-                  (click)="setAquariumPreset('glance')"
-                >
-                  ◈ <span>Glance</span>
-                </button>
-                <button
-                  [class.is-active]="aquariumPreset() === 'study'"
-                  (click)="setAquariumPreset('study')"
-                >
-                  ▤ <span>Discover</span>
-                </button>
-              </div>
-              <div class="aquarium-control-caption aquarium-divider">SHOW INFORMATION CARDS</div>
-              @for (card of aquariumCardOptions; track card.id) {
-                <button
-                  class="aquarium-toggle-row"
-                  (click)="toggleAquariumCard(card.id)"
-                  [attr.aria-pressed]="aquariumCards()[card.id]"
-                >
-                  <span
-                    ><strong>{{ card.title }}</strong
-                    ><small>{{ card.subtitle }}</small></span
-                  ><span class="aquarium-switch" [class.on]="aquariumCards()[card.id]"
-                    ><i></i
-                  ></span>
-                </button>
-              }
-              <button
-                class="aquarium-interact"
-                (click)="toggleAquariumInteraction()"
-                [attr.aria-pressed]="aquariumInteract()"
-              >
-                <span
-                  >Allow touch to shape the world<small>{{
-                    aquariumInteract() ? 'Interaction enabled' : 'View only · no accidental changes'
-                  }}</small></span
-                ><span class="aquarium-switch" [class.on]="aquariumInteract()"><i></i></span>
-              </button>
-              @if (aquariumInteract()) {
-                <div class="aquarium-mini-tools" aria-label="Interaction tool">
-                  @for (tool of tools; track tool.id) {
-                    <button
-                      [class.is-active]="mode() === tool.id"
-                      (click)="setMode(tool.id)"
-                      [title]="tool.description"
-                    >
-                      {{ tool.icon }} {{ tool.name }}
-                    </button>
-                  }
-                </div>
-              }
-              <div class="aquarium-help">
-                Move mouse or tap to reveal controls · F / Esc to leave
-              </div>
-            </section>
-          }
+          <app-aquarium-controls
+            [idle]="aquariumIdle()"
+            [open]="aquariumSettingsOpen()"
+            [preset]="aquariumPreset()"
+            [cards]="aquariumCards()"
+            [cardOptions]="aquariumCardOptions"
+            [interaction]="aquariumInteract()"
+            [tools]="aquariumTools"
+            [tool]="mode()"
+            [soundEnabled]="soundEnabled()"
+            [soundBusy]="soundBusy()"
+            (displayToggle)="toggleAquariumSettings()"
+            (exit)="exitAquarium()"
+            (soundToggle)="toggleSound()"
+            (interactionToggle)="toggleAquariumInteraction()"
+            (cardToggle)="toggleAquariumCard($event)"
+            (toolSelect)="selectAquariumTool($event)"
+            (presetSelect)="setAquariumPreset($event)"
+          />
           <div class="aquarium-cards" aria-label="Floating live statistics">
-            @if (aquariumCards().journal) {
+            @if (aquariumCards()['journal']) {
               <div class="aqua-card aqua-journal">
                 <div class="aqua-label"><span class="aqua-live-dot"></span> FROM THE FIELD</div>
                 @for (event of events().slice(0, 2); track event.message) {
@@ -329,14 +221,14 @@
                 }
               </div>
             }
-            @if (aquariumCards().timeline) {
+            @if (aquariumCards()['timeline']) {
               <div class="aqua-card aqua-timeline">
                 <div class="aqua-label">POPULATION HISTORY <span>LIVE ↗</span></div>
                 <canvas #aquariumChart aria-label="Population history" class="aqua-graph"></canvas>
                 <div class="aqua-legend"><span>● GRAZERS</span><span>● HUNTERS</span></div>
               </div>
             }
-            @if (aquariumCards().population) {
+            @if (aquariumCards()['population']) {
               <div class="aqua-card aqua-population">
                 <div class="aqua-label">
                   <span class="aqua-live-dot"></span> LIVE POPULATIONS
@@ -352,7 +244,7 @@
                 </div>
               </div>
             }
-            @if (aquariumCards().evolution) {
+            @if (aquariumCards()['evolution']) {
               <div class="aqua-card aqua-evolution">
                 <div class="aqua-label">EVOLUTION AT WORK</div>
                 <div class="aqua-metric">
@@ -376,9 +268,16 @@
           <span class="world-eyebrow">THE BIOSPHERE</span
           ><span class="world-tag">EXPERIMENT 001</span>
         </div>
-        <div class="world-top-right">
-          <span class="reticle">⌖</span> FREE ECOSYSTEM <span class="world-online">●</span>
-        </div>
+        @if (!aquariumMode()) {
+          <ds-button
+            class="aquarium-entry"
+            variant="subtle"
+            ariaLabel="Open fullscreen aquarium"
+            title="Aquarium mode (F)"
+            (click)="toggleAquarium()"
+            >⛶ Aquarium</ds-button
+          >
+        }
 
         @if (showGuide()) {
           <div class="welcome-overlay">

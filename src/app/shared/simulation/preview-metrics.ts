@@ -1,10 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 
-export type PreviewMetricTone = 'mint' | 'coral';
+export type PreviewMetricTone = 'mint' | 'coral' | 'blue' | 'gold';
 
 export interface PreviewMetric {
   readonly label: string;
-  readonly value: number;
+  readonly value: string | number;
   readonly tone: PreviewMetricTone;
 }
 
