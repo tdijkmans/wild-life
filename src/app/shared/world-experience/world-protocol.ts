@@ -23,7 +23,11 @@ export type WorldSoundProfile =
   | 'pollen'
   | 'pond'
   | 'estuary'
-  | 'membrane';
+  | 'membrane'
+  | 'osmotic'
+  | 'mitotic'
+  | 'hyphal'
+  | 'flagellar';
 
 export interface WorldAudioCue {
   readonly id: number;
@@ -49,7 +53,13 @@ export interface WorldAudioCue {
     | 'hybrid-hatch'
     | 'pebble-impact'
     | 'membrane-seal'
-    | 'membrane-rupture';
+    | 'membrane-rupture'
+    | 'solute-drop'
+    | 'pore-crossing'
+    | 'mitotic-phase'
+    | 'hyphal-growth'
+    | 'hyphal-fusion'
+    | 'flagellar-mating';
   readonly strength: number;
 }
 

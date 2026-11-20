@@ -220,6 +220,49 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     loadComponent: () =>
       import('../features/membrane-tide/membrane-tide').then((m) => m.MembraneTideComponent),
   },
+  {
+    id: 'osmotic-glass',
+    number: '018',
+    name: 'Osmotic Glass',
+    description:
+      'Blue water, gold tracer, and violet solute drift through a two-chamber glass cell. Each molecule follows its own permeability rule.',
+    path: '/osmotic-glass',
+    tags: ['Osmosis', 'Diffusion', 'Selective membranes'],
+    loadComponent: () =>
+      import('../features/osmotic-glass/osmotic-glass').then((m) => m.OsmoticGlassComponent),
+  },
+  {
+    id: 'mitotic-bloom',
+    number: '019',
+    name: 'Mitotic Bloom',
+    description: 'Watch chromosomes condense, line up, and separate as a growing culture divides.',
+    path: '/mitotic-bloom',
+    tags: ['Cell cycle', 'Chromosomes', 'Cytokinesis'],
+    loadComponent: () =>
+      import('../features/mitotic-bloom/mitotic-bloom').then((m) => m.MitoticBloomComponent),
+  },
+  {
+    id: 'hyphal-network',
+    number: '020',
+    name: 'Hyphal Network',
+    description:
+      'Hyphal tips extend into the substrate, branch, and sometimes fuse. Watch cytoplasm flow from food-rich regions through connected compartments.',
+    path: '/hyphal-network',
+    tags: ['Mycelium', 'Cytoplasmic flow', 'Network growth'],
+    loadComponent: () =>
+      import('../features/hyphal-network/hyphal-network').then((m) => m.HyphalNetworkComponent),
+  },
+  {
+    id: 'flagellar-drift',
+    number: '021',
+    name: 'Flagellar Drift',
+    description:
+      'Whip-tailed, twin-tailed, and helical flagellates compete for food, mate, and pass on distinctive propulsion traits.',
+    path: '/flagellar-drift',
+    tags: ['Evolution', 'Flagella', 'Sexual inheritance'],
+    loadComponent: () =>
+      import('../features/flagellar-drift/flagellar-drift').then((m) => m.FlagellarDriftComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */
