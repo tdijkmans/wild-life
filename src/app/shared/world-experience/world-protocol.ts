@@ -22,7 +22,8 @@ export type WorldSoundProfile =
   | 'vascular'
   | 'pollen'
   | 'pond'
-  | 'estuary';
+  | 'estuary'
+  | 'membrane';
 
 export interface WorldAudioCue {
   readonly id: number;
@@ -45,7 +46,10 @@ export interface WorldAudioCue {
     | 'seed-set'
     | 'low-call'
     | 'high-call'
-    | 'hybrid-hatch';
+    | 'hybrid-hatch'
+    | 'pebble-impact'
+    | 'membrane-seal'
+    | 'membrane-rupture';
   readonly strength: number;
 }
 
@@ -77,6 +81,7 @@ export interface WorldTool {
   readonly id: string;
   readonly title: string;
   readonly symbol: string;
+  readonly gesture?: 'press';
   readonly description: string;
 }
 

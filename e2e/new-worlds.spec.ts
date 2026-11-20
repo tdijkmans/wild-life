@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const newWorlds = [
+  { title: 'Membrane Tide', path: '/membrane-tide', tool: 'Swirl', metric: 'SEALED VESICLES' },
   { title: 'Pollen Paths', path: '/pollen-paths', tool: 'Sunlight', metric: 'POLLEN DELIVERIES' },
   { title: 'Night Chorus', path: '/night-chorus', tool: 'Warmth', metric: 'UNANSWERED SIGNALS' },
   {
@@ -81,7 +82,13 @@ for (const world of newWorlds) {
 test('Aquarium statistics cycle through none, few and all, and remember the selection on re-entry', async ({
   page,
 }) => {
-  for (const route of ['/reef', '/pollen-paths', '/night-chorus', '/silver-shoals']) {
+  for (const route of [
+    '/reef',
+    '/pollen-paths',
+    '/night-chorus',
+    '/silver-shoals',
+    '/membrane-tide',
+  ]) {
     await page.goto(route);
     const opening = page.getByRole('button', { name: 'Open fullscreen aquarium' });
     await opening.click();
@@ -103,6 +110,22 @@ test('Aquarium statistics cycle through none, few and all, and remember the sele
   }
 });
 
+test('Membrane Tide drops one pebble per press even if the pointer moves', async ({ page }) => {
+  await page.goto('/membrane-tide');
+  await page.getByRole('button', { name: 'Pebble', exact: true }).click();
+  const canvas = page.locator('canvas.world-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error('Expected the membrane surface to be visible');
+  await page.mouse.move(bounds.x + bounds.width * 0.4, bounds.y + bounds.height * 0.4);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width * 0.64, bounds.y + bounds.height * 0.55, {
+    steps: 12,
+  });
+  await page.mouse.up();
+  await expect(page.getByText(/Pebble impacts: 1$/)).toBeVisible();
+});
+
 test('mobile viewport keeps every shared world and environmental controls usable', async ({
   page,
 }) => {
@@ -116,6 +139,7 @@ test('mobile viewport keeps every shared world and environmental controls usable
     '/pollen-paths',
     '/night-chorus',
     '/silver-shoals',
+    '/membrane-tide',
     '/murmuration',
     '/defensive-herd',
     '/canopy',
@@ -145,6 +169,7 @@ for (const route of [
   '/pollen-paths',
   '/night-chorus',
   '/silver-shoals',
+  '/membrane-tide',
   '/canopy',
   '/abyssal-bloom',
   '/synchrony',

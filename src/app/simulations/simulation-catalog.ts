@@ -209,6 +209,17 @@ export const SIMULATIONS: readonly SimulationDefinition[] = [
     loadComponent: () =>
       import('../features/silver-shoals/silver-shoals').then((m) => m.SilverShoalsComponent),
   },
+  {
+    id: 'membrane-tide',
+    number: '017',
+    name: 'Membrane Tide',
+    description:
+      'Drifting lipid bilayers curve and seal into vesicles. Swirl the fluid or drop a pebble to watch membranes stretch and open.',
+    path: '/membrane-tide',
+    tags: ['Self-assembly', 'Lipid bilayers', 'Vesicles'],
+    loadComponent: () =>
+      import('../features/membrane-tide/membrane-tide').then((m) => m.MembraneTideComponent),
+  },
 ];
 
 /** New worlds automatically get lazy-loaded routes from their catalog registration. */
