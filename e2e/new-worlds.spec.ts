@@ -144,7 +144,7 @@ test('world footers link directly between both simulation layouts', async ({ pag
   await page.goto('/ecosystem');
   const catalogue = page.getByRole('navigation', { name: 'World catalogue' });
   await expect(catalogue.getByRole('listitem')).toHaveCount(21);
-  await expect(catalogue.getByRole('link', { name: 'Predator-Prey Evolution' })).toHaveAttribute(
+  await expect(catalogue.getByRole('link', { name: 'Predator–Prey Evolution' })).toHaveAttribute(
     'aria-current',
     'page',
   );
