@@ -11,13 +11,15 @@ grow, interact, cooperate, compete, adapt and sometimes disappear.
 of individual creatures. Visitors gently alter the conditions of a world—flow,
 light, warmth, nutrients, habitat or terrain—and discover what emerges.
 
+The featured world is chosen at random on each app load. Each world opens at its visualization.
+
 ## The experience
 
 - **Aquarium — experience life.** An immersive, visually spectacular world that
   remains interesting without interaction. The interface recedes; subtle gestures
   can shape events without interrupting the atmosphere.
-  Shared worlds offer three Aquarium stats levels: None, Few (two key metrics),
-  or All. Predator–Prey Evolution offers individual information cards.
+  The Display panel in every world offers Zen, Glance, and Discover presets,
+  individual information cards, and optional interaction.
 - **Laboratory — understand life.** The same underlying world, with visible
   mechanisms, statistics, populations, histories, experiments and deterministic
   replay where supported.

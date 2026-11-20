@@ -53,7 +53,6 @@ src/app/
         renderer.ts
         charts.ts
       controllers/
-        aquarium.controller.ts
         world-pointer.controller.ts
       components/
         ecosystem-insights-panel/
@@ -147,8 +146,8 @@ See `docs/experiments.md`, `docs/performance.md` and
   domain/rendering code as necessary.
 - Register **one** definition in `simulations/simulation-catalog.ts`
   with unique ID/path and lazy `loadComponent`.
-- Optionally add a feature-owned lazy preview and mark a single world
-  `featured: true`; Home handles navigation and card metadata.
+- Expose the world definition for the shared lazy preview, or add a dedicated
+  preview. Every catalogue world is eligible for random selection.
 - Add deterministic tests, browser coverage and documentation where
   applicable. Follow the nearest `AGENTS.md`.
 - Run the quality gates in `docs/quality-gates.md`.

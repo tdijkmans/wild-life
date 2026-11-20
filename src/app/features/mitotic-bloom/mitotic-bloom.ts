@@ -54,5 +54,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class MitoticBloomComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

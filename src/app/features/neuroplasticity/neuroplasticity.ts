@@ -53,5 +53,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class NeuroplasticityComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

@@ -30,9 +30,6 @@
           {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
         </ds-button>
       }
-      <ds-button variant="subtle" ariaLabel="Open fullscreen aquarium" (click)="toggleAquarium()">
-        ⛶ <span class="full-label">Aquarium mode</span>
-      </ds-button>
     </div>
   </header>
 
@@ -51,11 +48,12 @@
   <main>
     <section
       #stage
+      data-world-stage
       class="stage"
       [class.aquarium]="aquarium()"
-      [class.chrome-hidden]="aquarium() && !hudVisible()"
       [attr.aria-label]="definition().name + ' simulation'"
       (pointermove)="wakeHud()"
+      (pointerdown)="wakeHud()"
     >
       <canvas
         #worldCanvas
@@ -76,66 +74,83 @@
           [style.top.%]="cursor()!.y"
         ></div>
       }
-      <div class="stage-top scene-chrome">
-        <span class="scene-number"
-          ><i class="live-dot"></i> WORLD {{ definition().number }} — LIVE</span
+      @if (!aquarium()) {
+        <ds-button
+          class="aquarium-entry"
+          variant="subtle"
+          ariaLabel="Open fullscreen aquarium"
+          title="Aquarium mode (F)"
+          (click)="toggleAquarium()"
+          >⛶ Aquarium</ds-button
         >
-        <span class="scene-slogan">AUTONOMOUS BEHAVIOR / NO SCRIPTED FORMATIONS</span>
-        @if (aquarium()) {
-          <div class="aquarium-actions">
-            <ds-button
-              variant="subtle"
-              (keydown.space)="$event.stopPropagation()"
-              (click)="cycleAquariumStats()"
-            >
-              Stats: {{ aquariumStats() }}
-            </ds-button>
-            @if (definition().soundProfile) {
-              <ds-button
-                variant="subtle"
-                ariaLabel="Toggle aquarium sound"
-                [pressed]="soundEnabled()"
-                [disabled]="soundBusy()"
-                (click)="toggleSound()"
-              >
-                {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
-              </ds-button>
-            }
-            <ds-button
-              variant="subtle"
-              ariaLabel="Toggle aquarium interaction"
-              [pressed]="interactionEnabled()"
-              (click)="toggleAquariumInteraction()"
-              >{{ interactionEnabled() ? '✳ Interacting' : '◎ Observe only' }}</ds-button
-            >
-            <ds-button variant="subtle" ariaLabel="Exit aquarium" (click)="leaveAquarium()">
-              ✕ Exit
-            </ds-button>
-          </div>
-        }
-      </div>
-      @if (aquarium() && aquariumMetrics().length) {
-        <dl class="aquarium-stats" aria-label="Aquarium live statistics">
-          @for (metric of aquariumMetrics(); track metric.label) {
-            <div [class]="'aquarium-stat metric-' + metric.tone">
-              <dt>{{ metric.label }}</dt>
-              <dd>{{ metric.value }}</dd>
-            </div>
-          }
-        </dl>
-      }
-      <div class="scene-bottom scene-chrome">
-        <div class="scene-caption">
-          <span class="scene-kicker">{{
-            definition().sceneKicker ??
-              (definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS')
-          }}</span>
-          <strong>{{ definition().tagline }}</strong>
+        <div class="stage-top scene-chrome">
+          <span class="scene-number"
+            ><i class="live-dot"></i> WORLD {{ definition().number }} — LIVE</span
+          >
         </div>
-        <span class="scene-coordinates"
-          >SEED {{ seed() }} <i></i> {{ paused() ? 'PAUSED' : speed() + '× LIVE' }}</span
-        >
-      </div>
+        <div class="scene-bottom scene-chrome">
+          <div class="scene-caption">
+            <span class="scene-kicker">{{
+              definition().sceneKicker ??
+                (definition().theme === 'sky' ? 'THE AIR IS ALIVE' : 'THE HERD REMEMBERS')
+            }}</span>
+            <strong>{{ definition().tagline }}</strong>
+          </div>
+          <span class="scene-coordinates"
+            >SEED {{ seed() }} <i></i> {{ paused() ? 'PAUSED' : speed() + '× LIVE' }}</span
+          >
+        </div>
+      }
+      @if (aquarium()) {
+        <app-aquarium-controls
+          [idle]="display.idle()"
+          [open]="display.settingsOpen()"
+          [preset]="display.preset()"
+          [cards]="display.cards()"
+          [cardOptions]="display.cardOptions"
+          [interaction]="interactionEnabled()"
+          [tools]="definition().tools"
+          [tool]="selectedTool()"
+          [soundAvailable]="!!definition().soundProfile"
+          [soundEnabled]="soundEnabled()"
+          [soundBusy]="soundBusy()"
+          (displayToggle)="display.toggleSettings()"
+          (exit)="display.exit()"
+          (soundToggle)="toggleSound()"
+          (interactionToggle)="display.toggleInteraction()"
+          (cardToggle)="display.toggleCard($event)"
+          (toolSelect)="chooseTool($event)"
+          (presetSelect)="display.setPreset($event)"
+        />
+        <div class="aquarium-readouts">
+          @if (display.cards()['history']) {
+            <section class="aquarium-history" aria-label="Aquarium live graph">
+              <div class="history-title">
+                <span>LIVE GRAPH</span>
+                <span class="line-labels"
+                  >● {{ definition().primaryHistoryLabel }} / ●
+                  {{ definition().secondaryHistoryLabel }}</span
+                >
+              </div>
+              <canvas
+                #aquariumHistory
+                class="history-canvas"
+                aria-label="Aquarium simulation history"
+              ></canvas>
+            </section>
+          }
+          @if (aquariumMetrics().length) {
+            <dl class="aquarium-stats" aria-label="Aquarium live statistics">
+              @for (metric of aquariumMetrics(); track metric.label) {
+                <div [class]="'aquarium-stat metric-' + metric.tone">
+                  <dt>{{ metric.label }}</dt>
+                  <dd>{{ metric.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+        </div>
+      }
     </section>
 
     <div class="lab-grid">

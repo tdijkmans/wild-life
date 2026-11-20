@@ -7,6 +7,8 @@ In addition to the repository root `AGENTS.md`:
 - `WorldExperienceComponent` owns the shared user experience: Canvas
   lifecycle, fixed-step runner, view-only Aquarium, fullscreen/escape,
   gentle pointer tools, seed reset, pause/speed, metrics and history.
+- The shared Aquarium controller and Display panel are also used by Predator-Prey
+  Evolution. Worlds own their information cards and tool choices.
 - The component consumes a feature-provided `WorldExperienceDefinition`.
   It must never import a specific world engine or renderer.
 - Each feature remains responsible for its own model, renderer, mechanisms,

@@ -46,3 +46,16 @@ app-root {
   display: block;
   min-height: 100dvh;
 }
+
+[data-world-stage] {
+  scroll-margin-top: 12px;
+}
+[data-world-stage] > .aquarium-entry {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  --ds-button-bg: rgba(8, 26, 32, 0.87);
+  --ds-button-border: rgba(139, 235, 202, 0.36);
+  --ds-button-color: #d0ffee;
+}

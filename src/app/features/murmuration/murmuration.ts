@@ -53,5 +53,6 @@ const MURMURATION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class MurmurationComponent {
+  static readonly previewDefinition = MURMURATION;
   readonly definition = MURMURATION;
 }

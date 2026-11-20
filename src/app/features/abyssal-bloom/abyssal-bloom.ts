@@ -54,5 +54,6 @@ const ABYSSAL_BLOOM: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class AbyssalBloomComponent {
+  static readonly previewDefinition = ABYSSAL_BLOOM;
   readonly definition = ABYSSAL_BLOOM;
 }

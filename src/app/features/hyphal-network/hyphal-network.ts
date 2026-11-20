@@ -49,5 +49,6 @@ const DEFINITION: WorldExperienceDefinition = {
   template: '<app-world-experience [definition]="definition" />',
 })
 export class HyphalNetworkComponent {
+  static readonly previewDefinition = DEFINITION;
   readonly definition = DEFINITION;
 }

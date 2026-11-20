@@ -10,7 +10,7 @@ To add a world:
 2. Add **one definition** to `SIMULATIONS`:
    - `id`, `number`, `name`, `description`, `path`, `tags`
    - `loadComponent: () => import('../features/<world>/<world>').then(...)`
-   - optionally `featured: true` and a lazy `preview` component + title.
+   - expose a static previewDefinition for the shared Canvas preview, or register a dedicated lazy preview component and title.
 3. No modification to `app.routes.ts` or `features/home/home.ts/html` is
    necessary: the router and cards both read the registry, and the homepage
    displays the active count and featured link automatically.
@@ -19,7 +19,7 @@ To add a world:
 
 ## Featured preview contract
 
-Home loads only the featured world's preview **after** the home feature is
+On app load the gallery selects a random world, avoiding the last selection in the same tab when storage is available. Home loads only that world's preview **after** the home feature is
 initialized. The preview must be a standalone Angular component, rendered
 inside the homepage's generic preview link.
 
@@ -37,8 +37,7 @@ inside the homepage's generic preview link.
 - The ecosystem preview preserves the original 30 fps draw throttle,
   fixed-step timing, viewport intersection observer and hidden-tab behavior.
 
-The catalog rejects invalid/duplicate routes and IDs, and more than one
-featured entry. Its loader functions are dynamic imports, so merely rendering
+The catalog rejects invalid or duplicate routes and IDs. Its loader functions are dynamic imports, so merely rendering
 the home route does not statically import world engines.
 
 Experiment replay and browser end-to-end tests are implemented in

@@ -44,7 +44,7 @@ const referencedPaths = [
   'src/app/simulations/simulation-catalog.ts',
   'src/app/simulations/simulation-catalog.spec.ts',
   'src/app/features/ecosystem/preview/ecosystem-preview.ts',
-  'src/app/features/ecosystem/controllers/aquarium.controller.ts',
+  'src/app/shared/world-experience/aquarium.controller.ts',
   'src/app/features/ecosystem/controllers/world-pointer.controller.ts',
   'e2e/ecosystem.spec.ts',
   'playwright.config.ts',

@@ -8,7 +8,12 @@ function setup() {
     onResize: vi.fn(),
     onDisplayChanged: vi.fn(),
   };
-  const controller = new AquariumController(callbacks);
+  const controller = new AquariumController(callbacks, [
+    { id: 'population', title: 'Population', subtitle: '', glance: true },
+    { id: 'evolution', title: 'Evolution', subtitle: '' },
+    { id: 'timeline', title: 'Timeline', subtitle: '' },
+    { id: 'journal', title: 'Journal', subtitle: '' },
+  ]);
   const frame = document.createElement('div');
   controller.attach(frame);
   return { controller, callbacks, frame };
@@ -36,7 +41,7 @@ describe('AquariumController', () => {
     controller.dispose();
   });
 
-  it('applies glance and study presets and allows custom card selection', () => {
+  it('applies glance and discover presets and allows custom card selection', () => {
     const { controller, callbacks } = setup();
     controller.setPreset('glance');
     expect(controller.cards()).toEqual({
@@ -45,11 +50,11 @@ describe('AquariumController', () => {
       timeline: false,
       journal: false,
     });
-    controller.setPreset('study');
+    controller.setPreset('discover');
     expect(Object.values(controller.cards()).every(Boolean)).toBe(true);
     controller.toggleCard('timeline');
     expect(controller.preset()).toBe('custom');
-    expect(controller.cards().timeline).toBe(false);
+    expect(controller.cards()['timeline']).toBe(false);
     expect(callbacks.onDisplayChanged).toHaveBeenCalledTimes(3);
     controller.dispose();
   });
