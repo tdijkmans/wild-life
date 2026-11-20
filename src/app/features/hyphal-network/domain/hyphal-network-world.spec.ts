@@ -20,6 +20,21 @@ describe('Hyphal Network', () => {
     expect(flowing).toBeGreaterThan(10);
   });
 
+  it('extends new links across multiple ticks and smooths changes in streaming flux', () => {
+    const world = new HyphalNetworkWorld(84296);
+    for (let i = 0; i < 60 * 13; i++) world.step(1 / 60);
+    const edge = world.hyphae.find((candidate) => candidate.growth > 0 && candidate.growth < 0.8)!;
+    expect(edge).toBeDefined();
+    const start = edge.growth;
+    const flux = edge.streamingFlux;
+    world.step(1 / 60);
+    expect(edge.growth - start).toBeGreaterThan(0);
+    expect(edge.growth - start).toBeLessThan(0.005);
+    expect(Math.abs(edge.streamingFlux - flux)).toBeLessThanOrEqual(Math.abs(edge.flux - flux));
+    for (let i = 0; i < 60 * 8; i++) world.step(1 / 60);
+    expect(edge.growth).toBe(1);
+  });
+
   it('changes transport when mist changes the conductance near the colony', () => {
     const control = new HyphalNetworkWorld(25);
     const wet = new HyphalNetworkWorld(25);

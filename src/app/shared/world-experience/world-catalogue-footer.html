@@ -1,0 +1,22 @@
+<footer>
+  <nav aria-label="World catalogue">
+    <div class="catalogue-heading">
+      <h2>All worlds<span>.</span></h2>
+      <a class="gallery" routerLink="/">Back to the gallery <span aria-hidden="true">↗</span></a>
+    </div>
+    <ul>
+      @for (world of worlds; track world.id) {
+        <li>
+          <a
+            [routerLink]="world.path"
+            routerLinkActive="current"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+          >
+            {{ world.name }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+</footer>

@@ -269,16 +269,19 @@ Cells progress through [the cell cycle](https://openstax.org/books/biology/pages
 The renderer shows condensation, alignment, chromatid separation, nuclear
 envelope re-formation, and the cleavage furrow. At cytokinesis, the model
 creates two independently progressing cells with identical chromosome sets.
-Focus can follow one daughter, nutrient patches accelerate local cycles,
-and crowding blocks entry into division.
+Focus can follow one daughter, and nutrient patches accelerate local cycles.
+Cell outlines expand until they meet a neighboring membrane or the dish edge.
+Local space limits entry into mitosis. Once the dish is nearly covered,
+occasional apoptosis opens gaps that neighboring cells can fill.
 
 ## Hyphal Network (`/hyphal-network`)
 
 A connected mycelium extends, branches, and fuses. Nutrient uptake supplies
 the network, and growing tips draw through hyphae that conduct cytoplasm
 through septal pores. Each segment's flow is computed from the pressure
-difference between its ends. Moving particles show the direction and speed
-of this flux. Adding food increases nearby uptake, and mist raises local
+difference between its ends. Tips extend gradually while established hyphae
+thicken towards the base. Moving particles follow a smoothed form of the
+calculated flux. Adding food increases nearby uptake, and mist raises local
 conductance. The model is inspired by
 [transport through contiguous fungal cytoplasm](https://pmc.ncbi.nlm.nih.gov/articles/PMC7244713/).
 

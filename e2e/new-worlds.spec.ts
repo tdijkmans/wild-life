@@ -140,6 +140,27 @@ test('a hard reload picks a different featured world with a live preview', async
   await expect(launch).toHaveAttribute('href', next ?? '');
 });
 
+test('world footers link directly between both simulation layouts', async ({ page }) => {
+  await page.goto('/ecosystem');
+  const catalogue = page.getByRole('navigation', { name: 'World catalogue' });
+  await expect(catalogue.getByRole('listitem')).toHaveCount(21);
+  await expect(catalogue.getByRole('link', { name: 'Predator–Prey Evolution' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await catalogue.getByRole('link', { name: 'Mitotic Bloom' }).click();
+  await expect(page).toHaveURL(/\/mitotic-bloom$/);
+  await expect(page.locator('canvas.world-canvas')).toBeInViewport({ ratio: 0.45 });
+  await expect(catalogue.getByRole('listitem')).toHaveCount(21);
+  await expect(catalogue.getByRole('link', { name: 'Mitotic Bloom' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await catalogue.getByRole('link', { name: 'Hyphal Network' }).click();
+  await expect(page).toHaveURL(/\/hyphal-network$/);
+  await expect(page.locator('canvas.world-canvas')).toBeInViewport({ ratio: 0.45 });
+});
+
 test('Membrane Tide drops one pebble per press even if the pointer moves', async ({ page }) => {
   await page.goto('/membrane-tide');
   await page.getByRole('button', { name: 'Pebble', exact: true }).click();

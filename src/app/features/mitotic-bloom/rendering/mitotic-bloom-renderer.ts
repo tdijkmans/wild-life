@@ -1,5 +1,5 @@
 import { LivingCanvas } from '../../../shared/world-experience/living-canvas';
-import { PHASES, phaseAt } from '../domain/mitotic-bloom-world';
+import { DISH, OUTLINE_RAYS, PHASES, phaseAt } from '../domain/mitotic-bloom-world';
 import type { MitoticBloomWorld } from '../domain/mitotic-bloom-world';
 
 export class MitoticBloomRenderer extends LivingCanvas<MitoticBloomWorld> {
@@ -8,6 +8,9 @@ export class MitoticBloomRenderer extends LivingCanvas<MitoticBloomWorld> {
     const c = this.ctx;
     this.glow(335, 450, 460, 272, 0.19);
     this.glow(965, 255, 340, 196, 0.1);
+    c.strokeStyle = 'rgba(179, 152, 231, 0.20)';
+    c.lineWidth = 1;
+    c.strokeRect(DISH.left, DISH.top, DISH.right - DISH.left, DISH.bottom - DISH.top);
     for (const field of this.world.fields) {
       this.glow(
         field.x,
@@ -21,42 +24,48 @@ export class MitoticBloomRenderer extends LivingCanvas<MitoticBloomWorld> {
     for (const cell of this.world.cells) {
       const { index: phase, progress } = phaseAt(cell.cycle);
       const focused = cell.id === this.world.selectedId;
-      const pinch = phase === 5 ? progress : 0;
-      const radius = phase === 0 ? 37 + progress * 12 : 49;
-      const stretch =
-        phase >= 3 ? 1.1 + (phase === 3 ? progress * 0.17 : 0.17) + pinch * 0.12 : 1.03;
-      const width = radius * stretch;
-      this.glow(cell.x, cell.y, 82, focused ? 322 : 265, focused ? 0.24 : 0.11);
+      const death = this.world.apoptosisProgress(cell);
+      const body = this.outline(cell.outline, cell.angle, phase === 5 ? progress : 0, death);
+      const thickness = this.support(cell.outline, cell.angle + Math.PI / 2);
+      const radius = Math.min(49, thickness * 0.84);
+      const width = Math.min(radius * 1.35, this.support(cell.outline, cell.angle) * 0.85);
+      const detailScale = Math.max(0.45, Math.min(1, radius / 44, width / 48));
+      if (focused) this.glow(cell.x, cell.y, 85, 318, 0.21);
       c.save();
       c.translate(cell.x, cell.y);
-      c.rotate(cell.angle);
-      const waist = radius * (0.95 - pinch * 0.86);
-      const cellFill = c.createRadialGradient(0, -10, 0, 0, 0, width);
-      cellFill.addColorStop(0, 'rgba(101, 78, 153, 0.38)');
-      cellFill.addColorStop(0.73, 'rgba(97, 68, 139, 0.28)');
-      cellFill.addColorStop(1, 'rgba(132, 101, 190, 0.64)');
-      c.beginPath();
-      c.moveTo(0, -waist);
-      c.bezierCurveTo(width * 0.43, -radius, width, -radius * 0.92, width, 0);
-      c.bezierCurveTo(width, radius * 0.92, width * 0.43, radius, 0, waist);
-      c.bezierCurveTo(-width * 0.43, radius, -width, radius * 0.92, -width, 0);
-      c.bezierCurveTo(-width, -radius * 0.92, -width * 0.43, -radius, 0, -waist);
-      c.fillStyle = cellFill;
+      c.globalAlpha = 1 - death * 0.74;
+      this.membrane(body);
+      const fill = c.createRadialGradient(0, -10, 0, 0, 0, Math.max(12, cell.radius));
+      fill.addColorStop(0, death > 0 ? 'rgba(120, 41, 87, 0.58)' : 'rgba(73, 51, 115, 0.52)');
+      fill.addColorStop(0.6, 'rgba(96, 65, 147, 0.33)');
+      fill.addColorStop(1, 'rgba(139, 102, 194, 0.72)');
+      c.fillStyle = fill;
       c.fill();
-      c.lineWidth = focused ? 1.8 : 1;
-      c.strokeStyle = focused ? '#ecc4ff' : 'rgba(196, 155, 235, 0.63)';
+      c.lineWidth = focused ? 1.8 : 1.15;
+      c.strokeStyle = focused ? '#ecc4ff' : death > 0 ? '#e9a4ad' : 'rgba(196, 155, 235, 0.63)';
       c.stroke();
+      if (cell.dyingAt !== null) {
+        this.fragments(cell.id, death);
+        c.restore();
+        if (focused) this.label('APOPTOSIS', cell.x, cell.y);
+        continue;
+      }
+      c.clip();
+      c.rotate(cell.angle);
+      c.scale(detailScale, detailScale);
+      const internalWidth = width / detailScale;
+      const internalRadius = radius / detailScale;
 
       if (phase <= 1)
         this.nucleus(
           0,
-          phase === 1 ? 23 + progress * 2 : radius * 0.55,
+          phase === 1 ? 23 + progress * 2 : internalRadius * 0.55,
           phase === 0 ? 0.9 : 1 - progress,
         );
       if (phase >= 4) {
         const opacity = phase === 4 ? progress : 1;
-        this.nucleus(-width * 0.48, radius * 0.35, opacity);
-        this.nucleus(width * 0.48, radius * 0.35, opacity);
+        this.nucleus(-internalWidth * 0.48, internalRadius * 0.35, opacity);
+        this.nucleus(internalWidth * 0.48, internalRadius * 0.35, opacity);
       }
 
       if (phase === 0) {
@@ -65,8 +74,9 @@ export class MitoticBloomRenderer extends LivingCanvas<MitoticBloomWorld> {
           this.dot(Math.cos(angle) * 12, Math.sin(angle) * 12, 2.85, cell.genome[i], 0.47);
         }
       } else {
-        const pole = width * (phase === 1 ? 0.39 + progress * 0.4 : 0.79);
-        const separation = phase === 3 ? progress * width * 0.49 : phase >= 4 ? width * 0.49 : 0;
+        const pole = internalWidth * (phase === 1 ? 0.39 + progress * 0.4 : 0.79);
+        const separation =
+          phase === 3 ? progress * internalWidth * 0.49 : phase >= 4 ? internalWidth * 0.49 : 0;
         for (let i = 0; i < cell.genome.length; i++) {
           const spread = (i - 2.5) * 7.7;
           const x = phase === 1 ? Math.sin(i * 2.3 + cell.id) * 12 * (1 - progress) : 0;
@@ -99,14 +109,66 @@ export class MitoticBloomRenderer extends LivingCanvas<MitoticBloomWorld> {
       }
       c.restore();
 
-      if (focused) {
-        c.fillStyle = '#f2d4ff';
-        c.font = '600 15px ui-monospace, monospace';
-        c.textAlign = 'center';
-        c.fillText(PHASES[phase].toUpperCase(), cell.x, cell.y - 74);
-        c.textAlign = 'start';
-      }
+      if (focused) this.label(PHASES[phase].toUpperCase(), cell.x, cell.y);
     }
+  }
+
+  private outline(lengths: readonly number[], angle: number, pinch: number, death: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return OUTLINE_RAYS.map((ray, index) => {
+      const r = Math.max(1, lengths[index] - 1.6);
+      const x = r * ray.x;
+      const y = r * ray.y;
+      const axis = x * cos + y * sin;
+      const width = (-x * sin + y * cos) * (1 - 0.92 * pinch * Math.exp(-((axis / 21) ** 2)));
+      const swell = 1 + death * 0.17 * Math.sin(index * 0.92 + death * 5);
+      return { x: (axis * cos - width * sin) * swell, y: (axis * sin + width * cos) * swell };
+    });
+  }
+
+  private support(outline: readonly number[], angle: number): number {
+    const ray = Math.round((angle / (2 * Math.PI)) * outline.length);
+    const index = (ray + outline.length) % outline.length;
+    return Math.max(
+      7,
+      Math.min(outline[index], outline[(index + outline.length / 2) % outline.length]),
+    );
+  }
+
+  private membrane(points: readonly { x: number; y: number }[]): void {
+    const c = this.ctx;
+    const last = points[points.length - 1];
+    c.beginPath();
+    c.moveTo((last.x + points[0].x) / 2, (last.y + points[0].y) / 2);
+    points.forEach((p, index) => {
+      const next = points[(index + 1) % points.length];
+      c.quadraticCurveTo(p.x, p.y, (p.x + next.x) / 2, (p.y + next.y) / 2);
+    });
+    c.closePath();
+  }
+
+  private fragments(id: number, progress: number): void {
+    for (let i = 0; i < 6; i++) {
+      const angle = id + i * 2.4;
+      const distance = (4 + i * 2.4) * (0.6 + progress * 0.55);
+      this.dot(
+        Math.cos(angle) * distance,
+        Math.sin(angle) * distance,
+        1.5 + progress * 1.6,
+        330,
+        (1 - progress) * 0.9,
+      );
+    }
+  }
+
+  private label(text: string, x: number, y: number): void {
+    const c = this.ctx;
+    c.fillStyle = '#f2d4ff';
+    c.font = '600 15px ui-monospace, monospace';
+    c.textAlign = 'center';
+    c.fillText(text, x, Math.max(DISH.top + 18, y - 59));
+    c.textAlign = 'start';
   }
 
   private nucleus(x: number, radius: number, opacity: number): void {

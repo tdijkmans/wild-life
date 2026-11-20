@@ -21,7 +21,7 @@ describe('Mitotic Bloom', () => {
     expect(world.divisions).toBeGreaterThan(0);
   });
 
-  it('keeps a bounded population with turnover and responds to local nutrients', () => {
+  it('keeps a bounded population with crowding-dependent apoptosis and responds to local nutrients', () => {
     const control = new MitoticBloomWorld(44);
     const fed = new MitoticBloomWorld(44);
     const focus = fed.selected!;
@@ -31,9 +31,27 @@ describe('Mitotic Bloom', () => {
       fed.step(1 / 60);
     }
     expect(fed.selected?.cycle).toBeGreaterThan(control.selected!.cycle);
-    for (let i = 0; i < 60 * 150; i++) control.step(1 / 60);
+    const initialCoverage = control.coverage;
+    let observedConfluence = false;
+    let observedApoptosis = false;
+    let observedRefill = false;
+    for (let i = 0; i < 60 * 155; i++) {
+      control.step(1 / 60);
+      observedConfluence ||= control.coverage >= 0.97;
+      if (control.cells.some((cell) => cell.dyingAt !== null)) {
+        expect(observedConfluence).toBe(true);
+        observedApoptosis = true;
+      }
+      observedRefill ||= control.retirements > 0 && control.coverage > 0.98;
+    }
+    expect(control.coverage).toBeGreaterThan(initialCoverage + 0.6);
+    expect(observedApoptosis).toBe(true);
+    expect(observedRefill).toBe(true);
+    expect(
+      control.cells.some((cell) => Math.max(...cell.outline) - Math.min(...cell.outline) > 20),
+    ).toBe(true);
     expect(control.cells.length).toBe(12 + control.divisions - control.retirements);
-    expect(control.cells.length).toBeLessThanOrEqual(31);
+    expect(control.cells.length).toBeLessThanOrEqual(94);
     expect(control.retirements).toBeGreaterThan(0);
   });
 });

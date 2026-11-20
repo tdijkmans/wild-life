@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { WorldCatalogueFooterComponent } from './world-catalogue-footer';
 import { DsButtonComponent } from '../design-system/button/button';
 import { FrameThrottle } from '../simulation/frame-throttle';
 import { SimulationRunner } from '../simulation/simulation-runner';
@@ -31,7 +32,12 @@ import type {
 @Component({
   selector: 'app-world-experience',
   standalone: true,
-  imports: [RouterLink, DsButtonComponent, AquariumControlsComponent],
+  imports: [
+    RouterLink,
+    DsButtonComponent,
+    AquariumControlsComponent,
+    WorldCatalogueFooterComponent,
+  ],
   templateUrl: './world-experience.html',
   styleUrl: './world-experience.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
