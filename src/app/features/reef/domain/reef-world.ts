@@ -377,10 +377,12 @@ export class ReefWorld implements InteractiveWorld {
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
       this.measure();
-      if (this.bleaching > this.bleachedBefore + 2) this.cue('bleach', 0.35);
-      else if (this.grazesSinceSample > 30 && this.random.next() < 0.35) {
-        this.cue('graze', 0.22);
-      }
+      const bleaching = this.bleaching > this.bleachedBefore + 2;
+      if (bleaching) this.cue('bleach', 0.48);
+      else if (this.bleaching < this.bleachedBefore - 2) this.cue('shimmer', 0.44);
+      const sustainedGrazing =
+        !bleaching && this.grazesSinceSample > 30 && this.random.next() < 0.35;
+      if (this.grazesSinceSample > 0) this.cue('graze', sustainedGrazing ? 0.48 : 0.29);
       this.bleachedBefore = this.bleaching;
       this.grazesSinceSample = 0;
       this.sample();
@@ -455,6 +457,7 @@ export class ReefWorld implements InteractiveWorld {
     this.plantCoral(parent.x + this.random.range(-58, 58), true);
     parent.energy *= 0.86;
     this.recruits++;
+    this.cue('bubble', 0.48);
   }
 
   private measure(): void {

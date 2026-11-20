@@ -97,6 +97,7 @@ export class MembraneTideWorld extends LivingWorld {
     if (kind === 'pebble') {
       if (this.pebbles.length >= 8) return;
       this.pebbles.push({ x, y, age: 0 });
+      this.cue('pulse', 0.42, x);
     }
     if (kind === 'swirl') {
       const length = Math.hypot(dx, dy);
@@ -112,6 +113,7 @@ export class MembraneTideWorld extends LivingWorld {
         driftY: clamp(dy * drift, -40, 40),
       });
       if (this.vortices.length > 8) this.vortices.shift();
+      this.cue('flow', clamp(0.48 + length / 180), x);
     }
   }
 
@@ -125,7 +127,7 @@ export class MembraneTideWorld extends LivingWorld {
       const pebble = this.pebbles[index];
       if (pebble.age < DROP_TIME && pebble.age + dt >= DROP_TIME) {
         this.impacts++;
-        this.cue('pebble-impact', 0.8);
+        this.cue('pebble-impact', 0.8, pebble.x);
       }
       pebble.age += dt;
       if (pebble.age > DROP_TIME + WAVE_LIFETIME) this.pebbles.splice(index, 1);
@@ -255,7 +257,7 @@ export class MembraneTideWorld extends LivingWorld {
       ribbon.closed = true;
       ribbon.sealedAt = this.time;
       this.seals++;
-      this.cue('membrane-seal', 0.58);
+      this.cue('membrane-seal', 0.58, patches[0].x);
     }
     for (let i = 0; i < this.ribbons.length; i++) {
       const first = this.ribbons[i];
@@ -313,7 +315,7 @@ export class MembraneTideWorld extends LivingWorld {
       ribbon.patches = trailing.concat(ribbon.patches);
       ribbon.closed = false;
       this.ruptures++;
-      this.cue('membrane-rupture', 0.6);
+      this.cue('membrane-rupture', 0.6, ribbon.patches[0]?.x);
     } else if (trailing.length) {
       this.ribbons.push({
         patches: trailing,

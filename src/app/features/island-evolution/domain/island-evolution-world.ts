@@ -120,6 +120,7 @@ export class IslandEvolutionWorld extends LivingWorld {
         if (a.energy <= 0 || a.age > 155) {
           this.organisms.splice(i, 1);
           this.deaths++;
+          this.cue('hush', 0.27);
           continue;
         }
         if (

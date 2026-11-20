@@ -69,8 +69,9 @@ export abstract class LivingWorld implements InteractiveWorld {
       0,
     );
   }
-  protected cue(kind: WorldAudioCue['kind'], strength = 0.4): void {
-    this.audioCues.push({ id: ++this.cueId, kind, strength });
+  protected cue(kind: WorldAudioCue['kind'], strength = 0.4, x?: number): void {
+    const pan = x === undefined ? undefined : (x / this.width) * 2 - 1;
+    this.audioCues.push({ id: ++this.cueId, kind, strength, pan });
     if (this.audioCues.length > 16) this.audioCues.shift();
   }
   protected sample(primary: number, secondary: number): void {

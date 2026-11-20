@@ -67,8 +67,15 @@ export interface WorldAudioCue {
     | 'mitotic-phase'
     | 'hyphal-growth'
     | 'hyphal-fusion'
-    | 'flagellar-mating';
+    | 'flagellar-mating'
+    | 'pollen-transfer'
+    | 'paired-call'
+    | 'wing-flutter'
+    | 'hoof-fall'
+    | 'food-contact';
   readonly strength: number;
+  /** Optional horizontal location normalized to the stereo field, from -1 to 1. */
+  readonly pan?: number;
 }
 
 export interface WorldHistoryPoint {

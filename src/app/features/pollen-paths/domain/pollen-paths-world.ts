@@ -80,7 +80,8 @@ export class PollenPathsWorld extends LivingWorld {
   }
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
-    this.field(kind, x, y, ['sunlight', 'rain'], dx, dy);
+    if (this.field(kind, x, y, ['sunlight', 'rain'], dx, dy))
+      this.cue(kind === 'rain' ? 'rain' : 'shimmer', 0.55, x);
   }
 
   step(dt: number): void {
@@ -134,6 +135,7 @@ export class PollenPathsWorld extends LivingWorld {
     if (!donor || donor === flower) return;
 
     this.transfers++;
+    this.cue('pollen-transfer', 0.37, flower.x);
     if (donor.shape < 0.5 !== flower.shape < 0.5) this.crossTransfers++;
     this.deliveries.push({ from: donor, to: flower, time: this.time });
     if (this.deliveries.length > 36) this.deliveries.shift();
@@ -152,7 +154,7 @@ export class PollenPathsWorld extends LivingWorld {
       0,
       generation,
     );
-    this.cue('seed-set', 0.38 + rain * 0.23);
+    this.cue('seed-set', 0.38 + rain * 0.23, flower.x);
   }
 
   metrics(): readonly WorldMetric[] {

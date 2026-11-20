@@ -303,14 +303,18 @@ Sound button or keyboard (M) activation.
 
 - Sound stays separate from simulation physics and never consumes the model PRNG.
 - Semantic events are emitted in bounded queues; the presentation layer
-  de-duplicates them by increasing IDs and rate-limits audio playback.
+  de-duplicates them by increasing IDs. The mixer briefly staggers distinct
+  event sounds, while repeated events of the same kind share one accent.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
 - No third-party audio files, streamed media, tracking or autoplay.
-- All twenty-one worlds have distinct sound palettes. The original ecosystem
-  derives cues from birth, predation and intervention counters, preserving its
-  versioned deterministic model. Murmuration and Defensive Herd also emit
-  semantic event cues.
+- All twenty-one worlds use layered procedural event sounds, including bubbles,
+  air sweeps, clicks, crackles and stylized animal calls. Accepted tools
+  sound at the pointer and use their own rate limit, so a tool can respond
+  while the world is already playing other events.
+- Autonomous events use their horizontal location when available. Predator–Prey
+  derives its accents from the existing simulation state and the latest
+  feeding observation, with checksum-verified replay.
 
 ## Reproducibility and performance
 

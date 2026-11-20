@@ -56,8 +56,10 @@ export interface MeadowInfluence {
 export class DefensiveHerdWorld implements InteractiveWorld {
   readonly audioCues: WorldAudioCue[] = [];
   private nextCueId = 0;
-  private cue(kind: WorldAudioCue['kind'], strength = 0.3): void {
-    this.audioCues.push({ id: ++this.nextCueId, kind, strength });
+  private ringAudible = false;
+  private cue(kind: WorldAudioCue['kind'], strength = 0.3, x?: number): void {
+    const pan = x === undefined ? undefined : (x / this.width) * 2 - 1;
+    this.audioCues.push({ id: ++this.nextCueId, kind, strength, pan });
     if (this.audioCues.length > 16) this.audioCues.shift();
   }
   readonly seed: number;
@@ -448,7 +450,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
         if (index >= 0) {
           this.herd.splice(index, 1);
           this.losses++;
-          this.cue('rustle', 0.35);
+          this.cue('low-call', 0.52, target.x);
           wolf.cooldown = 13;
           wolf.hunger = 0;
         }
@@ -495,6 +497,9 @@ export class DefensiveHerdWorld implements InteractiveWorld {
       sectors.add(Math.floor((angle / TAU) * 12));
     }
     this.ringCoverage = Math.round((sectors.size / 12) * 100);
+    const ringFormed = this.ringCoverage >= (this.ringAudible ? 33 : 58);
+    if (ringFormed && !this.ringAudible) this.cue('hoof-fall', 0.56, center.x);
+    this.ringAudible = ringFormed;
   }
 
   private sample(): void {

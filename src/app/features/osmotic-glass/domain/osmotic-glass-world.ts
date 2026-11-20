@@ -55,7 +55,7 @@ export class OsmoticGlassWorld extends LivingWorld {
       y > chamber.bottom
     )
       return;
-    if (kind === 'stir') this.field(kind, x, y, ['stir'], dx, dy);
+    if (kind === 'stir' && this.field(kind, x, y, ['stir'], dx, dy)) this.cue('flow', 0.5, x);
     if (kind !== 'solute' || this.soluteLeft + this.soluteRight >= 180) return;
     const right = x >= this.membrane;
     const dose = Math.min(18, 180 - this.soluteLeft - this.soluteRight);
@@ -72,7 +72,7 @@ export class OsmoticGlassWorld extends LivingWorld {
     }
     if (right) this.soluteRight += dose;
     else this.soluteLeft += dose;
-    this.cue('solute-drop', 0.5);
+    this.cue('solute-drop', 0.61, x);
   }
 
   step(dt: number): void {
@@ -125,7 +125,7 @@ export class OsmoticGlassWorld extends LivingWorld {
             else this.waterToRight++;
           } else this.tracerCrossings++;
           if (this.time >= this.nextChime) {
-            this.cue('pore-crossing', molecule.kind === 'water' ? 0.28 : 0.48);
+            this.cue('pore-crossing', molecule.kind === 'water' ? 0.28 : 0.48, this.membrane);
             this.nextChime = this.time + 2;
           }
         } else nx = 2 * this.membrane - nx;

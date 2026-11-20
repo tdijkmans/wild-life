@@ -179,6 +179,7 @@ export class VascularGardenWorld extends LivingWorld {
         ) {
           this.vessels.splice(i, 1);
           this.regressed++;
+          this.cue('hush', 0.34, (this.nodes[v.a].x + this.nodes[v.b].x) / 2);
         }
       }
     }

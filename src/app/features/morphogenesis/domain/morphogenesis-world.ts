@@ -140,6 +140,7 @@ export class MorphogenesisWorld extends LivingWorld {
     if (this.turnover >= 1) {
       this.turnover -= 1;
       const babies: TissueCell[] = [];
+      const before = this.cells.length;
       for (let i = this.cells.length - 1; i >= 0; i--) {
         const cell = this.cells[i];
         if (cell.age > 220 || cell.energy <= 0) {
@@ -165,6 +166,7 @@ export class MorphogenesisWorld extends LivingWorld {
           this.divisions++;
         }
       }
+      if (this.cells.length < before) this.cue('apoptosis', 0.33);
       this.cells.push(...babies);
       if (babies.length) this.cue('division', 0.3);
     }

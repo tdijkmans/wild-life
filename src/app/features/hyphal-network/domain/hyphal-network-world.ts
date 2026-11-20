@@ -99,6 +99,7 @@ export class HyphalNetworkWorld extends LivingWorld {
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
     if (!this.field(kind, x, y, ['food', 'mist'], dx, dy)) return;
+    this.cue(kind === 'food' ? 'seed-set' : 'rain', 0.5, x);
     if (kind !== 'food') return;
     const nearby = this.food.find((patch) => Math.hypot(patch.x - x, patch.y - y) < 55);
     if (nearby) nearby.reserve = Math.min(1.32, nearby.reserve + 0.38);

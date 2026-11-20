@@ -66,7 +66,8 @@ export class NightChorusWorld extends LivingWorld {
   }
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
-    this.field(kind, x, y, ['warmth', 'shade'], dx, dy);
+    if (this.field(kind, x, y, ['warmth', 'shade'], dx, dy))
+      this.cue(kind === 'warmth' ? 'shimmer' : 'hush', 0.5, x);
   }
 
   private active(voice: Voice): boolean {
@@ -126,6 +127,7 @@ export class NightChorusWorld extends LivingWorld {
       listener.readyAt = this.time + 13;
       caller.readyAt = this.time + 10;
       this.pairs++;
+      this.cue('paired-call', 0.53, (caller.x + listener.x) / 2);
       if (mixed) this.mixedPairs++;
       this.pairTraces.push({ caller, listener, time: this.time });
       if (this.pairTraces.length > 28) this.pairTraces.shift();

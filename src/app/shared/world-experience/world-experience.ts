@@ -180,6 +180,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     const world = this.definition().createWorld(seed);
     this.world = world;
     this.lastCueId = world.audioCues?.at(-1)?.id ?? 0;
+    this.soundscape.clearCues();
     this.seed.set(seed);
     this.seedInput.set(seed);
     this.drawTimer = 0;
@@ -213,13 +214,8 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
 
   private onFrame(nowMs: number, deltaSeconds: number): void {
     if (this.throttle.shouldRender(nowMs)) this.renderer?.render(nowMs);
-    const cues = this.world?.audioCues;
-    if (cues?.length) {
-      for (const cue of cues) {
-        if (cue.id > this.lastCueId && this.soundEnabled()) this.soundscape.cue(cue);
-      }
-      this.lastCueId = cues[cues.length - 1].id;
-    }
+    this.collectAudioCues();
+    if (this.soundEnabled()) this.soundscape.flushCues();
     this.drawTimer += deltaSeconds;
     if (this.drawTimer >= 0.28) {
       this.drawTimer = 0;
@@ -373,6 +369,23 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     };
   }
 
+  private collectAudioCues(gesture?: { pan: number; dragging: boolean }): void {
+    for (const cue of this.world?.audioCues ?? []) {
+      if (cue.id <= this.lastCueId) continue;
+      this.lastCueId = cue.id;
+      if (!this.soundEnabled()) continue;
+      if (gesture) this.soundscape.gesture({ ...cue, pan: gesture.pan }, gesture.dragging);
+      else this.soundscape.cue(cue);
+    }
+  }
+
+  private influence(x: number, y: number, dx: number, dy: number, dragging: boolean): void {
+    const world = this.world!;
+    this.collectAudioCues();
+    world.influence(this.selectedTool(), x, y, dx, dy);
+    this.collectAudioCues({ pan: (x / world.width) * 2 - 1, dragging });
+  }
+
   onPointerDown(event: PointerEvent): void {
     this.wakeHud();
     if (!this.world || this.paused() || (this.aquarium() && !this.interactionEnabled())) return;
@@ -381,10 +394,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     this.pointers.add(event.pointerId);
     const point = this.toWorld(event);
     this.lastPointer = { ...point, at: event.timeStamp };
-    this.world.influence(this.selectedTool(), point.x, point.y, 0, 0);
-    if (!this.world.audioCues && this.soundEnabled()) {
-      this.soundscape.cue({ kind: 'flow', strength: 0.38 });
-    }
+    this.influence(point.x, point.y, 0, 0, false);
   }
 
   onPointerMove(event: PointerEvent): void {
@@ -407,16 +417,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     if (!last) return;
     const distance = Math.hypot(point.x - last.x, point.y - last.y);
     if (distance > 15 || event.timeStamp - last.at > 110) {
-      this.world.influence(
-        this.selectedTool(),
-        point.x,
-        point.y,
-        point.x - last.x,
-        point.y - last.y,
-      );
-      if (!this.world.audioCues && this.soundEnabled()) {
-        this.soundscape.cue({ kind: 'flow', strength: 0.3 });
-      }
+      this.influence(point.x, point.y, point.x - last.x, point.y - last.y, true);
       this.lastPointer = { ...point, at: event.timeStamp };
     }
   }

@@ -87,6 +87,7 @@ export class FlagellarDriftWorld extends LivingWorld {
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
     if (!this.field(kind, x, y, ['food', 'eddy'], dx, dy)) return;
+    this.cue(kind === 'food' ? 'bubble' : 'flow', 0.52, x);
     if (kind !== 'food') return;
     const patch = this.food.find((food) => Math.hypot(food.x - x, food.y - y) < 85);
     if (patch) patch.food = Math.min(1.5, patch.food + 0.4);
@@ -103,6 +104,7 @@ export class FlagellarDriftWorld extends LivingWorld {
       if (swimmer.energy > 0 && swimmer.age < swimmer.lifespan) continue;
       this.swimmers.splice(i, 1);
       this.deaths++;
+      this.cue('apoptosis', 0.28, swimmer.x);
     }
     if (this.time >= this.nextMate) {
       this.nextMate = this.time + 0.36;
@@ -206,7 +208,7 @@ export class FlagellarDriftWorld extends LivingWorld {
     this.pairings++;
     if (mixed) this.mixedPairings++;
     this.hatches.push({ x, y, time: this.time, mixed });
-    this.cue('flagellar-mating', mixed ? 0.6 : 0.37);
+    this.cue('flagellar-mating', mixed ? 0.6 : 0.37, x);
   }
 
   metrics(): readonly WorldMetric[] {

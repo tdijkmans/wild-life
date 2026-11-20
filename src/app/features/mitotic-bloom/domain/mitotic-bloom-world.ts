@@ -119,14 +119,19 @@ export class MitoticBloomWorld extends LivingWorld {
       return;
     if (kind === 'focus') {
       let nearest = 84;
+      let focused = false;
       for (const cell of this.cells) {
         const distance = Math.hypot(cell.x - x, cell.y - y);
         if (distance < nearest) {
           this.selectedId = cell.id;
+          focused = true;
           nearest = distance;
         }
       }
-    } else this.field(kind, x, y, ['nutrients', 'shade'], dx, dy);
+      if (focused) this.cue('mitotic-phase', 0.54, x);
+    } else if (this.field(kind, x, y, ['nutrients', 'shade'], dx, dy)) {
+      this.cue(kind === 'nutrients' ? 'bubble' : 'hush', 0.53, x);
+    }
   }
 
   step(dt: number): void {
@@ -168,6 +173,7 @@ export class MitoticBloomWorld extends LivingWorld {
         motion[j].y -= dy * force;
       }
     }
+    let phaseChange: Cell | undefined;
     this.cells.slice().forEach((cell, i) => {
       if (cell.dyingAt !== null) {
         if (this.apoptosisProgress(cell) >= 1) {
@@ -196,11 +202,13 @@ export class MitoticBloomWorld extends LivingWorld {
       }
       cell.cycle = next;
       const after = phaseAt(cell.cycle).index;
-      if (after !== before && cell.id === this.selectedId) this.cue('mitotic-phase', 0.55);
+      if (after !== before && (!phaseChange || cell.id === this.selectedId)) phaseChange = cell;
       if (cell.cycle < 1) return;
       this.divide(cell);
       committed--;
     });
+    if (phaseChange)
+      this.cue('mitotic-phase', phaseChange.id === this.selectedId ? 0.55 : 0.3, phaseChange.x);
   }
 
   private divide(cell: Cell): void {
@@ -228,7 +236,7 @@ export class MitoticBloomWorld extends LivingWorld {
     this.cells.splice(index, 1, first, second);
     if (cell.id === this.selectedId) this.selectedId = first.id;
     this.divisions++;
-    this.cue('division', 0.58);
+    this.cue('division', 0.58, cell.x);
   }
 
   private measureTissue(): void {

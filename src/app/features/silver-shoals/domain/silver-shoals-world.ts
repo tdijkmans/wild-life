@@ -67,6 +67,7 @@ export class SilverShoalsWorld extends LivingWorld {
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
     if (!this.field(kind, x, y, ['current', 'shelter'], dx, dy)) return;
+    this.cue(kind === 'current' ? 'flow' : 'hush', 0.56, x);
     if (kind === 'current') {
       const length = Math.hypot(dx, dy);
       this.currents.set(
@@ -81,7 +82,10 @@ export class SilverShoalsWorld extends LivingWorld {
     for (let i = this.fish.length - 1; i >= 0; i--) {
       const fish = this.fish[i];
       fish.age += dt;
-      if (fish.age > fish.lifespan) this.fish.splice(i, 1);
+      if (fish.age > fish.lifespan) {
+        this.fish.splice(i, 1);
+        this.cue('hush', 0.28, fish.x);
+      }
     }
     while (this.hatches.length && this.hatches[0].time < this.time - 6) this.hatches.shift();
 

@@ -162,6 +162,7 @@ export class WorldEngine {
   births = 0;
   deaths = 0;
   kills = 0;
+  lastFeeding?: Readonly<{ x: number }>;
   maxPopulation = 0;
   selectedId: number | null = null;
   /** Optional non-invasive recorder hook; does not alter biological dynamics. */
@@ -401,6 +402,7 @@ export class WorldEngine {
           ty = (f.y - a.y) / Math.sqrt(closest + 1);
           if (closest < 106 && f.energy > 0) {
             f.energy = 0;
+            this.lastFeeding = f;
             a.energy += 0.42;
           }
         }

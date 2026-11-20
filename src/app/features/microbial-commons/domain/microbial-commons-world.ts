@@ -191,11 +191,16 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
     if (this.sampleAccumulator >= 1) {
       this.sampleAccumulator -= 1;
       this.measure();
-      if (this.exchangesSinceSample > 7 && this.random.next() < 0.25) {
-        this.cue('exchange', clamp(this.exchangesSinceSample / 120, 0.15, 0.65));
-      } else if (this.divisionSinceSample > 9 && this.random.next() < 0.3) {
-        this.cue('division', clamp(this.divisionSinceSample / 75, 0.18, 0.7));
-      }
+      const exchangePeak = this.exchangesSinceSample > 7 && this.random.next() < 0.25;
+      const divisionPeak =
+        !exchangePeak && this.divisionSinceSample > 9 && this.random.next() < 0.3;
+      if (this.exchangesSinceSample > 0)
+        this.cue(
+          'exchange',
+          clamp(this.exchangesSinceSample / 120, exchangePeak ? 0.44 : 0.28, 0.65),
+        );
+      if (this.divisionSinceSample > 0)
+        this.cue('division', clamp(this.divisionSinceSample / 75, divisionPeak ? 0.47 : 0.29, 0.7));
       if (this.stressedSinceSample > 60 && this.random.next() < 0.09) {
         this.cue('hush', 0.2);
       }

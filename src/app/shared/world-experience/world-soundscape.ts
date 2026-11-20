@@ -1,6 +1,7 @@
 import { SeededRandom } from '../simulation/seeded-random';
 import { DEFAULT_WORLD_VOLUME } from './world-audio-volume';
-import type { WorldAudioCue, WorldAudioScene, WorldSoundProfile } from './world-protocol';
+import { eventSounds, WorldFoleyQueue, type AudibleEvent } from './world-foley';
+import type { WorldAudioScene, WorldSoundProfile } from './world-protocol';
 
 export type SoundscapeProfile = WorldSoundProfile;
 
@@ -40,39 +41,6 @@ const palettes: Record<SoundscapeProfile, Palette> = {
   flagellar: [64, 830, 1640, 0.61, 0.73, 'triangle', 'swarm', 1.44],
 };
 
-type CueStyle = 'air' | 'impact' | 'sparkle' | 'tone' | 'low-call' | 'high-call';
-const cues: Record<WorldAudioCue['kind'], readonly [number, number, number, CueStyle]> = {
-  rain: [610, 370, 1.45, 'air'],
-  growth: [430, 630, 1.8, 'tone'],
-  rustle: [230, 170, 0.58, 'impact'],
-  bubble: [170, 350, 0.75, 'tone'],
-  shimmer: [490, 690, 0.85, 'sparkle'],
-  bloom: [340, 530, 1.65, 'sparkle'],
-  flow: [260, 210, 1.8, 'air'],
-  pulse: [290, 380, 0.7, 'tone'],
-  chorus: [355, 445, 1.6, 'sparkle'],
-  hush: [240, 128, 2.3, 'air'],
-  reef: [270, 365, 1.15, 'sparkle'],
-  bleach: [270, 180, 1.7, 'air'],
-  graze: [550, 415, 0.53, 'impact'],
-  exchange: [440, 570, 0.82, 'sparkle'],
-  division: [660, 505, 1, 'sparkle'],
-  'seed-set': [720, 860, 0.74, 'sparkle'],
-  'low-call': [285, 220, 0.28, 'low-call'],
-  'high-call': [525, 430, 0.13, 'high-call'],
-  'hybrid-hatch': [790, 465, 0.95, 'sparkle'],
-  'pebble-impact': [258, 52, 0.58, 'impact'],
-  'membrane-seal': [755, 1090, 1.05, 'sparkle'],
-  'membrane-rupture': [567, 233, 0.49, 'impact'],
-  'solute-drop': [590, 416, 0.55, 'impact'],
-  'pore-crossing': [670, 806, 0.55, 'sparkle'],
-  apoptosis: [480, 145, 2.35, 'air'],
-  'mitotic-phase': [372, 496, 0.85, 'sparkle'],
-  'hyphal-growth': [224, 353, 1.8, 'air'],
-  'hyphal-fusion': [370, 613, 1.4, 'sparkle'],
-  'flagellar-mating': [483, 694, 0.86, 'sparkle'],
-};
-
 interface Voice {
   oscillator: OscillatorNode;
   gain: GainNode;
@@ -91,7 +59,10 @@ export class WorldSoundscape {
   private context?: AudioContext;
   private master?: GainNode;
   private eventBus?: GainNode;
-  private eventPan?: StereoPannerNode;
+  private scenePan = 0;
+  private readonly foley = new WorldFoleyQueue();
+  private readonly variation = new SeededRandom(0xc1a761);
+  private lastGesture = -Infinity;
   private wash?: BiquadFilterNode;
   private grain?: BiquadFilterNode;
   private textureGain?: GainNode;
@@ -101,10 +72,8 @@ export class WorldSoundscape {
   private profile: SoundscapeProfile = 'forest';
   private desiredActive = true;
   private volume = DEFAULT_WORLD_VOLUME;
-  private lastCue = -Infinity;
   private lastModulation = -Infinity;
   private phase = 0;
-  private readonly lastByKind = new Map<WorldAudioCue['kind'], number>();
   private lifecycle: Promise<void> = Promise.resolve();
 
   get enabled(): boolean {
@@ -114,6 +83,7 @@ export class WorldSoundscape {
   setVolume(percent: number): void {
     if (!Number.isFinite(percent)) return;
     this.volume = clamp(percent, 0, 100);
+    if (!this.volume) this.clearCues();
     if (this.context)
       this.master?.gain.setTargetAtTime(
         worldOutputGain(this.volume),
@@ -143,9 +113,7 @@ export class WorldSoundscape {
 
       const eventBus = context.createGain();
       eventBus.gain.value = 0.65;
-      const eventPan = context.createStereoPanner();
-      eventBus.connect(eventPan).connect(master);
-      this.eventPan = eventPan;
+      eventBus.connect(master);
       const reverb = context.createConvolver();
       const impulse = context.createBuffer(
         2,
@@ -227,6 +195,7 @@ export class WorldSoundscape {
 
   async setActive(active: boolean): Promise<void> {
     this.desiredActive = active;
+    if (!active) this.clearCues();
     const context = this.context;
     if (!context) return;
     // A rapid resume must follow an in-flight pause.
@@ -242,75 +211,115 @@ export class WorldSoundscape {
     await this.lifecycle;
   }
 
-  cue(event: Pick<WorldAudioCue, 'kind' | 'strength'>): void {
-    const context = this.context;
-    const bus = this.eventBus;
-    if (!context || !bus || context.state !== 'running') return;
-    const now = context.currentTime;
-    if (now - this.lastCue < 0.54 || now - (this.lastByKind.get(event.kind) ?? -Infinity) < 2.15)
-      return;
-    this.lastCue = now;
-    this.lastByKind.set(event.kind, now);
+  cue(event: AudibleEvent): void {
+    const now = this.playbackTime();
+    if (now !== undefined && clamp(event.strength)) this.foley.add(event, now);
+  }
 
-    const [from, to, tail, style] = cues[event.kind];
-    const pitch = Math.sqrt(palettes[this.profile][0] / 70);
-    const gain = 0.022 * clamp(event.strength);
-    if (!gain) return;
-    const count = style === 'high-call' ? 3 : style === 'low-call' || style === 'sparkle' ? 2 : 1;
-    for (let i = 0; i < count; i++) {
-      const spacing = style === 'low-call' ? 0.34 : style === 'sparkle' ? 0.12 : 0.17;
-      const at = now + i * spacing;
-      const harmonic = i && style === 'sparkle' ? 1.51 : 1;
-      const oscillator = context.createOscillator();
-      oscillator.type = style === 'air' || style === 'tone' ? 'sine' : 'triangle';
-      oscillator.frequency.setValueAtTime(from * pitch * harmonic, at);
-      oscillator.frequency.exponentialRampToValueAtTime(to * pitch * harmonic, at + tail * 0.62);
+  gesture(event: AudibleEvent, dragging: boolean): void {
+    const now = this.playbackTime();
+    if (now === undefined || now - this.lastGesture < (dragging ? 0.42 : 0.09)) return;
+    this.lastGesture = now;
+    this.play(event, now);
+  }
+
+  flushCues(): void {
+    const now = this.playbackTime();
+    if (now === undefined) return;
+    const event = this.foley.next(now);
+    if (event) this.play(event, now);
+  }
+
+  clearCues(): void {
+    this.foley.clear();
+    this.lastGesture = -Infinity;
+  }
+
+  private playbackTime(): number | undefined {
+    return this.desiredActive && this.volume > 0 && this.context?.state === 'running'
+      ? this.context.currentTime
+      : undefined;
+  }
+
+  private play(event: AudibleEvent, now: number): void {
+    const context = this.context!;
+    const bus = this.eventBus!;
+    const noise = this.noise!;
+    const [layers, root, stretch, level] = eventSounds[event.kind];
+    const pitch =
+      root * Math.sqrt(palettes[this.profile][0] / 70) * this.variation.range(0.91, 1.09);
+    const grain = Math.sqrt(palettes[this.profile][2] / 850);
+    const gain = 0.048 * level * clamp(event.strength);
+    const spatial = context.createStereoPanner();
+    spatial.pan.value = clamp(
+      event.pan ?? this.scenePan + this.variation.range(-0.22, 0.22),
+      -0.85,
+      0.85,
+    );
+    spatial.connect(bus);
+    let remaining = layers.length;
+
+    for (const [type, offset, duration, attack, from, to, amplitude, crest] of layers) {
+      const at = now + offset * stretch;
+      const length = duration * stretch;
       const envelope = this.envelope(
         context,
-        bus,
+        spatial,
         at,
-        tail,
-        gain * (i ? 0.47 : 1),
-        Math.min(0.16, tail * 0.22),
+        length,
+        gain * amplitude,
+        attack * stretch,
       );
-      oscillator.connect(envelope);
-      oscillator.start(at);
-      oscillator.stop(at + tail + 0.03);
-      oscillator.onended = () => {
-        oscillator.disconnect();
+      const ended = (source: AudioScheduledSourceNode) => {
+        source.disconnect();
         envelope.disconnect();
+        if (--remaining === 0) spatial.disconnect();
       };
+
+      if (type === 'noise') {
+        const burst = context.createBufferSource();
+        burst.buffer = noise;
+        burst.loop = true;
+        const tint = context.createBiquadFilter();
+        tint.type = 'bandpass';
+        tint.Q.value = 0.85;
+        this.sweep(tint.frequency, at, length, from, to, grain, crest);
+        burst.connect(tint).connect(envelope);
+        burst.start(at, this.variation.range(0, noise.duration));
+        burst.stop(at + length);
+        burst.onended = () => {
+          tint.disconnect();
+          ended(burst);
+        };
+      } else {
+        const tone = context.createOscillator();
+        tone.type = type;
+        this.sweep(tone.frequency, at, length, from, to, pitch, crest);
+        tone.connect(envelope);
+        tone.start(at);
+        tone.stop(at + length);
+        tone.onended = () => ended(tone);
+      }
     }
-    if (this.noise && (style === 'air' || style === 'impact')) {
-      const burst = context.createBufferSource();
-      burst.buffer = this.noise;
-      burst.loop = true;
-      const tint = context.createBiquadFilter();
-      tint.type = 'bandpass';
-      tint.frequency.value = palettes[this.profile][2] * (style === 'impact' ? 0.75 : 1.12);
-      tint.Q.value = 0.8;
-      const envelope = this.envelope(
-        context,
-        bus,
-        now,
-        tail,
-        gain * 3.5,
-        style === 'impact' ? 0.045 : 0.19,
-      );
-      burst.connect(tint).connect(envelope);
-      burst.start(now);
-      burst.stop(now + tail + 0.02);
-      burst.onended = () => {
-        burst.disconnect();
-        tint.disconnect();
-        envelope.disconnect();
-      };
-    }
+  }
+
+  private sweep(
+    frequency: AudioParam,
+    at: number,
+    duration: number,
+    from: number,
+    to: number,
+    scale: number,
+    crest?: number,
+  ): void {
+    frequency.setValueAtTime(from * scale, at);
+    if (crest) frequency.exponentialRampToValueAtTime(crest * scale, at + duration * 0.23);
+    frequency.exponentialRampToValueAtTime(to * scale, at + duration * 0.88);
   }
 
   private envelope(
     context: AudioContext,
-    destination: GainNode,
+    destination: AudioNode,
     at: number,
     tail: number,
     gain: number,
@@ -336,7 +345,7 @@ export class WorldSoundscape {
     const activity = clamp(scene.activity);
     const detail = clamp(scene.detail);
     const pan = clamp(scene.pan ?? 0, -1, 1);
-    this.eventPan?.pan.setTargetAtTime(pan * 0.58, now, 0.45);
+    this.scenePan = pan * 0.58;
     this.phase += elapsed * rate * (0.75 + activity * 0.91);
     const phase = this.phase;
     const pulse = Math.sin(phase);
@@ -381,15 +390,15 @@ export class WorldSoundscape {
     this.context = undefined;
     this.master = undefined;
     this.eventBus = undefined;
-    this.eventPan = undefined;
+    this.scenePan = 0;
     this.wash = undefined;
     this.grain = undefined;
     this.textureGain = undefined;
     this.texturePan = undefined;
     this.noise = undefined;
     this.voices.length = 0;
-    this.lastCue = this.lastModulation = -Infinity;
-    this.lastByKind.clear();
+    this.lastModulation = -Infinity;
+    this.clearCues();
     if (!context) return;
     try {
       await context.close();

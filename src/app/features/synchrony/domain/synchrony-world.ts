@@ -285,6 +285,7 @@ export class SynchronyWorld implements InteractiveWorld {
         offspring.push({ x: fly.x, y: fly.y, parent: fly });
       }
     }
+    if (offspring.length) this.cue('growth', 0.52);
     for (const baby of offspring) {
       this.birth(
         baby.x + this.random.range(-20, 20),

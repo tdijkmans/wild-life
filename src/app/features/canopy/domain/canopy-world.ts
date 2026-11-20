@@ -457,6 +457,7 @@ export class CanopyWorld implements InteractiveWorld {
         this.plant(parent.x + this.random.range(-90, 90), true);
         parent.energy *= 0.86;
         this.births++;
+        this.cue('seed-set', 0.49);
       }
     }
     for (const tree of this.trees) {

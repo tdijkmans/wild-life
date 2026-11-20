@@ -22,6 +22,7 @@ export class ChromaticCommonsWorld extends LivingWorld {
   ];
   births = 0;
   exchanges = 0;
+  private previousExchanges = 0;
   assortment = 0;
   private id = 0;
   private turnover = 0;
@@ -119,6 +120,7 @@ export class ChromaticCommonsWorld extends LivingWorld {
     if (this.turnover >= 1) {
       this.turnover -= 1;
       const babies: ColorCell[] = [];
+      const before = this.cells.length;
       for (let i = this.cells.length - 1; i >= 0; i--) {
         const a = this.cells[i];
         if (a.energy <= 0 || a.age > 190) {
@@ -144,9 +146,11 @@ export class ChromaticCommonsWorld extends LivingWorld {
           this.births++;
         }
       }
+      if (this.cells.length < before) this.cue('apoptosis', 0.33);
       this.cells.push(...babies);
       if (babies.length) this.cue('division', 0.35);
-      if (this.exchanges > 0 && Math.floor(this.time) % 9 === 0) this.cue('exchange', 0.25);
+      if (this.exchanges > this.previousExchanges) this.cue('exchange', 0.28);
+      this.previousExchanges = this.exchanges;
     }
     this.sample(this.cells.length, this.assortment * 100);
   }
