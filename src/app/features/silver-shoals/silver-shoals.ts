@@ -38,6 +38,15 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired model of abstract forms and lineages. Traits, lifetimes, and rates use simulation units.',
   createWorld: (seed) => new SilverShoalsWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as SilverShoalsWorld;
+    return {
+      activity:
+        world.fish.reduce((sum, fish) => sum + Math.hypot(fish.vx, fish.vy), 0) /
+        Math.max(1, world.fish.length * 70),
+      detail: world.fish.filter((fish) => fish.lineage === 'hybrid').length / 28,
+    };
+  },
   createRenderer: (canvas, world) => new SilverShoalsRenderer(canvas, world as SilverShoalsWorld),
 };
 

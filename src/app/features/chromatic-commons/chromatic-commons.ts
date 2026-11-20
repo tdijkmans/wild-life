@@ -43,6 +43,13 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired computational model with simplified rules and accelerated time. It is not a calibrated biological or medical prediction.',
   createWorld: (seed) => new ChromaticCommonsWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as ChromaticCommonsWorld;
+    return {
+      activity: world.cells.length / 340,
+      detail: world.assortment,
+    };
+  },
   createRenderer: (canvas, world) =>
     new ChromaticCommonsRenderer(canvas, world as ChromaticCommonsWorld),
 };

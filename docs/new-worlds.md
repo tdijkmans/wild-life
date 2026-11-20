@@ -330,3 +330,15 @@ versioned format.
 Test with `npm run test:ci`, `npm run test:e2e`, and the full
 `docs/quality-gates.md` checklist. Consult the nearest `AGENTS.md`
 before changing a world.
+
+## Sound and volume
+
+Each world feeds read-only observations into its own procedural audio palette.
+For example, flock density opens the ambience in Murmuration, cytoplasmic
+flux changes the hiss and stereo spread in Hyphal Network, and tissue
+coverage fills out the timbre in Mitotic Bloom. Divisions and apoptosis use
+different accents. The simulation clock, random seed, and replay are independent
+of audio.
+
+Sound requires a deliberate opt-in on each world. The volume setting is shared
+between standard and Aquarium view and remembered separately from mute.

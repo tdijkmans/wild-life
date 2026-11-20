@@ -39,6 +39,14 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A two-dimensional, coarse-grained model of lipid bilayer assembly. The closed compartments are vesicles, which model the boundary of a cell.',
   createWorld: (seed) => new MembraneTideWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as MembraneTideWorld;
+    return {
+      activity: world.vortices.length / 5 + world.pebbles.length * 0.2,
+      detail: world.ribbons.filter((ribbon) => ribbon.closed).length / 9,
+      pan: ((world.vortices.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new MembraneTideRenderer(canvas, world as MembraneTideWorld),
 };
 

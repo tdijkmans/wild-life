@@ -2,6 +2,9 @@ import { WorldSoundscape } from '../../shared/world-experience/world-soundscape'
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { WorldAudioControlsComponent } from '../../shared/world-experience/world-audio-controls';
+import { WorldAudioVolume } from '../../shared/world-experience/world-audio-volume';
+import { inject } from '@angular/core';
 import { WorldCatalogueFooterComponent } from '../../shared/world-experience/world-catalogue-footer';
 import type { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
 import { ExperimentSession, parseExperiment, type ExperimentDocument } from './domain/experiment';
@@ -30,6 +33,7 @@ import { WorldPointerController, type Tool } from './controllers/world-pointer.c
     EcosystemTimelineCardComponent,
     EcosystemInsightsPanelComponent,
     AquariumControlsComponent,
+    WorldAudioControlsComponent,
     WorldCatalogueFooterComponent,
   ],
   templateUrl: './ecosystem.html',
@@ -72,6 +76,12 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly experimentTicks = signal(0);
   private destroyed = false;
   private readonly soundscape = new WorldSoundscape();
+  readonly audioVolume = inject(WorldAudioVolume);
+
+  setSoundVolume(percent: number): void {
+    this.audioVolume.set(percent);
+    this.soundscape.setVolume(this.audioVolume.level());
+  }
   readonly soundEnabled = signal(false);
   readonly soundBusy = signal(false);
   private heardBirths = 0;
@@ -89,6 +99,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         await this.soundscape.stop();
       } else {
         this.resetSoundEvents();
+        this.soundscape.setVolume(this.audioVolume.level());
         const started = await this.soundscape.start('ecosystem');
         if (this.destroyed) {
           await this.soundscape.stop();
@@ -127,7 +138,12 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         this.soundscape.cue({ kind: 'rustle', strength: 0.28 });
       else if (this.world.births > this.heardBirths)
         this.soundscape.cue({ kind: 'growth', strength: 0.3 });
-      this.soundscape.modulate(now);
+      const { prey, predators, food } = this.stats();
+      this.soundscape.modulate(now, {
+        activity: predators / 50 + prey / 720,
+        detail: food / 320,
+        pan: ((actions.at(-1)?.x ?? this.world.width / 2) / this.world.width) * 2 - 1,
+      });
     }
     this.resetSoundEvents();
   }

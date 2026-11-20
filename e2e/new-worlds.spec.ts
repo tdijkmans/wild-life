@@ -265,3 +265,63 @@ for (const route of [
     expect(errors).toEqual([]);
   });
 }
+
+test('volume changes the actual mix and follows the user between views and worlds', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const NativeAudioContext = window.AudioContext;
+    window.AudioContext = class extends NativeAudioContext {
+      override createDynamicsCompressor() {
+        const compressor = super.createDynamicsCompressor();
+        const analyser = super.createAnalyser();
+        compressor.connect(analyser);
+        // The monitor is parallel to the real output and produces no sound of its own.
+        Object.assign(window, { mixAnalyser: analyser });
+        return compressor;
+      }
+    };
+  });
+  await page.goto('/reef');
+  const volume = page.getByRole('banner').getByRole('slider', { name: 'Sound volume' });
+  await expect(volume).toHaveValue('75');
+  await volume.press('Home');
+  await expect(volume).toHaveValue('0');
+  expect(await page.evaluate(() => 'mixAnalyser' in window)).toBe(false);
+  await page.getByRole('button', { name: 'Toggle ambient sound' }).click();
+  await expect(page.getByRole('button', { name: 'Toggle ambient sound' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  const rms = () =>
+    page.evaluate(() => {
+      const analyser = (window as Window & { mixAnalyser?: AnalyserNode }).mixAnalyser;
+      if (!analyser) return -1;
+      const samples = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(samples);
+      return Math.sqrt(samples.reduce((sum, sample) => sum + sample ** 2, 0) / samples.length);
+    });
+  await expect.poll(rms).toBeGreaterThanOrEqual(0);
+  await expect.poll(rms).toBeLessThan(0.0003);
+  await volume.press('End');
+  await expect(volume).toHaveValue('100');
+  await expect.poll(rms).toBeGreaterThan(0.012);
+
+  await page.getByRole('button', { name: 'Open fullscreen aquarium' }).click();
+  const aquariumVolume = page
+    .locator('.aquarium-toolbar')
+    .getByRole('slider', { name: 'Sound volume' });
+  await expect(aquariumVolume).toHaveValue('100');
+  await aquariumVolume.press('ArrowLeft');
+  await expect(aquariumVolume).toHaveValue('99');
+  await page.getByRole('button', { name: 'Exit aquarium' }).click();
+  await expect(aquariumVolume).toHaveCount(0);
+  await expect(volume).toHaveValue('99');
+
+  await page.goto('/hyphal-network');
+  await expect(volume).toHaveValue('99');
+  await expect(page.getByRole('button', { name: 'Toggle ambient sound' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+});

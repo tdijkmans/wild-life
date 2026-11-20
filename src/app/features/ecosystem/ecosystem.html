@@ -13,14 +13,13 @@
       {{ (seed() % 10000).toString().padStart(4, '0') }}
     </div>
     <div class="top-actions">
-      <ds-button
-        variant="subtle"
-        ariaLabel="Toggle ambient sound"
-        [pressed]="soundEnabled()"
-        [disabled]="soundBusy()"
-        (click)="toggleSound()"
-        >{{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}</ds-button
-      >
+      <app-world-audio-controls
+        [enabled]="soundEnabled()"
+        [busy]="soundBusy()"
+        [level]="audioVolume.level()"
+        (soundToggle)="toggleSound()"
+        (volumeChange)="setSoundVolume($event)"
+      />
       <a class="subtle-btn demo-return" routerLink="/" aria-label="Back to WILD LIFE worlds"
         >← All worlds</a
       >
@@ -201,9 +200,11 @@
             [tool]="mode()"
             [soundEnabled]="soundEnabled()"
             [soundBusy]="soundBusy()"
+            [soundVolume]="audioVolume.level()"
             (displayToggle)="toggleAquariumSettings()"
             (exit)="exitAquarium()"
             (soundToggle)="toggleSound()"
+            (volumeChange)="setSoundVolume($event)"
             (interactionToggle)="toggleAquariumInteraction()"
             (cardToggle)="toggleAquariumCard($event)"
             (toolSelect)="selectAquariumTool($event)"

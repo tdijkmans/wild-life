@@ -44,6 +44,13 @@ const MICROBIAL_COMMONS: WorldExperienceDefinition = {
   scientificNote:
     'A highly simplified, biology-inspired spatial microbial food web. No real species, pathogenic traits, laboratory culturing protocols or validated chemical kinetics are represented.',
   createWorld: (seed) => new MicrobialCommonsWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as MicrobialCommonsWorld;
+    return {
+      activity: world.occupied / 950,
+      detail: world.crossfeederCount / Math.max(1, world.occupied),
+    };
+  },
   createRenderer: (canvas, world) =>
     new MicrobialCommonsRenderer(canvas, world as MicrobialCommonsWorld),
 };

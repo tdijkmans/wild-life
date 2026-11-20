@@ -43,6 +43,15 @@ const MURMURATION: WorldExperienceDefinition = {
   scientificNote:
     'Biology-inspired collective-motion model, not a calibrated reproduction of real starling behavior. Visual trails reveal movement; they do not alter the physics.',
   createWorld: (seed) => new MurmurationWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as MurmurationWorld;
+    return {
+      activity: world.formation / 100,
+      detail: world.meanNeighbors / 18,
+      pan:
+        world.birds.reduce((sum, bird) => sum + bird.vx, 0) / Math.max(1, world.birds.length * 65),
+    };
+  },
   createRenderer: (canvas, world) => new MurmurationRenderer(canvas, world as MurmurationWorld),
 };
 

@@ -44,6 +44,14 @@ const ABYSSAL_BLOOM: WorldExperienceDefinition = {
   scientificNote:
     'An expressive, biology-inspired plankton food web. Bioluminescence, nutrient flux and feeding are stylized; this is not an empirically calibrated deep-sea ecosystem.',
   createWorld: (seed) => new AbyssalBloomWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as AbyssalBloomWorld;
+    return {
+      activity: world.grazers.length / 100,
+      detail: world.luminousFraction / 100,
+      pan: ((world.fields.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,
+    };
+  },
   createRenderer: (canvas, world) => new AbyssalBloomRenderer(canvas, world as AbyssalBloomWorld),
 };
 

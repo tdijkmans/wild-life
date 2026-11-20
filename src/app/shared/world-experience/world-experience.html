@@ -20,15 +20,13 @@
     </div>
     <div class="header-actions">
       @if (definition().soundProfile) {
-        <ds-button
-          variant="subtle"
-          ariaLabel="Toggle ambient sound"
-          [pressed]="soundEnabled()"
-          [disabled]="soundBusy()"
-          (click)="toggleSound()"
-        >
-          {{ soundEnabled() ? '♫ Sound on' : '♫ Sound off' }}
-        </ds-button>
+        <app-world-audio-controls
+          [enabled]="soundEnabled()"
+          [busy]="soundBusy()"
+          [level]="audioVolume.level()"
+          (soundToggle)="toggleSound()"
+          (volumeChange)="setSoundVolume($event)"
+        />
       }
     </div>
   </header>
@@ -114,9 +112,11 @@
           [soundAvailable]="!!definition().soundProfile"
           [soundEnabled]="soundEnabled()"
           [soundBusy]="soundBusy()"
+          [soundVolume]="audioVolume.level()"
           (displayToggle)="display.toggleSettings()"
           (exit)="display.exit()"
           (soundToggle)="toggleSound()"
+          (volumeChange)="setSoundVolume($event)"
           (interactionToggle)="display.toggleInteraction()"
           (cardToggle)="display.toggleCard($event)"
           (toolSelect)="chooseTool($event)"

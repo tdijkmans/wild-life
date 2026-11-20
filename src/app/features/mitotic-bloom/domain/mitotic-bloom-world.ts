@@ -286,7 +286,7 @@ export class MitoticBloomWorld extends LivingWorld {
     const cell = candidates[this.random.integer(0, candidates.length)];
     cell.dyingAt = this.time;
     this.nextApoptosis = this.time + this.random.range(12, 23);
-    this.cue('hush', 0.38);
+    this.cue('apoptosis', 0.44);
   }
 
   metrics(): readonly WorldMetric[] {

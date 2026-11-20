@@ -43,6 +43,13 @@ const DEFINITION: WorldExperienceDefinition = {
   scientificNote:
     'A biology-inspired computational model with simplified rules and accelerated time. It is not a calibrated biological or medical prediction.',
   createWorld: (seed) => new VascularGardenWorld(seed),
+  soundScene: (scene) => {
+    const world = scene as VascularGardenWorld;
+    return {
+      activity: world.vessels.reduce((sum, vessel) => sum + Math.abs(vessel.flow), 0) / 2.8,
+      detail: world.oxygenation(),
+    };
+  },
   createRenderer: (canvas, world) =>
     new VascularGardenRenderer(canvas, world as VascularGardenWorld),
 };
