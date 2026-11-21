@@ -348,5 +348,8 @@ coverage fills out the timbre in Mitotic Bloom. Divisions and apoptosis use
 different accents. The simulation clock, random seed, and replay are independent
 of audio.
 
-Sound requires a deliberate opt-in on each world. The volume setting is shared
-between standard and Aquarium view and remembered separately from mute.
+Sound requires a deliberate opt-in on each world. The Mix panel shares settings
+for master volume, ambience, and events across the home page, worlds, and Aquarium.
+The settings persist locally. Ambience starts lower than event sounds, and briefly
+recedes under individual cues. Slowly evolving resonances and filtered stereo
+reflections add depth to the mix.

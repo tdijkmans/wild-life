@@ -9,9 +9,7 @@
           [aquarium]="true"
           [enabled]="soundEnabled()"
           [busy]="soundBusy()"
-          [level]="soundVolume()"
           (soundToggle)="soundToggle.emit()"
-          (volumeChange)="volumeChange.emit($event)"
         />
       }
       <button

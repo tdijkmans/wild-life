@@ -192,6 +192,16 @@ export const eventSounds: Record<
 };
 
 const closeEvents = new Set<CueKind>(['paired-call', 'pebble-impact', 'membrane-rupture']);
+const detailCooldowns: Partial<Record<CueKind, number>> = {
+  'water-transit': 1.6,
+  'tracer-transit': 1.5,
+  'nerve-spike': 1.8,
+  'food-contact': 1.7,
+  tack: 1.65,
+  graze: 1.7,
+  septum: 1.9,
+  pulse: 1.35,
+};
 const MIN_EVENT_SPACING = 0.19;
 const EVENT_LIFETIME = 1.8;
 const MAX_PENDING = 12;
@@ -223,8 +233,7 @@ export class WorldFoleyQueue {
         continue;
       }
       if (now - this.last < (closeEvents.has(kind) ? 0.05 : MIN_EVENT_SPACING)) continue;
-      const repeatInterval =
-        kind === 'pulse' || kind === 'water-transit' ? 1.35 : closeEvents.has(kind) ? 0.34 : 0.85;
+      const repeatInterval = detailCooldowns[kind] ?? (closeEvents.has(kind) ? 0.34 : 0.85);
       if (now - (this.lastByKind.get(kind) ?? -Infinity) < repeatInterval) continue;
       this.pending.delete(kind);
       this.lastByKind.set(kind, now);

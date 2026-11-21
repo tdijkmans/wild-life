@@ -4,7 +4,7 @@ import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WorldAudioControlsComponent } from '../../shared/world-experience/world-audio-controls';
 import { WorldAudioVolume } from '../../shared/world-experience/world-audio-volume';
-import { inject } from '@angular/core';
+import { effect, inject } from '@angular/core';
 import { WorldCatalogueFooterComponent } from '../../shared/world-experience/world-catalogue-footer';
 import type { WorldEngine, Organism, WorldStats, HistorySample, WorldEvent } from './domain/engine';
 import { ExperimentSession, parseExperiment, type ExperimentDocument } from './domain/experiment';
@@ -76,12 +76,9 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   readonly experimentTicks = signal(0);
   private destroyed = false;
   private readonly soundscape = new WorldSoundscape();
-  readonly audioVolume = inject(WorldAudioVolume);
+  private readonly audioVolume = inject(WorldAudioVolume);
+  private readonly syncSoundMix = effect(() => this.soundscape.setMix(this.audioVolume.levels()));
 
-  setSoundVolume(percent: number): void {
-    this.audioVolume.set(percent);
-    this.soundscape.setVolume(this.audioVolume.level());
-  }
   readonly soundEnabled = signal(false);
   readonly soundBusy = signal(false);
   private heardBirths = 0;
@@ -101,7 +98,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         await this.soundscape.stop();
       } else {
         this.resetSoundEvents();
-        this.soundscape.setVolume(this.audioVolume.level());
+        this.soundscape.setMix(this.audioVolume.levels());
         const started = await this.soundscape.start('ecosystem');
         if (this.destroyed) {
           await this.soundscape.stop();

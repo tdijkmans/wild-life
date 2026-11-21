@@ -107,7 +107,7 @@ for (const route of ['/ecosystem', '/neuroplasticity']) {
       );
     await page.goto(route);
     expect(await states()).toEqual([]);
-    const toggle = page.getByRole('button', { name: 'Toggle ambient sound', exact: true });
+    const toggle = page.getByRole('button', { name: 'Toggle sound', exact: true });
     await toggle.click();
     await expect.poll(states).toEqual(['running']);
     await page.keyboard.press('Space');

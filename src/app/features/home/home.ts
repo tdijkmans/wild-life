@@ -3,13 +3,14 @@ import { Component, DestroyRef, OnInit, Type, inject, signal } from '@angular/co
 import { RouterLink } from '@angular/router';
 import { DsEyebrowComponent } from '../../shared/design-system/eyebrow/eyebrow';
 import { PreviewMetricsStore } from '../../shared/simulation/preview-metrics';
+import { WorldSoundSettingsComponent } from '../../shared/world-experience/world-sound-settings';
 import { FEATURED_WORLD } from '../../simulations/featured-world';
 import { SIMULATIONS } from '../../simulations/simulation-catalog';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, NgComponentOutlet, DsEyebrowComponent],
+  imports: [RouterLink, NgComponentOutlet, DsEyebrowComponent, WorldSoundSettingsComponent],
   providers: [PreviewMetricsStore],
   templateUrl: './home.html',
   styleUrl: './home.css',

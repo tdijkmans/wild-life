@@ -12,7 +12,7 @@
     opacity 0.85s ease,
     transform 0.85s ease;
 }
-.aquarium-hud.aquarium-hud-idle {
+.aquarium-hud.aquarium-hud-idle:not(:focus-within) {
   opacity: 0;
   transform: translateY(-9px);
 }
