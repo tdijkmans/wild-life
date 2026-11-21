@@ -47,6 +47,11 @@ const ABYSSAL_BLOOM: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as AbyssalBloomWorld;
     return {
+      layers: [
+        { level: 0.8 },
+        { level: world.luminousFraction / 70 },
+        { level: world.grazers.length / 85 },
+      ],
       activity: world.grazers.length / 100,
       detail: world.luminousFraction / 100,
       pan: ((world.fields.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,

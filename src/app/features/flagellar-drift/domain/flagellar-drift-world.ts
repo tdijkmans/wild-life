@@ -38,6 +38,7 @@ export class FlagellarDriftWorld extends LivingWorld {
   deaths = 0;
   private nextId = 0;
   private nextMate = 0;
+  private nextFeedingCue = 0;
 
   constructor(seed: number) {
     super(seed);
@@ -87,6 +88,7 @@ export class FlagellarDriftWorld extends LivingWorld {
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
     if (!this.field(kind, x, y, ['food', 'eddy'], dx, dy)) return;
+    this.cue(kind === 'food' ? 'bubble' : 'flow', 0.52, x);
     if (kind !== 'food') return;
     const patch = this.food.find((food) => Math.hypot(food.x - x, food.y - y) < 85);
     if (patch) patch.food = Math.min(1.5, patch.food + 0.4);
@@ -103,6 +105,7 @@ export class FlagellarDriftWorld extends LivingWorld {
       if (swimmer.energy > 0 && swimmer.age < swimmer.lifespan) continue;
       this.swimmers.splice(i, 1);
       this.deaths++;
+      this.cue('apoptosis', 0.28, swimmer.x);
     }
     if (this.time >= this.nextMate) {
       this.nextMate = this.time + 0.36;
@@ -166,6 +169,10 @@ export class FlagellarDriftWorld extends LivingWorld {
     if (target && range < 80) {
       const bite = Math.min(target.food, dt * 0.032 * (1 - range / 112));
       target.food -= bite;
+      if (bite > dt * 0.023 && this.time >= this.nextFeedingCue) {
+        this.cue('food-contact', 0.32, target.x);
+        this.nextFeedingCue = this.time + 1.65;
+      }
       swimmer.energy = Math.min(1.42, swimmer.energy + bite * 3.45);
     }
   }
@@ -183,7 +190,8 @@ export class FlagellarDriftWorld extends LivingWorld {
     const second = partners[this.random.integer(0, partners.length)];
     const mixed = first.propulsion !== second.propulsion;
     let propulsion = this.random.next() < 0.5 ? first.propulsion : second.propulsion;
-    if (this.random.next() < 0.065) {
+    const mutated = this.random.next() < 0.065;
+    if (mutated) {
       propulsion = ((propulsion + this.random.integer(1, 3)) % 3) as Propulsor;
       this.mutations++;
     }
@@ -206,7 +214,11 @@ export class FlagellarDriftWorld extends LivingWorld {
     this.pairings++;
     if (mixed) this.mixedPairings++;
     this.hatches.push({ x, y, time: this.time, mixed });
-    this.cue('flagellar-mating', mixed ? 0.6 : 0.37);
+    this.cue('flagellar-mating', mixed ? 0.64 : 0.45, first.x, {
+      toX: second.x,
+      pitch: 0.8 + ((first.propulsion + second.propulsion) / 2) * 0.21,
+    });
+    if (mutated) this.cue('propulsor-change', 0.53, x, { pitch: 0.82 + propulsion * 0.2 });
   }
 
   metrics(): readonly WorldMetric[] {

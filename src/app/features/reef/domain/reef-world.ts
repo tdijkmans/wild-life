@@ -368,7 +368,8 @@ export class ReefWorld implements InteractiveWorld {
           branches++;
         }
       }
-      if (branches > 2 && this.random.next() < 0.3) this.cue('reef', Math.min(1, branches / 9));
+      const branchingBurst = branches > 2 && this.random.next() < 0.3;
+      if (branches) this.cue('tack', branchingBurst ? 0.51 : 0.31);
     }
     if (this.settlementTimer >= 22) {
       this.settlementTimer -= 22;
@@ -377,10 +378,12 @@ export class ReefWorld implements InteractiveWorld {
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
       this.measure();
-      if (this.bleaching > this.bleachedBefore + 2) this.cue('bleach', 0.35);
-      else if (this.grazesSinceSample > 30 && this.random.next() < 0.35) {
-        this.cue('graze', 0.22);
-      }
+      const bleaching = this.bleaching > this.bleachedBefore + 2;
+      if (bleaching) this.cue('bleach', 0.48);
+      else if (this.bleaching < this.bleachedBefore - 2) this.cue('airy', 0.44);
+      const sustainedGrazing =
+        !bleaching && this.grazesSinceSample > 30 && this.random.next() < 0.35;
+      if (this.grazesSinceSample > 0) this.cue('graze', sustainedGrazing ? 0.48 : 0.29);
       this.bleachedBefore = this.bleaching;
       this.grazesSinceSample = 0;
       this.sample();
@@ -455,6 +458,7 @@ export class ReefWorld implements InteractiveWorld {
     this.plantCoral(parent.x + this.random.range(-58, 58), true);
     parent.energy *= 0.86;
     this.recruits++;
+    this.cue('bubble', 0.48);
   }
 
   private measure(): void {

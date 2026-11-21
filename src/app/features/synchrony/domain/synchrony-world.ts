@@ -232,20 +232,23 @@ export class SynchronyWorld implements InteractiveWorld {
         fly.vy *= -0.6;
       }
     }
+    const share = flashing / Math.max(1, this.fireflies.length);
+    const previousShare = this.activeFlashes / Math.max(1, this.fireflies.length);
     this.activeFlashes = flashing;
     this.localCoherence = this.fireflies.length ? localAgreement / this.fireflies.length : 0;
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
       this.measure();
       this.sample();
-      if (
-        this.localCoherence > 0.75 &&
-        this.activeFlashes > this.fireflies.length * 0.14 &&
-        this.time - this.lastChorus > 5
-      ) {
-        this.lastChorus = this.time;
-        this.cue('chorus', Math.min(0.85, this.localCoherence));
-      }
+    }
+    if (
+      this.localCoherence > 0.68 &&
+      previousShare <= 0.14 &&
+      share > 0.14 &&
+      this.time - this.lastChorus > 1.1
+    ) {
+      this.lastChorus = this.time;
+      this.cue('chorus', Math.min(0.78, 0.42 + share));
     }
     if (this.lifecycleTimer >= 26) {
       this.lifecycleTimer -= 26;
@@ -285,6 +288,7 @@ export class SynchronyWorld implements InteractiveWorld {
         offspring.push({ x: fly.x, y: fly.y, parent: fly });
       }
     }
+    if (offspring.length) this.cue('growth', 0.52);
     for (const baby of offspring) {
       this.birth(
         baby.x + this.random.range(-20, 20),

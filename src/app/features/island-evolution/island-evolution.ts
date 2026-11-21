@@ -45,7 +45,15 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new IslandEvolutionWorld(seed),
   soundScene: (scene) => {
     const world = scene as IslandEvolutionWorld;
+    const islandLevels = world.islands.map((island, i) => ({
+      level:
+        0.24 +
+        world.divergence() * 0.5 +
+        world.organisms.filter((animal) => animal.island === i).length / 220,
+      pan: (2 * island.x) / world.width - 1,
+    }));
     return {
+      layers: [{ level: 0.72 }, ...islandLevels],
       activity: world.organisms.length / 220,
       detail: world.divergence() + world.passages.length * 0.16,
     };

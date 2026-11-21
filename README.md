@@ -127,8 +127,9 @@ Open `http://localhost:4200/`. Current routes are `/`, `/ecosystem`,
 `/morphogenesis`, `/chromatic-commons`, `/island-evolution`, `/vascular-garden`, `/pollen-paths`, `/night-chorus`, `/silver-shoals`, `/membrane-tide`, `/osmotic-glass`, `/mitotic-bloom`, `/hyphal-network` and `/flagellar-drift`.
 
 **Optional procedural sound:** all twenty-one worlds offer distinct, quiet,
-ethereal synthesized ambience and model-driven event accents. Soft attacks,
-filtered tones, diffuse reverberation and spaced cues keep the sound unobtrusive.
+ethereal synthesized ambience and event sounds such as bubbles, air sweeps,
+clicks, crackles and stylized animal calls. Simulation events are spaced and
+repeated events are grouped. Tool sounds respond at the pointer.
 Audio is muted by default and starts only after the visitor explicitly enables
 Sound (or presses M); it follows pause, hidden-tab and component teardown.
 

@@ -21,8 +21,7 @@ export class NightChorusWorld extends LivingWorld {
   missedSignals = 0;
   mixedEncounters = 0;
   private nextRound = 0;
-  private previousWindow: [boolean, boolean] = [false, false];
-  private nextCue = 0;
+  private readonly nextCallCue = [0, 0];
   readonly pairTraces: { caller: Voice; listener: Voice; time: number }[] = [];
 
   constructor(seed: number) {
@@ -66,7 +65,8 @@ export class NightChorusWorld extends LivingWorld {
   }
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
-    this.field(kind, x, y, ['warmth', 'shade'], dx, dy);
+    if (this.field(kind, x, y, ['warmth', 'shade'], dx, dy))
+      this.cue(kind === 'warmth' ? 'shimmer' : 'hush', 0.5, x);
   }
 
   private active(voice: Voice): boolean {
@@ -90,22 +90,15 @@ export class NightChorusWorld extends LivingWorld {
     this.nextRound = this.time + 0.23;
     const active = this.voices.filter((voice) => this.active(voice));
     const callers = active.filter((voice) => voice.caller);
-    const low = callers.some((voice) => voice.signal < 0.5);
-    const high = callers.some((voice) => voice.signal >= 0.5);
-    const windows: [boolean, boolean] = [low, high];
-    const availableCues = windows.map((open, index) => open && !this.previousWindow[index]);
-    if (this.time >= this.nextCue && (low || high)) {
-      const higher =
-        availableCues[1] ||
-        (!availableCues[0] && high && (!low || Math.floor(this.time / 1.4) % 2 === 0));
-      this.cue(higher ? 'high-call' : 'low-call', Math.min(0.85, 0.4 + callers.length * 0.018));
-      this.nextCue = this.time + 1.4;
-    }
-    this.previousWindow = windows;
+    const calling: Voice[] = [];
+    const answered = new Set<Voice>();
 
     for (const caller of callers) {
       const spacing = 0.6 + caller.signal * 0.9;
-      if (this.time - caller.lastCall >= spacing) caller.lastCall = this.time;
+      if (this.time - caller.lastCall >= spacing) {
+        caller.lastCall = this.time;
+        calling.push(caller);
+      }
     }
     for (const listener of active) {
       if (listener.caller || listener.readyAt > this.time || this.voices.length >= 144) continue;
@@ -126,6 +119,12 @@ export class NightChorusWorld extends LivingWorld {
       listener.readyAt = this.time + 13;
       caller.readyAt = this.time + 10;
       this.pairs++;
+      answered.add(caller);
+      this.cue('paired-call', 0.62, caller.x, {
+        toX: listener.x,
+        pitch: 0.84 + caller.signal * 0.35,
+        call: caller.signal >= 0.5 ? 'high-call' : 'low-call',
+      });
       if (mixed) this.mixedPairs++;
       this.pairTraces.push({ caller, listener, time: this.time });
       if (this.pairTraces.length > 28) this.pairTraces.shift();
@@ -140,6 +139,14 @@ export class NightChorusWorld extends LivingWorld {
         0,
         this.random.next() < 0.5,
       );
+    }
+    for (const caller of calling) {
+      const high = Number(caller.signal >= 0.5);
+      if (answered.has(caller) || this.time < this.nextCallCue[high]) continue;
+      this.cue(high ? 'high-call' : 'low-call', 0.56, caller.x, {
+        pitch: 0.84 + caller.signal * 0.35,
+      });
+      this.nextCallCue[high] = this.time + 0.92;
     }
     this.sample(active.length, this.mixedPairs);
   }

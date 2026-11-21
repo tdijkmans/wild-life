@@ -344,15 +344,18 @@ export class AbyssalBloomWorld implements InteractiveWorld {
       }
     }
     this.grazers.push(...newbornGrazers);
+    if (newbornGrazers.length) this.cue('bubble', 0.52);
     for (let i = this.grazers.length - 1; i >= 0; i--) {
       if (this.grazers[i].age > 280 || this.grazers[i].energy <= 0) this.grazers.splice(i, 1);
     }
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
       if (this.birthsSinceSample > 4)
-        this.cue('bloom', clamp(this.birthsSinceSample / 25, 0.15, 0.9));
-      else if (this.feedsSinceSample > 8 && this.random.next() < 0.28) this.cue('shimmer', 0.22);
+        this.cue('swell', clamp(this.birthsSinceSample / 25, 0.27, 0.9));
+      else if (this.feedsSinceSample > 8 && this.random.next() < 0.28) this.cue('graze', 0.31);
       this.birthsSinceSample = 0;
+      if (this.feedsSinceSample > 0)
+        this.cue('graze', clamp(this.feedsSinceSample / 24, 0.27, 0.49));
       this.feedsSinceSample = 0;
       this.sample();
     }

@@ -40,7 +40,18 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new PollenPathsWorld(seed),
   soundScene: (scene) => {
     const world = scene as PollenPathsWorld;
+    const center =
+      world.pollinators.reduce((sum, visitor) => sum + visitor.x, 0) /
+      Math.max(1, world.pollinators.length);
     return {
+      layers: [
+        { level: 0.58 },
+        {
+          level: world.pollinators.length / 37,
+          pan: world.pollinators.length ? (2 * center) / world.width - 1 : 0,
+        },
+        { level: world.flowers.filter((flower) => world.flowering(flower)).length / 150 },
+      ],
       activity: world.deliveries.length / 12,
       detail: world.flowers.filter((flower) => world.flowering(flower)).length / 150,
       pan: ((world.deliveries.at(-1)?.to.x ?? world.width / 2) / world.width) * 2 - 1,

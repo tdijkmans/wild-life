@@ -45,7 +45,13 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new ChromaticCommonsWorld(seed),
   soundScene: (scene) => {
     const world = scene as ChromaticCommonsWorld;
+    const colors = [0, 0, 0, 0];
+    for (const cell of world.cells) colors[cell.kind]++;
     return {
+      layers: [
+        ...colors.map((count) => ({ level: count / 85 })),
+        { level: ((1 - world.assortment) * world.cells.length) / 230 },
+      ],
       activity: world.cells.length / 340,
       detail: world.assortment,
     };

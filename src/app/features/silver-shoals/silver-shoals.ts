@@ -40,7 +40,18 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new SilverShoalsWorld(seed),
   soundScene: (scene) => {
     const world = scene as SilverShoalsWorld;
+    const schools = (['amber', 'blue', 'hybrid'] as const).map((kind) =>
+      world.fish.filter((fish) => fish.lineage === kind),
+    );
     return {
+      layers: [
+        { level: 0.72 },
+        ...schools.map((school) => {
+          const motion = school.reduce((sum, fish) => sum + Math.hypot(fish.vx, fish.vy), 0);
+          const center = school.reduce((sum, fish) => sum + fish.x, 0) / Math.max(1, school.length);
+          return { level: motion / 3100, pan: school.length ? (2 * center) / world.width - 1 : 0 };
+        }),
+      ],
       activity:
         world.fish.reduce((sum, fish) => sum + Math.hypot(fish.vx, fish.vy), 0) /
         Math.max(1, world.fish.length * 70),

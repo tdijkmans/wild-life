@@ -21,7 +21,10 @@ export class OsmoticGlassWorld extends LivingWorld {
   tracerCrossings = 0;
   private soluteLeft = 14;
   private soluteRight = 72;
-  private nextChime = 0;
+  private nextWaterCue = 0;
+  private nextTracerCue = 0;
+  private netWaterCrossings = 0;
+  private pressureMoving = false;
 
   constructor(seed: number) {
     super(seed);
@@ -55,7 +58,7 @@ export class OsmoticGlassWorld extends LivingWorld {
       y > chamber.bottom
     )
       return;
-    if (kind === 'stir') this.field(kind, x, y, ['stir'], dx, dy);
+    if (kind === 'stir' && this.field(kind, x, y, ['stir'], dx, dy)) this.cue('flow', 0.5, x);
     if (kind !== 'solute' || this.soluteLeft + this.soluteRight >= 180) return;
     const right = x >= this.membrane;
     const dose = Math.min(18, 180 - this.soluteLeft - this.soluteRight);
@@ -72,7 +75,7 @@ export class OsmoticGlassWorld extends LivingWorld {
     }
     if (right) this.soluteRight += dose;
     else this.soluteLeft += dose;
-    this.cue('solute-drop', 0.5);
+    this.cue('solute-drop', 0.61, x);
   }
 
   step(dt: number): void {
@@ -81,6 +84,12 @@ export class OsmoticGlassWorld extends LivingWorld {
     const previous = this.membrane;
     const target = chamber.middle + (this.waterLeft - this.waterRight) * 0.35;
     this.membrane += (target - this.membrane) * Math.min(1, dt * 1.8);
+    const membraneSpeed = Math.abs(this.membrane - previous) / dt;
+    if (membraneSpeed > 3.5) this.pressureMoving = true;
+    else if (membraneSpeed < 0.8 && this.pressureMoving) {
+      this.pressureMoving = false;
+      this.cue('flow-settle', 0.29, this.membrane);
+    }
     const leftWidth = this.membrane - chamber.left;
     const rightWidth = chamber.right - this.membrane;
     const concentrationDifference = this.soluteRight / rightWidth - this.soluteLeft / leftWidth;
@@ -123,15 +132,32 @@ export class OsmoticGlassWorld extends LivingWorld {
             this.waterRight += right ? -1 : 1;
             if (right) this.waterToLeft++;
             else this.waterToRight++;
-          } else this.tracerCrossings++;
-          if (this.time >= this.nextChime) {
-            this.cue('pore-crossing', molecule.kind === 'water' ? 0.28 : 0.48);
-            this.nextChime = this.time + 2;
+            this.netWaterCrossings += right ? -1 : 1;
+          } else {
+            this.tracerCrossings++;
+            if (this.time >= this.nextTracerCue) {
+              this.cue('tracer-transit', 0.52, this.membrane);
+              this.nextTracerCue = this.time + 1.15;
+            }
           }
         } else nx = 2 * this.membrane - nx;
       }
       molecule.x = nx;
       molecule.y = ny;
+    }
+    if (this.time >= this.nextWaterCue) {
+      const crossings = this.netWaterCrossings;
+      if (crossings) {
+        const direction = Math.sign(crossings);
+        this.cue(
+          'water-transit',
+          clamp(Math.abs(crossings) / 18, 0.24, 0.48),
+          this.membrane - direction * 95,
+          { toX: this.membrane + direction * 155 },
+        );
+      }
+      this.netWaterCrossings = 0;
+      this.nextWaterCue = this.time + 1.25;
     }
     this.sample(this.waterLeft, this.waterRight);
   }

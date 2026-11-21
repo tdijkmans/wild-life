@@ -24,6 +24,7 @@ export interface TissueDemand {
 export class VascularGardenWorld extends LivingWorld {
   readonly nodes: VesselNode[] = [];
   readonly vessels: Vessel[] = [];
+  private readonly awaitingPerfusion = new WeakSet<Vessel>();
   readonly tissue: TissueDemand[] = [];
   sprouts = 0;
   connections = 0;
@@ -89,6 +90,8 @@ export class VascularGardenWorld extends LivingWorld {
         b = this.nodes[v.b];
       v.flow =
         ((a.pressure - b.pressure) * v.radius ** 4) / Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+      if (Math.abs(v.flow) > 0.012 && this.awaitingPerfusion.delete(v))
+        this.cue('flow', 0.43, a.x, { toX: b.x });
       v.age += dt;
       const target = clamp(1.1 + Math.sqrt(Math.abs(v.flow)) * 10, 1.1, 3.7);
       v.radius = clamp(v.radius + (target - v.radius) * dt * 0.035, 0.5, 3.7);
@@ -152,11 +155,13 @@ export class VascularGardenWorld extends LivingWorld {
             !this.vessels.some((v) => (v.a === i && v.b === j) || (v.b === i && v.a === j)),
         );
         if (near >= 0) {
-          this.vessels.push({ a: i, b: near, radius: 1.3, flow: 0, age: 0 });
+          const link = { a: i, b: near, radius: 1.3, flow: 0, age: 0 };
+          this.vessels.push(link);
+          this.awaitingPerfusion.add(link);
           degrees[i]++;
           degrees[near]++;
           this.connections++;
-          this.cue('exchange', 0.4);
+          this.cue('circuit-join', 0.49, n.x, { toX: this.nodes[near].x });
         } else if (
           !this.nodes.some((other, j) => j !== i && Math.hypot(other.x - x, other.y - y) < 18)
         ) {
@@ -165,7 +170,7 @@ export class VascularGardenWorld extends LivingWorld {
           degrees[i]++;
           this.vessels.push({ a: i, b: this.nodes.length - 1, radius: 1.1, flow: 0, age: 0 });
           this.sprouts++;
-          this.cue('growth', 0.25);
+          this.cue('fiber', 0.33, x);
         }
       }
       for (let i = this.vessels.length - 1; i >= 0; i--) {
@@ -179,6 +184,7 @@ export class VascularGardenWorld extends LivingWorld {
         ) {
           this.vessels.splice(i, 1);
           this.regressed++;
+          this.cue('circuit-release', 0.34, (this.nodes[v.a].x + this.nodes[v.b].x) / 2);
         }
       }
     }

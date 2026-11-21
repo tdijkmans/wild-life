@@ -80,7 +80,8 @@ export class PollenPathsWorld extends LivingWorld {
   }
 
   influence(kind: string, x: number, y: number, dx: number, dy: number): void {
-    this.field(kind, x, y, ['sunlight', 'rain'], dx, dy);
+    if (this.field(kind, x, y, ['sunlight', 'rain'], dx, dy))
+      this.cue(kind === 'rain' ? 'rain' : 'shimmer', 0.55, x);
   }
 
   step(dt: number): void {
@@ -131,10 +132,14 @@ export class PollenPathsWorld extends LivingWorld {
     const surface = flower.shape + this.random.range(-0.34, 0.34) < 0.5 ? 0 : 1;
     const donor = visitor.pollen[surface];
     visitor.pollen[surface] = flower;
-    if (!donor || donor === flower) return;
-
+    if (!donor || donor === flower) {
+      this.cue('tack', 0.2, flower.x);
+      return;
+    }
     this.transfers++;
-    if (donor.shape < 0.5 !== flower.shape < 0.5) this.crossTransfers++;
+    const crossed = donor.shape < 0.5 !== flower.shape < 0.5;
+    this.cue(crossed ? 'cross-pollen' : 'seed-delivery', crossed ? 0.51 : 0.43, flower.x);
+    if (crossed) this.crossTransfers++;
     this.deliveries.push({ from: donor, to: flower, time: this.time });
     if (this.deliveries.length > 36) this.deliveries.shift();
     const rain = Math.min(1, this.fieldAt('rain', flower.x, flower.y));
@@ -152,7 +157,7 @@ export class PollenPathsWorld extends LivingWorld {
       0,
       generation,
     );
-    this.cue('seed-set', 0.38 + rain * 0.23);
+    this.cue('seed-set', 0.38 + rain * 0.23, flower.x);
   }
 
   metrics(): readonly WorldMetric[] {

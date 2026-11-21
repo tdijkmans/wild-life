@@ -119,14 +119,19 @@ export class MitoticBloomWorld extends LivingWorld {
       return;
     if (kind === 'focus') {
       let nearest = 84;
+      let focused = false;
       for (const cell of this.cells) {
         const distance = Math.hypot(cell.x - x, cell.y - y);
         if (distance < nearest) {
           this.selectedId = cell.id;
+          focused = true;
           nearest = distance;
         }
       }
-    } else this.field(kind, x, y, ['nutrients', 'shade'], dx, dy);
+      if (focused) this.cue('mitotic-phase', 0.54, x);
+    } else if (this.field(kind, x, y, ['nutrients', 'shade'], dx, dy)) {
+      this.cue(kind === 'nutrients' ? 'bubble' : 'hush', 0.53, x);
+    }
   }
 
   step(dt: number): void {
@@ -168,6 +173,8 @@ export class MitoticBloomWorld extends LivingWorld {
         motion[j].y -= dy * force;
       }
     }
+    const accents = ['select', 'prophase', 'metaphase', 'anaphase', 'telophase', 'pinch'] as const;
+    let phaseChange: { cell: Cell; phase: number; focused: boolean } | undefined;
     this.cells.slice().forEach((cell, i) => {
       if (cell.dyingAt !== null) {
         if (this.apoptosisProgress(cell) >= 1) {
@@ -196,11 +203,22 @@ export class MitoticBloomWorld extends LivingWorld {
       }
       cell.cycle = next;
       const after = phaseAt(cell.cycle).index;
-      if (after !== before && cell.id === this.selectedId) this.cue('mitotic-phase', 0.55);
+      if (after !== before && (!phaseChange || cell.id === this.selectedId))
+        phaseChange = { cell, phase: after, focused: cell.id === this.selectedId };
       if (cell.cycle < 1) return;
       this.divide(cell);
       committed--;
     });
+    if (phaseChange) {
+      const { cell, phase, focused } = phaseChange;
+      const spreading = phase === 3;
+      this.cue(
+        accents[phase],
+        focused ? 0.66 : 0.23,
+        cell.x - (spreading ? 38 : 0),
+        spreading ? { toX: cell.x + 82 } : undefined,
+      );
+    }
   }
 
   private divide(cell: Cell): void {
@@ -228,7 +246,7 @@ export class MitoticBloomWorld extends LivingWorld {
     this.cells.splice(index, 1, first, second);
     if (cell.id === this.selectedId) this.selectedId = first.id;
     this.divisions++;
-    this.cue('division', 0.58);
+    this.cue('division', 0.58, cell.x);
   }
 
   private measureTissue(): void {
@@ -286,7 +304,7 @@ export class MitoticBloomWorld extends LivingWorld {
     const cell = candidates[this.random.integer(0, candidates.length)];
     cell.dyingAt = this.time;
     this.nextApoptosis = this.time + this.random.range(12, 23);
-    this.cue('apoptosis', 0.44);
+    this.cue('apoptosis', 0.49, cell.x);
   }
 
   metrics(): readonly WorldMetric[] {

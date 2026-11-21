@@ -41,7 +41,21 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new HyphalNetworkWorld(seed),
   soundScene: (scene) => {
     const world = scene as HyphalNetworkWorld;
+    let flow = 0;
+    let flowX = 0;
+    let tips = 0;
+    for (const edge of world.hyphae) {
+      const strength = Math.abs(edge.streamingFlux);
+      flow += strength;
+      flowX += (strength * (world.nodes[edge.start].x + world.nodes[edge.end].x)) / 2;
+      if (edge.growth < 1) tips++;
+    }
     return {
+      layers: [
+        { level: 0.66 },
+        { level: flow / 14, pan: flow ? (2 * flowX) / flow / world.width - 1 : 0 },
+        { level: tips / 18 },
+      ],
       activity: world.hyphae.reduce((sum, edge) => sum + Math.abs(edge.streamingFlux), 0) / 32,
       detail: world.hyphae.filter((edge) => edge.growth < 1).length / 23,
       pan: world.hyphae.reduce((sum, edge) => sum + edge.streamingFlux, 0) / 14,

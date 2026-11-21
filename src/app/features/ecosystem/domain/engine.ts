@@ -162,6 +162,10 @@ export class WorldEngine {
   births = 0;
   deaths = 0;
   kills = 0;
+  lastFeeding?: Readonly<{ x: number }>;
+  lastCatchX?: number;
+  lastBirthX?: number;
+  lastDeathX?: number;
   maxPopulation = 0;
   selectedId: number | null = null;
   /** Optional non-invasive recorder hook; does not alter biological dynamics. */
@@ -288,6 +292,7 @@ export class WorldEngine {
     this.organisms.push(a);
     if (parent) {
       this.births++;
+      this.lastBirthX = a.x;
       if (this.flashes.length < 80)
         this.flashes.push({ x: a.x, y: a.y, life: 1.2, maxLife: 1.2, species });
     }
@@ -401,6 +406,7 @@ export class WorldEngine {
           ty = (f.y - a.y) / Math.sqrt(closest + 1);
           if (closest < 106 && f.energy > 0) {
             f.energy = 0;
+            this.lastFeeding = f;
             a.energy += 0.42;
           }
         }
@@ -440,6 +446,7 @@ export class WorldEngine {
           if (closest < 140 && p.alive) {
             p.alive = false;
             this.kills++;
+            this.lastCatchX = p.x;
             this.deaths++;
             a.energy += 0.95;
             if (this.flashes.length < 80)
@@ -505,6 +512,7 @@ export class WorldEngine {
       if (a.energy <= 0 || a.age > lifespan) {
         a.alive = false;
         this.deaths++;
+        this.lastDeathX = a.x;
         if (this.flashes.length < 80 && this.random.next() < 0.25)
           this.flashes.push({ x: a.x, y: a.y, life: 0.8, maxLife: 0.8, species: 'death' });
         continue;

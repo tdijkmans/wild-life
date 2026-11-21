@@ -50,8 +50,11 @@ export interface Raptor {
 export class MurmurationWorld implements InteractiveWorld {
   readonly audioCues: WorldAudioCue[] = [];
   private nextCueId = 0;
-  private cue(kind: WorldAudioCue['kind'], strength = 0.3): void {
-    this.audioCues.push({ id: ++this.nextCueId, kind, strength });
+  private raptorNearFlock = false;
+  private heardFormation = 0;
+  private cue(kind: WorldAudioCue['kind'], strength = 0.3, x?: number): void {
+    const pan = x === undefined ? undefined : (x / this.width) * 2 - 1;
+    this.audioCues.push({ id: ++this.nextCueId, kind, strength, pan });
     if (this.audioCues.length > 16) this.audioCues.shift();
   }
   readonly width = MURMURATION_WIDTH;
@@ -264,6 +267,11 @@ export class MurmurationWorld implements InteractiveWorld {
     this.advanceRaptor(dt);
     if (this.sampleTime >= 1) {
       this.sampleTime -= 1;
+      if (Math.abs(this.formation - this.heardFormation) > 12 && this.birds.length) {
+        const center = this.birds.reduce((sum, bird) => sum + bird.x, 0) / this.birds.length;
+        this.cue('wingbeat', 0.48, center);
+      }
+      this.heardFormation = this.formation;
       this.populationTurnover();
       this.sample();
     }
@@ -281,6 +289,9 @@ export class MurmurationWorld implements InteractiveWorld {
         nearest = bird;
       }
     }
+    const approaching = nearestDistance < (this.raptorNearFlock ? 145 : 105) ** 2;
+    if (approaching && !this.raptorNearFlock) this.cue('wing-flutter', 0.44, predator.x);
+    this.raptorNearFlock = approaching;
     if (nearest) {
       const pursuit = predator.cooldown < 0 ? 1.15 : 0.52;
       const ax = (nearest.x - predator.x) * pursuit - predator.vx * 0.9;
@@ -297,7 +308,7 @@ export class MurmurationWorld implements InteractiveWorld {
     if (predator.cooldown <= 0 && nearest && nearestDistance < 14 * 14) {
       this.birds.splice(this.birds.indexOf(nearest), 1);
       this.caught++;
-      this.cue('rustle', 0.35);
+      this.cue('alarm', 0.6, predator.x);
       predator.cooldown = 7;
     }
   }
@@ -327,7 +338,7 @@ export class MurmurationWorld implements InteractiveWorld {
         baby.parent,
       );
       this.births++;
-      this.cue('growth');
+      this.cue('wingbeat', 0.3, baby.x);
     }
   }
 

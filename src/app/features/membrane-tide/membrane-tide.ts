@@ -42,6 +42,13 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as MembraneTideWorld;
     return {
+      layers: [
+        {
+          level: 0.3 + world.vortices.length / 7,
+          pan: (2 * (world.vortices.at(-1)?.x ?? world.width / 2)) / world.width - 1,
+        },
+        { level: world.ribbons.filter((ribbon) => ribbon.closed).length / 8 },
+      ],
       activity: world.vortices.length / 5 + world.pebbles.length * 0.2,
       detail: world.ribbons.filter((ribbon) => ribbon.closed).length / 9,
       pan: ((world.vortices.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,

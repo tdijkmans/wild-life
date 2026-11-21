@@ -325,3 +325,55 @@ test('volume changes the actual mix and follows the user between views and world
     'false',
   );
 });
+
+for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '/ecosystem' }]) {
+  test(`${world.title}: accepted tools produce immediate stereo audio after opt-in`, async ({
+    page,
+  }) => {
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(error.message));
+    await page.addInitScript(() => {
+      let gestureStarts = 0;
+      let inCanvasPress = false;
+      window.addEventListener(
+        'pointerdown',
+        (event) => {
+          inCanvasPress = event.target instanceof HTMLCanvasElement;
+        },
+        { capture: true },
+      );
+      window.addEventListener('pointerdown', () => {
+        inCanvasPress = false;
+      });
+      const NativeAudioContext = window.AudioContext;
+      window.AudioContext = class extends NativeAudioContext {
+        override createStereoPanner() {
+          if (inCanvasPress) {
+            gestureStarts++;
+            document.documentElement.dataset['gestureStarts'] = String(gestureStarts);
+          }
+          return super.createStereoPanner();
+        }
+      };
+    });
+    await page.goto(world.path);
+    if ('tool' in world) {
+      const tool = world.path === '/mitotic-bloom' ? 'Nutrients' : world.tool;
+      await page.getByRole('button', { name: tool, exact: true }).click();
+    }
+    const canvas = page.locator('canvas.world-canvas');
+    const count = page.locator('html');
+    await canvas.click();
+    await expect(count).not.toHaveAttribute('data-gesture-starts', /.+/);
+    const sound = page.getByRole('button', { name: 'Toggle ambient sound' });
+    await sound.click();
+    await expect(sound).toHaveAttribute('aria-pressed', 'true');
+    await canvas.click();
+    await expect(count).toHaveAttribute('data-gesture-starts', '1');
+    await sound.click();
+    await expect(sound).toHaveAttribute('aria-pressed', 'false');
+    await canvas.click();
+    await expect(count).toHaveAttribute('data-gesture-starts', '1');
+    expect(runtimeErrors).toEqual([]);
+  });
+}
