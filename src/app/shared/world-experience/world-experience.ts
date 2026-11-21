@@ -12,7 +12,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { WorldAudioControlsComponent } from './world-audio-controls';
 import { WorldAudioVolume } from './world-audio-volume';
-import { inject } from '@angular/core';
+import { effect, inject } from '@angular/core';
 import { WorldCatalogueFooterComponent } from './world-catalogue-footer';
 import { DsButtonComponent } from '../design-system/button/button';
 import { FrameThrottle } from '../simulation/frame-throttle';
@@ -107,12 +107,9 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private latestHistorySample?: WorldHistoryPoint;
   private readonly throttle = new FrameThrottle(60);
   private readonly soundscape = new WorldSoundscape();
-  readonly audioVolume = inject(WorldAudioVolume);
+  private readonly audioVolume = inject(WorldAudioVolume);
+  private readonly syncSoundMix = effect(() => this.soundscape.setMix(this.audioVolume.levels()));
 
-  setSoundVolume(percent: number): void {
-    this.audioVolume.set(percent);
-    this.soundscape.setVolume(this.audioVolume.level());
-  }
   private lastCueId = 0;
   private readonly pointers = new Set<number>();
   private lastPointer: { x: number; y: number; at: number } | null = null;
@@ -326,7 +323,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
       const profile = this.definition().soundProfile;
       if (!profile) return;
       this.lastCueId = this.world?.audioCues?.at(-1)?.id ?? 0;
-      this.soundscape.setVolume(this.audioVolume.level());
+      this.soundscape.setMix(this.audioVolume.levels());
       const started = await this.soundscape.start(profile);
       if (this.disposed) {
         await this.soundscape.stop();

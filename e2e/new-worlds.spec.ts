@@ -252,7 +252,7 @@ for (const route of [
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(route);
-    const toggle = page.getByRole('button', { name: 'Toggle ambient sound' });
+    const toggle = page.getByRole('button', { name: 'Toggle sound' });
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
@@ -266,7 +266,7 @@ for (const route of [
   });
 }
 
-test('volume changes the actual mix and follows the user between views and worlds', async ({
+test('global sound settings persist and independently control the real audio mix', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -276,54 +276,78 @@ test('volume changes the actual mix and follows the user between views and world
         const compressor = super.createDynamicsCompressor();
         const analyser = super.createAnalyser();
         compressor.connect(analyser);
-        // The monitor is parallel to the real output and produces no sound of its own.
-        Object.assign(window, { mixAnalyser: analyser });
+        Object.assign(window, {
+          readMixRms: () => {
+            const samples = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(samples);
+            return Math.sqrt(
+              samples.reduce((sum, sample) => sum + sample ** 2, 0) / samples.length,
+            );
+          },
+        });
         return compressor;
       }
     };
   });
-  await page.goto('/reef');
-  const volume = page.getByRole('banner').getByRole('slider', { name: 'Sound volume' });
-  await expect(volume).toHaveValue('75');
-  await volume.press('Home');
-  await expect(volume).toHaveValue('0');
-  expect(await page.evaluate(() => 'mixAnalyser' in window)).toBe(false);
-  await page.getByRole('button', { name: 'Toggle ambient sound' }).click();
-  await expect(page.getByRole('button', { name: 'Toggle ambient sound' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
   const rms = () =>
-    page.evaluate(() => {
-      const analyser = (window as Window & { mixAnalyser?: AnalyserNode }).mixAnalyser;
-      if (!analyser) return -1;
-      const samples = new Float32Array(analyser.fftSize);
-      analyser.getFloatTimeDomainData(samples);
-      return Math.sqrt(samples.reduce((sum, sample) => sum + sample ** 2, 0) / samples.length);
-    });
+    page.evaluate(() => (window as Window & { readMixRms?: () => number }).readMixRms?.() ?? -1);
+  const header = page.getByRole('banner');
+  const settings = header.getByLabel('Sound settings');
+  const master = header.getByRole('slider', { name: 'Sound volume' });
+  const ambience = header.getByRole('slider', { name: 'Ambience' });
+  const events = header.getByRole('slider', { name: 'Events and interactions' });
+
+  await page.goto('/');
+  await settings.click();
+  await expect(master).toHaveValue('75');
+  await expect(ambience).toHaveValue('38');
+  await expect(events).toHaveValue('82');
+  await master.press('End');
+  await ambience.press('Home');
+  await events.press('Home');
+  expect(await rms()).toBe(-1);
+
+  await page.goto('/membrane-tide');
+  await settings.click();
+  await expect(master).toHaveValue('100');
+  await expect(ambience).toHaveValue('0');
+  await expect(events).toHaveValue('0');
+  const sound = page.getByRole('button', { name: 'Toggle sound', exact: true });
+  await sound.click();
+  await expect(sound).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(rms).toBeGreaterThanOrEqual(0);
   await expect.poll(rms).toBeLessThan(0.0003);
-  await volume.press('End');
-  await expect(volume).toHaveValue('100');
+
+  await events.press('End');
+  await page.getByRole('button', { name: 'Pebble', exact: true }).click();
+  await page.locator('canvas.world-canvas').click();
+  await expect.poll(rms, { intervals: [25, 35, 50] }).toBeGreaterThan(0.002);
+
+  await events.press('Home');
+  await expect.poll(rms).toBeLessThan(0.0003);
+  await ambience.press('End');
   await expect.poll(rms).toBeGreaterThan(0.012);
+  await master.press('Home');
+  await expect.poll(rms).toBeLessThan(0.0003);
+  await master.press('End');
 
   await page.getByRole('button', { name: 'Open fullscreen aquarium' }).click();
-  const aquariumVolume = page
-    .locator('.aquarium-toolbar')
-    .getByRole('slider', { name: 'Sound volume' });
-  await expect(aquariumVolume).toHaveValue('100');
-  await aquariumVolume.press('ArrowLeft');
-  await expect(aquariumVolume).toHaveValue('99');
-  await page.getByRole('button', { name: 'Exit aquarium' }).click();
-  await expect(aquariumVolume).toHaveCount(0);
-  await expect(volume).toHaveValue('99');
+  const aquarium = page.locator('.aquarium-toolbar');
+  await aquarium.getByLabel('Sound settings').click();
+  const aquariumAmbience = aquarium.getByRole('slider', { name: 'Ambience' });
+  await expect(aquariumAmbience).toHaveValue('100');
+  await aquariumAmbience.press('ArrowLeft');
+  await aquariumAmbience.press('Escape');
+  await expect(aquariumAmbience).toBeHidden();
+  await aquarium.getByRole('button', { name: 'Exit aquarium' }).click();
+  await expect(aquarium).toHaveCount(0);
+  await expect(ambience).toHaveValue('99');
 
   await page.goto('/hyphal-network');
-  await expect(volume).toHaveValue('99');
-  await expect(page.getByRole('button', { name: 'Toggle ambient sound' })).toHaveAttribute(
-    'aria-pressed',
-    'false',
-  );
+  await settings.click();
+  await expect(ambience).toHaveValue('99');
+  await expect(events).toHaveValue('0');
+  await expect(sound).toHaveAttribute('aria-pressed', 'false');
 });
 
 for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '/ecosystem' }]) {
@@ -365,7 +389,7 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
     const count = page.locator('html');
     await canvas.click();
     await expect(count).not.toHaveAttribute('data-gesture-starts', /.+/);
-    const sound = page.getByRole('button', { name: 'Toggle ambient sound' });
+    const sound = page.getByRole('button', { name: 'Toggle sound' });
     await sound.click();
     await expect(sound).toHaveAttribute('aria-pressed', 'true');
     await canvas.click();
