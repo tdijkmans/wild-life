@@ -54,6 +54,7 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
   private divisionSinceSample = 0;
   private exchangesSinceSample = 0;
   private stressedSinceSample = 0;
+  audioStress = 0;
   time = 0;
   occupied = 0;
   producerCount = 0;
@@ -201,6 +202,7 @@ export class MicrobialCommonsWorld implements InteractiveWorld {
         );
       if (this.divisionSinceSample > 0)
         this.cue('division', clamp(this.divisionSinceSample / 75, divisionPeak ? 0.47 : 0.29, 0.7));
+      this.audioStress = clamp(this.stressedSinceSample / 620, 0, 1);
       if (this.stressedSinceSample > 60 && this.random.next() < 0.09) {
         this.cue('hush', 0.2);
       }

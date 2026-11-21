@@ -41,7 +41,16 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new FlagellarDriftWorld(seed),
   soundScene: (scene) => {
     const world = scene as FlagellarDriftWorld;
+    const groups = [0, 1, 2].map((kind) =>
+      world.swimmers.filter((animal) => animal.propulsion === kind),
+    );
     return {
+      layers: groups.map((group) => {
+        const drive = group.reduce((sum, animal) => sum + animal.drive, 0);
+        const center =
+          group.reduce((sum, animal) => sum + animal.x * animal.drive, 0) / Math.max(1, drive);
+        return { level: drive / 43, pan: drive ? (2 * center) / world.width - 1 : 0 };
+      }),
       activity: world.swimmers.reduce((sum, animal) => sum + animal.drive, 0) / 120,
       detail:
         world.swimmers.filter((animal) => animal.propulsion === 2).length /

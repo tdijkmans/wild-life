@@ -330,6 +330,8 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
   test(`${world.title}: accepted tools produce immediate stereo audio after opt-in`, async ({
     page,
   }) => {
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(error.message));
     await page.addInitScript(() => {
       let gestureStarts = 0;
       let inCanvasPress = false;
@@ -372,5 +374,6 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
     await expect(sound).toHaveAttribute('aria-pressed', 'false');
     await canvas.click();
     await expect(count).toHaveAttribute('data-gesture-starts', '1');
+    expect(runtimeErrors).toEqual([]);
   });
 }

@@ -91,7 +91,7 @@ export class NeuroplasticityWorld extends LivingWorld {
         this.spikes++;
       }
     }
-    if (fired > 4) this.cue('pulse', Math.min(0.65, fired / 20));
+    if (fired > 4) this.cue('nerve-spike', Math.min(0.68, 0.24 + fired / 22));
     this.remodel += dt;
     if (this.remodel >= 2) {
       this.remodel -= 2;
@@ -99,7 +99,7 @@ export class NeuroplasticityWorld extends LivingWorld {
         if (this.synapses[i].weight < 0.04) {
           this.synapses.splice(i, 1);
           this.pruned++;
-          this.cue('hush', 0.25);
+          this.cue('circuit-release', 0.31);
         }
       for (let attempt = 0; attempt < 14 && this.synapses.length < 650; attempt++) {
         const from = this.random.integer(0, this.neurons.length),
@@ -116,7 +116,7 @@ export class NeuroplasticityWorld extends LivingWorld {
           continue;
         this.synapses.push({ from, to, weight: 0.2, activity: 0 });
         this.formed++;
-        this.cue('growth', 0.3, (a.x + b.x) / 2);
+        this.cue('circuit-join', 0.44, a.x, { toX: b.x });
       }
     }
     this.sample(this.synapses.length, this.neurons.filter((n) => n.trace > 0.3).length);

@@ -1,4 +1,5 @@
 import { SeededRandom } from '../simulation/seeded-random';
+import { audioDesign, toolSound } from './world-audio-design';
 import { DEFAULT_WORLD_VOLUME } from './world-audio-volume';
 import { eventSounds, WorldFoleyQueue, type AudibleEvent } from './world-foley';
 import type { WorldAudioScene, WorldSoundProfile } from './world-protocol';
@@ -30,7 +31,7 @@ const palettes: Record<SoundscapeProfile, Palette> = {
   tissue: [62, 380, 530, 0.16, 0.4, 'sine', 'breath', 2.44],
   chromatic: [82, 540, 1090, 0.33, 0.73, 'triangle', 'swarm', 1.82],
   islands: [65, 820, 1330, 0.115, 0.83, 'sine', 'tide', 2.12],
-  vascular: [49, 340, 350, 0.54, 0.48, 'triangle', 'pulse', 1.39],
+  vascular: [49, 340, 350, 0.18, 0.48, 'sine', 'tide', 1.39],
   pollen: [87, 1120, 2360, 0.43, 0.81, 'sine', 'swarm', 0.9],
   pond: [64, 505, 930, 0.15, 0.68, 'triangle', 'breath', 1.87],
   estuary: [43, 350, 620, 0.12, 0.83, 'sine', 'tide', 3],
@@ -40,6 +41,15 @@ const palettes: Record<SoundscapeProfile, Palette> = {
   hyphal: [47, 745, 441, 0.29, 0.76, 'sine', 'tide', 2.66],
   flagellar: [64, 830, 1640, 0.61, 0.73, 'triangle', 'swarm', 1.44],
 };
+
+interface SpatialLayer {
+  gain: GainNode;
+  pan: StereoPannerNode;
+}
+
+interface NoiseLayer extends SpatialLayer {
+  filter: BiquadFilterNode;
+}
 
 interface Voice {
   oscillator: OscillatorNode;
@@ -68,6 +78,9 @@ export class WorldSoundscape {
   private textureGain?: GainNode;
   private texturePan?: StereoPannerNode;
   private noise?: AudioBuffer;
+  private readonly layers: SpatialLayer[] = [];
+  private drag?: NoiseLayer;
+  private dampening?: { pan: number; until: number };
   private readonly voices: Voice[] = [];
   private profile: SoundscapeProfile = 'forest';
   private desiredActive = true;
@@ -163,6 +176,13 @@ export class WorldSoundscape {
       this.grain = grain;
       this.textureGain = textureGain;
       this.texturePan = texturePan;
+      const dragFilter = context.createBiquadFilter();
+      dragFilter.type = 'bandpass';
+      dragFilter.Q.value = 0.56;
+      const drag = this.spatialLayer(context, dragFilter, master, 0);
+      wind.connect(dragFilter);
+      this.drag = { ...drag, filter: dragFilter };
+      this.startLayers(context, wind, master);
       wind.start();
 
       master.gain.setTargetAtTime(worldOutputGain(this.volume), context.currentTime, 0.44);
@@ -174,6 +194,53 @@ export class WorldSoundscape {
       await this.stop();
       return false;
     }
+  }
+
+  private startLayers(context: AudioContext, wind: AudioBufferSourceNode, master: GainNode): void {
+    for (const [material, frequency, pan, , rhythm] of audioDesign[this.profile].layers) {
+      let source: AudioNode;
+      if (material === 'tone') {
+        const resonance = context.createOscillator();
+        resonance.type = 'sine';
+        resonance.frequency.value = frequency;
+        resonance.start();
+        source = resonance;
+      } else {
+        const band = context.createBiquadFilter();
+        band.type = material === 'air' ? 'lowpass' : 'bandpass';
+        band.frequency.value = frequency;
+        band.Q.value = material === 'air' ? 0.32 : 1.45;
+        wind.connect(band);
+        source = band;
+      }
+      if (rhythm) {
+        const tremolo = context.createGain();
+        tremolo.gain.value = 0.72;
+        const oscillator = context.createOscillator();
+        oscillator.frequency.value = rhythm;
+        const depth = context.createGain();
+        depth.gain.value = 0.26;
+        oscillator.connect(depth).connect(tremolo.gain);
+        oscillator.start();
+        source.connect(tremolo);
+        source = tremolo;
+      }
+      this.layers.push(this.spatialLayer(context, source, master, pan));
+    }
+  }
+
+  private spatialLayer(
+    context: AudioContext,
+    source: AudioNode,
+    master: GainNode,
+    position: number,
+  ): SpatialLayer {
+    const gain = context.createGain();
+    gain.gain.value = 0;
+    const pan = context.createStereoPanner();
+    pan.pan.value = position;
+    source.connect(gain).connect(pan).connect(master);
+    return { gain, pan };
   }
 
   private addVoice(
@@ -216,11 +283,39 @@ export class WorldSoundscape {
     if (now !== undefined && clamp(event.strength)) this.foley.add(event, now);
   }
 
-  gesture(event: AudibleEvent, dragging: boolean): void {
+  gesture(event: AudibleEvent, dragging: boolean, tool?: string, speed = 0): void {
     const now = this.playbackTime();
-    if (now === undefined || now - this.lastGesture < (dragging ? 0.42 : 0.09)) return;
+    if (now === undefined) return;
+    const design = tool ? toolSound(this.profile, tool) : undefined;
+    if (dragging && typeof design !== 'string' && design && this.drag) {
+      const { gain, pan, filter } = this.drag;
+      const movement = clamp(speed);
+      const level = gain.gain;
+      this.hold(level, now);
+      level.setTargetAtTime(0.025 + movement * 0.155, now, 0.05);
+      level.setTargetAtTime(0, now + 0.16, 0.16);
+      pan.pan.setTargetAtTime(clamp(event.pan ?? 0, -0.85, 0.85), now, 0.075);
+      filter.frequency.setTargetAtTime(design[1] * (0.72 + movement * 0.93), now, 0.06);
+      return;
+    }
+    if (now - this.lastGesture < (dragging ? 0.42 : 0.09)) return;
     this.lastGesture = now;
-    this.play(event, now);
+    const kind = typeof design === 'string' ? design : (design?.[0] ?? event.kind);
+    if (kind === 'soften') this.dampening = { pan: event.pan ?? 0, until: now + 2.8 };
+    this.play({ ...event, kind }, now);
+  }
+
+  endGesture(): void {
+    const now = this.context?.currentTime;
+    const gain = this.drag?.gain.gain;
+    if (!gain || now === undefined) return;
+    this.hold(gain, now);
+    gain.setTargetAtTime(0, now, 0.105);
+  }
+
+  private hold(value: AudioParam, now: number): void {
+    if (typeof value.cancelAndHoldAtTime === 'function') value.cancelAndHoldAtTime(now);
+    else value.cancelScheduledValues(now);
   }
 
   flushCues(): void {
@@ -232,6 +327,8 @@ export class WorldSoundscape {
 
   clearCues(): void {
     this.foley.clear();
+    this.dampening = undefined;
+    this.endGesture();
     this.lastGesture = -Infinity;
   }
 
@@ -242,20 +339,43 @@ export class WorldSoundscape {
   }
 
   private play(event: AudibleEvent, now: number): void {
+    if (event.kind === 'paired-call' && event.call) {
+      this.play(
+        { kind: event.call, strength: event.strength, pitch: event.pitch, pan: event.pan },
+        now,
+      );
+      this.play(
+        {
+          kind: 'paired-call',
+          strength: event.strength * 0.84,
+          pitch: (event.pitch ?? 1) * 0.94,
+          pan: event.panTo,
+        },
+        now + 0.29,
+      );
+      return;
+    }
     const context = this.context!;
     const bus = this.eventBus!;
     const noise = this.noise!;
     const [layers, root, stretch, level] = eventSounds[event.kind];
     const pitch =
-      root * Math.sqrt(palettes[this.profile][0] / 70) * this.variation.range(0.91, 1.09);
+      root *
+      Math.sqrt(palettes[this.profile][0] / 70) *
+      this.variation.range(0.95, 1.05) *
+      clamp(event.pitch ?? 1, 0.55, 1.85);
     const grain = Math.sqrt(palettes[this.profile][2] / 850);
-    const gain = 0.048 * level * clamp(event.strength);
+    const gain = 0.069 * level * clamp(event.strength);
     const spatial = context.createStereoPanner();
     spatial.pan.value = clamp(
       event.pan ?? this.scenePan + this.variation.range(-0.22, 0.22),
       -0.85,
       0.85,
     );
+    if (event.panTo !== undefined) {
+      spatial.pan.setValueAtTime(spatial.pan.value, now);
+      spatial.pan.linearRampToValueAtTime(clamp(event.panTo, -0.85, 0.85), now + 0.28);
+    }
     spatial.connect(bus);
     let remaining = layers.length;
 
@@ -346,6 +466,21 @@ export class WorldSoundscape {
     const detail = clamp(scene.detail);
     const pan = clamp(scene.pan ?? 0, -1, 1);
     this.scenePan = pan * 0.58;
+    audioDesign[this.profile].layers.forEach(([, , position, level], index) => {
+      const layer = this.layers[index];
+      const input = scene.layers?.[index];
+      const stereo = clamp(input?.pan ?? position + pan * 0.38, -0.85, 0.85);
+      const damp = this.dampening;
+      const reduction = damp
+        ? clamp((damp.until - now) / 1.45) * clamp(1 - Math.abs(damp.pan - stereo)) * 0.64
+        : 0;
+      layer.gain.gain.setTargetAtTime(
+        level * (1 - reduction) * clamp(input?.level ?? (index ? detail : 0.55 + activity)),
+        now,
+        0.41,
+      );
+      layer.pan.pan.setTargetAtTime(stereo, now, 0.48);
+    });
     this.phase += elapsed * rate * (0.75 + activity * 0.91);
     const phase = this.phase;
     const pulse = Math.sin(phase);
@@ -365,7 +500,7 @@ export class WorldSoundscape {
       0.45,
     );
     this.textureGain?.gain.setTargetAtTime(
-      0.036 + activity * 0.122 + detail * 0.036 + swell * 0.062,
+      0.023 + activity * 0.066 + detail * 0.027 + swell * 0.042,
       now,
       0.42,
     );
@@ -397,6 +532,8 @@ export class WorldSoundscape {
     this.texturePan = undefined;
     this.noise = undefined;
     this.voices.length = 0;
+    this.layers.length = 0;
+    this.drag = undefined;
     this.lastModulation = -Infinity;
     this.clearCues();
     if (!context) return;

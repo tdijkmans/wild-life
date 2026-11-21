@@ -47,6 +47,10 @@ const MICROBIAL_COMMONS: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as MicrobialCommonsWorld;
     return {
+      layers: [
+        { level: (world.occupied / 940) * (1 - world.audioStress * 0.59) },
+        { level: world.crossfeederCount / 280 },
+      ],
       activity: world.occupied / 950,
       detail: world.crossfeederCount / Math.max(1, world.occupied),
     };

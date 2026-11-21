@@ -46,6 +46,10 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as VascularGardenWorld;
     return {
+      layers: [
+        { level: world.vessels.reduce((sum, vessel) => sum + Math.abs(vessel.flow), 0) / 2.8 },
+        { level: world.oxygenation() },
+      ],
       activity: world.vessels.reduce((sum, vessel) => sum + Math.abs(vessel.flow), 0) / 2.8,
       detail: world.oxygenation(),
     };

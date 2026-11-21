@@ -39,6 +39,7 @@ export class HyphalNetworkWorld extends LivingWorld {
   fusions = 0;
   uptake = 0;
   private nextSolve = 0;
+  private nextTransitCue = 0;
   private readonly neighbors: number[][] = [];
   private tipCount = 0;
 
@@ -117,6 +118,16 @@ export class HyphalNetworkWorld extends LivingWorld {
       edge.growth = Math.min(1, edge.growth + dt / EXTENSION_SECONDS);
       edge.streamingFlux += (edge.flux - edge.streamingFlux) * (1 - Math.exp(-1.8 * dt));
       const next = edge.transport + Math.tanh(edge.streamingFlux * 4) * 0.76 * dt;
+      if (
+        (next >= 1 || next < 0) &&
+        edge.growth === 1 &&
+        Math.abs(edge.streamingFlux) > 0.085 &&
+        this.time >= this.nextTransitCue
+      ) {
+        const destination = this.nodes[next >= 1 ? edge.end : edge.start];
+        this.cue('septum', 0.41, destination.x);
+        this.nextTransitCue = this.time + 1.8;
+      }
       edge.transport = next - Math.floor(next);
     }
     this.sample(this.hyphae.length, this.tipCount);
@@ -189,7 +200,7 @@ export class HyphalNetworkWorld extends LivingWorld {
       ) {
         this.extend(index, this.random.next() < 0.5 ? -1.02 : 1.02);
       }
-      if (this.nodes.length % 5 === 0) this.cue('hyphal-growth', 0.36);
+      if (this.nodes.length % 5 === 0) this.cue('fiber', 0.41, tip.x);
     }
   }
 
@@ -227,7 +238,7 @@ export class HyphalNetworkWorld extends LivingWorld {
         return false;
       this.link(index, candidate);
       this.fusions++;
-      this.cue('hyphal-fusion', 0.55);
+      this.cue('hyphal-fusion', 0.62, this.nodes[candidate].x);
     } else {
       const next = this.addNode(x, y, direction, true, source.depth + 1);
       this.nodes[next].reserves = Math.max(0, (source.reserves - 0.045) * 0.5);

@@ -349,6 +349,7 @@ export class CanopyWorld implements InteractiveWorld {
     if (this.growthTimer >= 2.4) {
       this.growthTimer -= 2.4;
       let newBranches = 0;
+      let leafFlush = 0;
       for (const tree of this.trees) {
         if (tree.energy < 0.27) continue;
         const candidates = tree.branches
@@ -361,10 +362,14 @@ export class CanopyWorld implements InteractiveWorld {
         }
         const branch = tree.branches[this.random.integer(0, tree.branches.length)];
         if (branch.progress > 0.47 && tree.leaves.length < 200) {
+          const before = tree.leaves.length;
           this.addLeaves(tree, tree.branches.indexOf(branch), this.random.integer(1, 4));
+          leafFlush += tree.leaves.length - before;
         }
       }
-      if (newBranches > 1 && this.random.next() < 0.18) this.cue('growth', 0.36);
+      const branchFlush = newBranches > 1 && this.random.next() < 0.18;
+      if (newBranches) this.cue('wood', branchFlush ? 0.51 : 0.32);
+      if (leafFlush) this.cue('leaf', Math.min(0.48, 0.22 + leafFlush * 0.02));
     }
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;

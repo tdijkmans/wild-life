@@ -41,6 +41,7 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as NightChorusWorld;
     return {
+      layers: [{ level: 0.72 }, { level: 0.16 + Math.min(0.4, world.pairTraces.length * 0.035) }],
       activity: world.voices.filter((voice) => world.time - voice.lastCall < 1.8).length / 12,
       detail: world.pairTraces.length / 8,
       pan: ((world.pairTraces.at(-1)?.caller.x ?? world.width / 2) / world.width) * 2 - 1,

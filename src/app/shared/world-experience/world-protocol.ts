@@ -33,6 +33,8 @@ export type WorldSoundProfile =
 export interface WorldAudioScene {
   readonly activity: number;
   readonly detail: number;
+  /** Activity and position of each soundscape layer, in the profile's layer order. */
+  readonly layers?: readonly { readonly level: number; readonly pan?: number }[];
   readonly pan?: number;
 }
 
@@ -72,8 +74,50 @@ export interface WorldAudioCue {
     | 'paired-call'
     | 'wing-flutter'
     | 'hoof-fall'
-    | 'food-contact';
+    | 'food-contact'
+    | 'alarm'
+    | 'calf'
+    | 'wood'
+    | 'leaf'
+    | 'wingbeat'
+    | 'thermal'
+    | 'soften'
+    | 'scatter'
+    | 'dose'
+    | 'fizz'
+    | 'airy'
+    | 'swell'
+    | 'descend'
+    | 'select'
+    | 'fiber'
+    | 'tack'
+    | 'snap'
+    | 'water-transit'
+    | 'tracer-transit'
+    | 'flow-settle'
+    | 'prophase'
+    | 'metaphase'
+    | 'anaphase'
+    | 'telophase'
+    | 'pinch'
+    | 'circuit-join'
+    | 'circuit-release'
+    | 'nerve-spike'
+    | 'fate-commit'
+    | 'seed-delivery'
+    | 'cross-pollen'
+    | 'footsteps'
+    | 'membrane-release'
+    | 'passage-open'
+    | 'passage-close'
+    | 'migration'
+    | 'septum'
+    | 'propulsor-change';
   readonly strength: number;
+  /** Relative musical pitch and optional destination for travelling cues. */
+  readonly pitch?: number;
+  readonly panTo?: number;
+  readonly call?: 'low-call' | 'high-call';
   /** Optional horizontal location normalized to the stereo field, from -1 to 1. */
   readonly pan?: number;
 }

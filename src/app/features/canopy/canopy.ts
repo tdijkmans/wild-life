@@ -46,7 +46,18 @@ const CANOPY: WorldExperienceDefinition = {
   createWorld: (seed) => new CanopyWorld(seed),
   soundScene: (scene) => {
     const world = scene as CanopyWorld;
+    const foliage = world.trees.reduce((sum, tree) => sum + tree.leaves.length, 0);
+    const insectX =
+      world.insects.reduce((sum, insect) => sum + insect.x, 0) / Math.max(1, world.insects.length);
     return {
+      layers: [
+        { level: 0.55 + foliage / 900 },
+        { level: foliage / 620 },
+        {
+          level: world.insects.length / 35,
+          pan: world.insects.length ? (2 * insectX) / world.width - 1 : 0,
+        },
+      ],
       activity: world.insects.length / 65,
       detail: world.trees.reduce((sum, tree) => sum + tree.leaves.length, 0) / 465,
       pan: ((world.fields.at(-1)?.x ?? world.width / 2) / world.width) * 2 - 1,

@@ -49,6 +49,16 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as MitoticBloomWorld;
     return {
+      layers: [
+        { level: 0.22 + world.coverage * 0.78 },
+        {
+          level:
+            world.selected && world.selected.dyingAt === null
+              ? 0.3 + world.selected.cycle * 0.6
+              : 0.1,
+          pan: (2 * (world.selected?.x ?? world.width / 2)) / world.width - 1,
+        },
+      ],
       activity:
         world.cells.filter((cell) => cell.cycle >= 0.57 && cell.dyingAt === null).length / 17,
       detail: world.coverage,

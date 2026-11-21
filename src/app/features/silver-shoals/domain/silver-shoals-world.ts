@@ -165,7 +165,12 @@ export class SilverShoalsWorld extends LivingWorld {
     } else {
       this.parentBirths++;
     }
-    this.cue(lineage === 'hybrid' ? 'hybrid-hatch' : 'bubble', lineage === 'hybrid' ? 0.72 : 0.36);
+    this.cue(
+      lineage === 'hybrid' ? 'hybrid-hatch' : 'bubble',
+      lineage === 'hybrid' ? 0.72 : 0.43,
+      first.x,
+      { toX: offspring.x, pitch: lineage === 'blue' ? 1.29 : 0.94 },
+    );
   }
 
   metrics(): readonly WorldMetric[] {

@@ -338,6 +338,10 @@ before changing a world.
 ## Sound and volume
 
 Each world feeds read-only observations into its own procedural audio palette.
+The shared Web Audio engine synthesizes the sound material and mixes layered,
+model-driven ambience, event cues and directional tool responses. Accepted
+flow, stir and breeze drags feed a continuous voice that fades after release.
+World sound design lives in `world-audio-design.ts` and `world-foley.ts`.
 For example, flock density opens the ambience in Murmuration, cytoplasmic
 flux changes the hiss and stereo spread in Hyphal Network, and tissue
 coverage fills out the timbre in Mitotic Bloom. Divisions and apoptosis use

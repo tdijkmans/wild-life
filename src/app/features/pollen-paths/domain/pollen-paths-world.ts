@@ -132,11 +132,14 @@ export class PollenPathsWorld extends LivingWorld {
     const surface = flower.shape + this.random.range(-0.34, 0.34) < 0.5 ? 0 : 1;
     const donor = visitor.pollen[surface];
     visitor.pollen[surface] = flower;
-    if (!donor || donor === flower) return;
-
+    if (!donor || donor === flower) {
+      this.cue('tack', 0.2, flower.x);
+      return;
+    }
     this.transfers++;
-    this.cue('pollen-transfer', 0.37, flower.x);
-    if (donor.shape < 0.5 !== flower.shape < 0.5) this.crossTransfers++;
+    const crossed = donor.shape < 0.5 !== flower.shape < 0.5;
+    this.cue(crossed ? 'cross-pollen' : 'seed-delivery', crossed ? 0.51 : 0.43, flower.x);
+    if (crossed) this.crossTransfers++;
     this.deliveries.push({ from: donor, to: flower, time: this.time });
     if (this.deliveries.length > 36) this.deliveries.shift();
     const rain = Math.min(1, this.fieldAt('rain', flower.x, flower.y));

@@ -125,13 +125,19 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
   private playInterventions(dragging: boolean): void {
     const actions = this.experiment.interventions;
     if (actions.length <= this.heardInterventions) return;
-    const { kind, x } = actions[actions.length - 1];
+    const action = actions[actions.length - 1];
+    const { kind, x } = action;
     this.heardInterventions = actions.length;
     if (!this.soundEnabled()) return;
     const cue = { bloom: 'bloom', current: 'flow', heat: 'shimmer', cold: 'hush' } as const;
-    this.soundscape.gesture({ kind: cue[kind], strength: 0.54, pan: this.audioPan(x) }, dragging);
+    this.soundscape.gesture(
+      { kind: cue[kind], strength: 0.54, pan: this.audioPan(x) },
+      dragging,
+      kind,
+      kind === 'current' ? Math.hypot(action.dx, action.dy) / 26 : 0,
+    );
   }
-  private audioPan(x: number): number {
+  private audioPan(x = this.world.width / 2): number {
     return (x / this.world.width) * 2 - 1;
   }
   private updateSound(now: number): void {
@@ -139,10 +145,23 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       const kills = this.world.kills - this.heardKills;
       const naturalDeaths = this.world.deaths - this.heardDeaths - kills;
       if (kills > 0)
-        this.soundscape.cue({ kind: 'low-call', strength: Math.min(0.74, 0.49 + kills * 0.05) });
-      if (naturalDeaths > 0) this.soundscape.cue({ kind: 'hush', strength: 0.38 });
+        this.soundscape.cue({
+          kind: 'alarm',
+          strength: Math.min(0.74, 0.49 + kills * 0.05),
+          pan: this.audioPan(this.world.lastCatchX),
+        });
+      if (naturalDeaths > 0)
+        this.soundscape.cue({
+          kind: 'hush',
+          strength: 0.38,
+          pan: this.audioPan(this.world.lastDeathX),
+        });
       if (this.world.births > this.heardBirths)
-        this.soundscape.cue({ kind: 'growth', strength: 0.55 });
+        this.soundscape.cue({
+          kind: 'growth',
+          strength: 0.55,
+          pan: this.audioPan(this.world.lastBirthX),
+        });
       const feeding = this.world.lastFeeding;
       if (feeding && feeding !== this.heardFeeding)
         this.soundscape.cue({
@@ -154,6 +173,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       const { prey, predators, food } = this.stats();
       const actions = this.experiment.interventions;
       this.soundscape.modulate(now, {
+        layers: [{ level: 0.52 }, { level: prey / 400 }, { level: predators / 40 }],
         activity: predators / 50 + prey / 720,
         detail: food / 320,
         pan: this.audioPan(actions.at(-1)?.x ?? this.world.width / 2),
@@ -271,6 +291,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
         this.soundscape.gesture(
           { kind: 'pulse', strength: 0.53, pan: this.audioPan(organism.x) },
           false,
+          'inspect',
         );
     },
     onZoom: (zoom) => this.zoomLevel.set(zoom),
@@ -594,6 +615,7 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
     this.playInterventions(true);
   }
   onPointerUp(event: PointerEvent): void {
+    this.soundscape.endGesture();
     this.pointerController.onPointerUp(event);
   }
   onPointerLeave(): void {

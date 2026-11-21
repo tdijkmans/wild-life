@@ -369,12 +369,23 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  private collectAudioCues(gesture?: { pan: number; dragging: boolean }): void {
+  private collectAudioCues(gesture?: {
+    pan: number;
+    dragging: boolean;
+    tool: string;
+    speed: number;
+  }): void {
     for (const cue of this.world?.audioCues ?? []) {
       if (cue.id <= this.lastCueId) continue;
       this.lastCueId = cue.id;
       if (!this.soundEnabled()) continue;
-      if (gesture) this.soundscape.gesture({ ...cue, pan: gesture.pan }, gesture.dragging);
+      if (gesture)
+        this.soundscape.gesture(
+          { ...cue, pan: gesture.pan },
+          gesture.dragging,
+          gesture.tool,
+          gesture.speed,
+        );
       else this.soundscape.cue(cue);
     }
   }
@@ -382,8 +393,14 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   private influence(x: number, y: number, dx: number, dy: number, dragging: boolean): void {
     const world = this.world!;
     this.collectAudioCues();
-    world.influence(this.selectedTool(), x, y, dx, dy);
-    this.collectAudioCues({ pan: (x / world.width) * 2 - 1, dragging });
+    const tool = this.selectedTool();
+    world.influence(tool, x, y, dx, dy);
+    this.collectAudioCues({
+      pan: (x / world.width) * 2 - 1,
+      dragging,
+      tool,
+      speed: Math.hypot(dx, dy) / 65,
+    });
   }
 
   onPointerDown(event: PointerEvent): void {
@@ -423,6 +440,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   }
 
   onPointerUp(event: PointerEvent): void {
+    this.soundscape.endGesture();
     this.pointers.delete(event.pointerId);
     this.lastPointer = null;
   }
@@ -432,6 +450,7 @@ export class WorldExperienceComponent implements AfterViewInit, OnDestroy {
   }
 
   private clearInteraction(): void {
+    this.soundscape.endGesture();
     this.pointers.clear();
     this.lastPointer = null;
     this.cursor.set(null);

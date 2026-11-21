@@ -42,6 +42,11 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as OsmoticGlassWorld;
     return {
+      layers: [
+        { level: world.waterLeft / 310 },
+        { level: world.waterRight / 310 },
+        { level: Math.abs(world.membrane - world.width / 2) / 45 },
+      ],
       activity: Math.abs(world.waterRight - world.waterLeft) / 120,
       detail: world.fields.filter((field) => field.kind === 'stir').length / 5,
       pan: (world.waterRight - world.waterLeft) / 160,

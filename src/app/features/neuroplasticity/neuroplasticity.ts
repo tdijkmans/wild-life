@@ -46,6 +46,10 @@ const DEFINITION: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as NeuroplasticityWorld;
     return {
+      layers: [
+        { level: world.neurons.filter((neuron) => neuron.trace > 0.3).length / 45 },
+        { level: world.synapses.reduce((sum, synapse) => sum + synapse.activity, 0) / 140 },
+      ],
       activity: world.neurons.filter((neuron) => neuron.trace > 0.3).length / 45,
       detail: world.synapses.reduce((sum, synapse) => sum + synapse.activity, 0) / 140,
     };

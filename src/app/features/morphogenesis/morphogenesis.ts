@@ -45,7 +45,14 @@ const DEFINITION: WorldExperienceDefinition = {
   createWorld: (seed) => new MorphogenesisWorld(seed),
   soundScene: (scene) => {
     const world = scene as MorphogenesisWorld;
+    const fateCounts = [0, 0, 0];
+    for (const cell of world.cells) fateCounts[cell.fate]++;
     return {
+      layers: [
+        { level: fateCounts[1] / 130 },
+        { level: fateCounts[2] / 130 },
+        { level: world.cells.length / 430 },
+      ],
       activity: world.cells.filter((cell) => cell.fate > 0).length / 320,
       detail: world.cells.length / 440,
     };

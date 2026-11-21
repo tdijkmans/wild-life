@@ -45,7 +45,16 @@ const MURMURATION: WorldExperienceDefinition = {
   createWorld: (seed) => new MurmurationWorld(seed),
   soundScene: (scene) => {
     const world = scene as MurmurationWorld;
+    const center =
+      world.birds.reduce((sum, bird) => sum + bird.x, 0) / Math.max(1, world.birds.length);
     return {
+      layers: [
+        { level: 0.62 },
+        {
+          level: 0.24 + world.formation / 110,
+          pan: world.birds.length ? (2 * center) / world.width - 1 : 0,
+        },
+      ],
       activity: world.formation / 100,
       detail: world.meanNeighbors / 18,
       pan:

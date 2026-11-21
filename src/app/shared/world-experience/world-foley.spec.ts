@@ -8,8 +8,8 @@ describe(WorldFoleyQueue.name, () => {
     queue.add({ kind: 'membrane-rupture', strength: 0.6, pan: 0.25 }, 0);
 
     expect(queue.next(0)).toEqual({ kind: 'pebble-impact', strength: 0.8, pan: -0.5 });
-    expect(queue.next(0.1)).toBeUndefined();
-    expect(queue.next(0.2)).toEqual({ kind: 'membrane-rupture', strength: 0.6, pan: 0.25 });
+    expect(queue.next(0.04)).toBeUndefined();
+    expect(queue.next(0.06)).toEqual({ kind: 'membrane-rupture', strength: 0.6, pan: 0.25 });
     expect(queue.next(0.4)).toBeUndefined();
   });
 

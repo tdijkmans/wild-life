@@ -133,7 +133,7 @@ export class MorphogenesisWorld extends LivingWorld {
         if (cell.commitment >= 1) {
           cell.fate = signal > 0 ? 1 : 2;
           this.differentiations++;
-          this.cue('shimmer', 0.3);
+          this.cue('fate-commit', 0.43, cell.x, { pitch: cell.fate === 1 ? 0.82 : 1.23 });
         }
       }
     }

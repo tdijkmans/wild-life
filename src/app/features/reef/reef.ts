@@ -47,6 +47,7 @@ const REEF: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as ReefWorld;
     return {
+      layers: [{ level: 0.71 }, { level: world.meanSymbiosis }, { level: world.fish.length / 40 }],
       activity:
         world.fish.length / 36 +
         world.fields.filter((field) => field.kind === 'current').length * 0.1,

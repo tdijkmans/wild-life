@@ -173,7 +173,8 @@ export class MitoticBloomWorld extends LivingWorld {
         motion[j].y -= dy * force;
       }
     }
-    let phaseChange: Cell | undefined;
+    const accents = ['select', 'prophase', 'metaphase', 'anaphase', 'telophase', 'pinch'] as const;
+    let phaseChange: { cell: Cell; phase: number; focused: boolean } | undefined;
     this.cells.slice().forEach((cell, i) => {
       if (cell.dyingAt !== null) {
         if (this.apoptosisProgress(cell) >= 1) {
@@ -202,13 +203,22 @@ export class MitoticBloomWorld extends LivingWorld {
       }
       cell.cycle = next;
       const after = phaseAt(cell.cycle).index;
-      if (after !== before && (!phaseChange || cell.id === this.selectedId)) phaseChange = cell;
+      if (after !== before && (!phaseChange || cell.id === this.selectedId))
+        phaseChange = { cell, phase: after, focused: cell.id === this.selectedId };
       if (cell.cycle < 1) return;
       this.divide(cell);
       committed--;
     });
-    if (phaseChange)
-      this.cue('mitotic-phase', phaseChange.id === this.selectedId ? 0.55 : 0.3, phaseChange.x);
+    if (phaseChange) {
+      const { cell, phase, focused } = phaseChange;
+      const spreading = phase === 3;
+      this.cue(
+        accents[phase],
+        focused ? 0.66 : 0.23,
+        cell.x - (spreading ? 38 : 0),
+        spreading ? { toX: cell.x + 82 } : undefined,
+      );
+    }
   }
 
   private divide(cell: Cell): void {
@@ -294,7 +304,7 @@ export class MitoticBloomWorld extends LivingWorld {
     const cell = candidates[this.random.integer(0, candidates.length)];
     cell.dyingAt = this.time;
     this.nextApoptosis = this.time + this.random.range(12, 23);
-    this.cue('apoptosis', 0.44);
+    this.cue('apoptosis', 0.49, cell.x);
   }
 
   metrics(): readonly WorldMetric[] {

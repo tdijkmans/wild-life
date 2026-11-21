@@ -47,6 +47,7 @@ const SYNCHRONY: WorldExperienceDefinition = {
   soundScene: (scene) => {
     const world = scene as SynchronyWorld;
     return {
+      layers: [{ level: 0.64 }, { level: ((1 - world.coherence) * world.activeFlashes) / 35 }],
       activity: world.activeFlashes / Math.max(1, world.fireflies.length * 0.38),
       detail: world.coherence,
     };

@@ -90,7 +90,13 @@ export class IslandEvolutionWorld extends LivingWorld {
     this.lifecycle += dt;
     for (let i = this.passages.length - 1; i >= 0; i--) {
       this.passages[i].life -= dt;
-      if (this.passages[i].life <= 0) this.passages.splice(i, 1);
+      const passage = this.passages[i];
+      if (passage.life <= 0) {
+        this.passages.splice(i, 1);
+        this.cue('passage-close', 0.36, this.islands[passage.from].x, {
+          toX: this.islands[passage.to].x,
+        });
+      }
     }
     const counts = this.islands.map((_, i) => this.organisms.filter((a) => a.island === i).length);
     for (let i = 0; i < this.islands.length; i++) {
@@ -143,6 +149,7 @@ export class IslandEvolutionWorld extends LivingWorld {
         if (passage && this.random.next() < 0.025) {
           const target = passage.from === a.island ? passage.to : passage.from;
           if (counts[target] >= 135) continue;
+          const originX = this.islands[a.island].x;
           counts[a.island]--;
           a.island = target;
           counts[target]++;
@@ -150,7 +157,7 @@ export class IslandEvolutionWorld extends LivingWorld {
           a.x = land.x;
           a.y = land.y;
           this.migrations++;
-          this.cue('exchange', 0.3);
+          this.cue('migration', 0.46, originX, { toX: land.x });
         }
       }
       for (const b of babies) this.spawn(b.island, b.trait, b.generation, b.lineage);

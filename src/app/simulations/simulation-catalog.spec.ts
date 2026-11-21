@@ -1,3 +1,4 @@
+import { audioDesign, toolSound } from '../shared/world-experience/world-audio-design';
 import {
   featuredSimulation,
   simulationRoutes,
@@ -79,6 +80,23 @@ describe('Simulation catalog registration', () => {
       { id: 'flagellar-drift', path: '/flagellar-drift' },
     ]);
     expect(simulationRoutes(SIMULATIONS)).toHaveLength(21);
+  });
+
+  it('defines a dedicated mix and sound for every shared world tool', async () => {
+    const profiles = new Set<string>(['ecosystem']);
+    for (const registration of SIMULATIONS) {
+      if (registration.id === 'ecosystem') continue;
+      const { previewDefinition: definition } = await registration.loadComponent();
+      const profile = definition?.soundProfile;
+      expect(profile).toBeDefined();
+      if (!definition || !profile) throw new Error(registration.id + ' has no sound profile');
+      profiles.add(profile);
+      for (const tool of definition.tools) expect(toolSound(profile, tool.id)).toBeDefined();
+      const scene = definition.soundScene?.(definition.createWorld(definition.seed));
+      expect(scene?.layers).toHaveLength(audioDesign[profile].layers.length);
+      expect(scene?.layers?.every((layer) => Number.isFinite(layer.level))).toBe(true);
+    }
+    expect(profiles.size).toBe(SIMULATIONS.length);
   });
 
   it('requires a world to choose a featured simulation', () => {

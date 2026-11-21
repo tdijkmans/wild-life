@@ -57,6 +57,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
   readonly audioCues: WorldAudioCue[] = [];
   private nextCueId = 0;
   private ringAudible = false;
+  private threatAudible = false;
   private cue(kind: WorldAudioCue['kind'], strength = 0.3, x?: number): void {
     const pan = x === undefined ? undefined : (x / this.width) * 2 - 1;
     this.audioCues.push({ id: ++this.nextCueId, kind, strength, pan });
@@ -227,6 +228,9 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     for (const wolf of this.wolves) {
       nearestThreat = Math.min(nearestThreat, Math.hypot(wolf.x - center.x, wolf.y - center.y));
     }
+    const threatened = nearestThreat < (this.threatAudible ? 330 : 265);
+    if (threatened && !this.threatAudible) this.cue('low-call', 0.43, center.x);
+    this.threatAudible = threatened;
     const requestedDefense = Math.max(0, Math.min(1, (345 - nearestThreat) / 185));
     this.defenseLevel += (requestedDefense - this.defenseLevel) * Math.min(1, dt * 2.2);
 
@@ -450,7 +454,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
         if (index >= 0) {
           this.herd.splice(index, 1);
           this.losses++;
-          this.cue('low-call', 0.52, target.x);
+          this.cue('alarm', 0.48, target.x);
           wolf.cooldown = 13;
           wolf.hunger = 0;
         }
@@ -478,7 +482,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
       parent.y + this.random.range(-15, 15),
     );
     this.births++;
-    this.cue('growth');
+    this.cue('calf', 0.54, parent.x);
     parent.energy *= 0.78;
   }
 
@@ -498,7 +502,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
     }
     this.ringCoverage = Math.round((sectors.size / 12) * 100);
     const ringFormed = this.ringCoverage >= (this.ringAudible ? 33 : 58);
-    if (ringFormed && !this.ringAudible) this.cue('hoof-fall', 0.56, center.x);
+    if (ringFormed !== this.ringAudible) this.cue('footsteps', ringFormed ? 0.66 : 0.29, center.x);
     this.ringAudible = ringFormed;
   }
 

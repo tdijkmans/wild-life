@@ -26,6 +26,21 @@ describe('Osmotic Glass', () => {
     ).toHaveLength(world.waterRight);
   });
 
+  it('sounds directional water transport separately from a tracer crossing', () => {
+    const world = new OsmoticGlassWorld(73442);
+    let water: (typeof world.audioCues)[number] | undefined;
+    let tracer: (typeof world.audioCues)[number] | undefined;
+    for (let tick = 0; tick < 1200 && (!water || !tracer); tick++) {
+      world.step(1 / 60);
+      water ??= world.audioCues.find((cue) => cue.kind === 'water-transit');
+      tracer ??= world.audioCues.find((cue) => cue.kind === 'tracer-transit');
+    }
+    expect(water?.panTo).toBeDefined();
+    expect(water?.panTo).not.toBe(water?.pan);
+    expect(tracer?.pan).toBeDefined();
+    expect(tracer?.panTo).toBeUndefined();
+  });
+
   it('adds retained solute locally and repeats a seeded stirring run', () => {
     const run = () => {
       const world = new OsmoticGlassWorld(3);

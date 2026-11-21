@@ -272,6 +272,8 @@ export class MembraneTideWorld extends LivingWorld {
           continue;
         const direct = this.aligned(first.patches, second.patches);
         if (!direct && !this.aligned(second.patches, first.patches)) continue;
+        const joint = (direct ? second : first).patches[0];
+        this.cue('tack', 0.34, joint.x);
         first.patches = direct
           ? first.patches.concat(second.patches)
           : second.patches.concat(first.patches);
@@ -315,7 +317,7 @@ export class MembraneTideWorld extends LivingWorld {
       ribbon.patches = trailing.concat(ribbon.patches);
       ribbon.closed = false;
       this.ruptures++;
-      this.cue('membrane-rupture', 0.6, ribbon.patches[0]?.x);
+      this.cue('membrane-rupture', 0.69, trailing[0]?.x ?? ribbon.patches.at(-1)?.x);
     } else if (trailing.length) {
       this.ribbons.push({
         patches: trailing,

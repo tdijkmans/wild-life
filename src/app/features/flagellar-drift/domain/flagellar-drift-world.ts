@@ -38,6 +38,7 @@ export class FlagellarDriftWorld extends LivingWorld {
   deaths = 0;
   private nextId = 0;
   private nextMate = 0;
+  private nextFeedingCue = 0;
 
   constructor(seed: number) {
     super(seed);
@@ -168,6 +169,10 @@ export class FlagellarDriftWorld extends LivingWorld {
     if (target && range < 80) {
       const bite = Math.min(target.food, dt * 0.032 * (1 - range / 112));
       target.food -= bite;
+      if (bite > dt * 0.023 && this.time >= this.nextFeedingCue) {
+        this.cue('food-contact', 0.32, target.x);
+        this.nextFeedingCue = this.time + 1.65;
+      }
       swimmer.energy = Math.min(1.42, swimmer.energy + bite * 3.45);
     }
   }
@@ -185,7 +190,8 @@ export class FlagellarDriftWorld extends LivingWorld {
     const second = partners[this.random.integer(0, partners.length)];
     const mixed = first.propulsion !== second.propulsion;
     let propulsion = this.random.next() < 0.5 ? first.propulsion : second.propulsion;
-    if (this.random.next() < 0.065) {
+    const mutated = this.random.next() < 0.065;
+    if (mutated) {
       propulsion = ((propulsion + this.random.integer(1, 3)) % 3) as Propulsor;
       this.mutations++;
     }
@@ -208,7 +214,11 @@ export class FlagellarDriftWorld extends LivingWorld {
     this.pairings++;
     if (mixed) this.mixedPairings++;
     this.hatches.push({ x, y, time: this.time, mixed });
-    this.cue('flagellar-mating', mixed ? 0.6 : 0.37, x);
+    this.cue('flagellar-mating', mixed ? 0.64 : 0.45, first.x, {
+      toX: second.x,
+      pitch: 0.8 + ((first.propulsion + second.propulsion) / 2) * 0.21,
+    });
+    if (mutated) this.cue('propulsor-change', 0.53, x, { pitch: 0.82 + propulsion * 0.2 });
   }
 
   metrics(): readonly WorldMetric[] {

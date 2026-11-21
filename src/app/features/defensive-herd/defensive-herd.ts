@@ -45,7 +45,17 @@ const DEFENSIVE_HERD: WorldExperienceDefinition = {
   createWorld: (seed) => new DefensiveHerdWorld(seed),
   soundScene: (scene) => {
     const world = scene as DefensiveHerdWorld;
+    const calves = world.herd.filter((animal) => animal.kind === 'calf');
+    const calfX = calves.reduce((sum, calf) => sum + calf.x, 0) / Math.max(1, calves.length);
     return {
+      layers: [
+        { level: 0.75 },
+        {
+          level: 0.19 + world.ringCoverage / 125,
+          pan: calves.length ? (2 * calfX) / world.width - 1 : 0,
+        },
+        { level: 0.27 + world.defenseLevel * 0.54 },
+      ],
       activity: world.ringCoverage / 100,
       detail: world.herd.filter((animal) => animal.kind === 'calf').length / 22,
     };
