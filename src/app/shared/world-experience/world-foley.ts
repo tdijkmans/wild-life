@@ -179,9 +179,29 @@ export const eventSounds: Record<
   'membrane-rupture': [families.snap, 430, 0.92, 1],
   'solute-drop': [families.splash, 470, 0.8, 0.78],
   'pore-crossing': [families.click, 790, 0.8, 0.64],
+  'prey-catch': [
+    [
+      ['sine', 0, 0.38, 0.055, 1, 0.61, 0.82],
+      ['noise', 0.025, 0.21, 0.036, 760, 350, 1.65],
+      ['sine', 0.08, 0.36, 0.064, 1.52, 1.12, 0.29],
+    ],
+    155,
+    1.04,
+    1.13,
+  ],
+  'hyphal-branch': [
+    [
+      ['sine', 0, 0.65, 0.11, 0.77, 1, 0.63],
+      ['sine', 0.11, 0.51, 0.08, 1.01, 1.44, 0.52],
+      ['sine', 0.19, 0.41, 0.065, 1.76, 1.81, 0.25],
+    ],
+    246,
+    1.1,
+    0.91,
+  ],
   apoptosis: [families.fading, 380, 1.53, 0.76],
   'mitotic-phase': [families.click, 620, 0.84, 0.78],
-  'hyphal-growth': [families.crackle, 224, 1.8, 0.55],
+  'hyphal-growth': [families.bloom, 214, 1.12, 0.58],
   'hyphal-fusion': [families.split, 290, 1.37, 0.86],
   'flagellar-mating': [families.trill, 430, 0.91, 0.68],
   'pollen-transfer': [families.click, 920, 0.57, 0.68],
@@ -191,6 +211,19 @@ export const eventSounds: Record<
   'food-contact': [families.crackle, 620, 0.55, 0.52],
 };
 
+const landmarks = new Set<CueKind>([
+  'prey-catch',
+  'hyphal-branch',
+  'hyphal-fusion',
+  'division',
+  'apoptosis',
+  'membrane-seal',
+  'propulsor-change',
+  'hybrid-hatch',
+  'alarm',
+  'calf',
+  'seed-set',
+]);
 const closeEvents = new Set<CueKind>(['paired-call', 'pebble-impact', 'membrane-rupture']);
 const backgroundDetails = new Set<CueKind>([
   'water-transit',
@@ -203,20 +236,25 @@ const backgroundDetails = new Set<CueKind>([
   'pulse',
   'seed-delivery',
   'cross-pollen',
+  'hyphal-growth',
 ]);
-const MIN_EVENT_SPACING = 2.8;
-const EVENT_LIFETIME = 1.8;
+const MIN_EVENT_SPACING = 0.8;
+const EVENT_LIFETIME = 2.4;
 const MAX_PENDING = 12;
 
 /** Keep different events audible and fold repeated events of the same kind into one accent. */
 export class WorldFoleyQueue {
-  private readonly pending = new Map<CueKind, { event: AudibleEvent; first: number }>();
+  private readonly pending = new Map<
+    CueKind,
+    { event: AudibleEvent; first: number; count: number }
+  >();
   private readonly lastByKind = new Map<CueKind, number>();
   private last = -Infinity;
 
   add(event: AudibleEvent, now: number): void {
     const previous = this.pending.get(event.kind);
     if (previous && now - previous.first <= EVENT_LIFETIME) {
+      previous.count++;
       if (event.strength > previous.event.strength) previous.event = event;
       return;
     }
@@ -225,22 +263,34 @@ export class WorldFoleyQueue {
       const oldest = this.pending.keys().next();
       if (!oldest.done) this.pending.delete(oldest.value);
     }
-    this.pending.set(event.kind, { event, first: now });
+    this.pending.set(event.kind, { event, first: now, count: 1 });
   }
 
   next(now: number): AudibleEvent | undefined {
-    for (const [kind, { event, first }] of this.pending) {
-      if (now - first > EVENT_LIFETIME) {
+    // Give structural changes first claim on the next slot. Routine activity can
+    // accumulate as one accent, while tightly related cues can still follow each other.
+    for (const important of [true, false]) {
+      for (const [kind, { event, first, count }] of this.pending) {
+        if (now - first > EVENT_LIFETIME) {
+          this.pending.delete(kind);
+          continue;
+        }
+        const close = closeEvents.has(kind);
+        if ((close || landmarks.has(kind)) !== important) continue;
+        const spacing = close ? 0.05 : important ? 0.35 : MIN_EVENT_SPACING;
+        const repeat = close ? 0.34 : backgroundDetails.has(kind) ? 3.4 : important ? 1.15 : 2;
+        if (now - this.last < spacing || now - (this.lastByKind.get(kind) ?? -Infinity) < repeat)
+          continue;
         this.pending.delete(kind);
-        continue;
+        this.lastByKind.set(kind, now);
+        this.last = now;
+        return count > 1
+          ? {
+              ...event,
+              strength: Math.min(1, event.strength * (1 + Math.min(3, count - 1) * 0.06)),
+            }
+          : event;
       }
-      if (now - this.last < (closeEvents.has(kind) ? 0.05 : MIN_EVENT_SPACING)) continue;
-      const repeatInterval = closeEvents.has(kind) ? 0.34 : backgroundDetails.has(kind) ? 7 : 4.5;
-      if (now - (this.lastByKind.get(kind) ?? -Infinity) < repeatInterval) continue;
-      this.pending.delete(kind);
-      this.lastByKind.set(kind, now);
-      this.last = now;
-      return event;
     }
     return undefined;
   }

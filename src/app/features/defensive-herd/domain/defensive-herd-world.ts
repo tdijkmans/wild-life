@@ -454,7 +454,7 @@ export class DefensiveHerdWorld implements InteractiveWorld {
         if (index >= 0) {
           this.herd.splice(index, 1);
           this.losses++;
-          this.cue('alarm', 0.48, target.x);
+          this.cue('prey-catch', 0.57, target.x);
           wolf.cooldown = 13;
           wolf.hunger = 0;
         }

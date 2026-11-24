@@ -91,7 +91,7 @@ export class NeuroplasticityWorld extends LivingWorld {
         this.spikes++;
       }
     }
-    if (fired > 4) this.cue('nerve-spike', Math.min(0.68, 0.24 + fired / 22));
+    if (fired > 0) this.cue('nerve-spike', Math.min(0.64, 0.19 + fired / 24));
     this.remodel += dt;
     if (this.remodel >= 2) {
       this.remodel -= 2;

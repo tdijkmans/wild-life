@@ -143,8 +143,8 @@ export class EcosystemComponent implements AfterViewInit, OnDestroy {
       const naturalDeaths = this.world.deaths - this.heardDeaths - kills;
       if (kills > 0)
         this.soundscape.cue({
-          kind: 'alarm',
-          strength: Math.min(0.74, 0.49 + kills * 0.05),
+          kind: 'prey-catch',
+          strength: Math.min(0.88, 0.63 + kills * 0.05),
           pan: this.audioPan(this.world.lastCatchX),
         });
       if (naturalDeaths > 0)

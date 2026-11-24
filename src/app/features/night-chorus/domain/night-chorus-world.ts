@@ -82,7 +82,10 @@ export class NightChorusWorld extends LivingWorld {
     if (!this.advance(dt)) return;
     for (let i = this.voices.length - 1; i >= 0; i--) {
       this.voices[i].age += dt;
-      if (this.voices[i].age > this.voices[i].lifespan) this.voices.splice(i, 1);
+      if (this.voices[i].age > this.voices[i].lifespan) {
+        const [voice] = this.voices.splice(i, 1);
+        this.cue('hush', 0.27, voice.x);
+      }
     }
     while (this.pairTraces.length && this.pairTraces[0].time < this.time - 5)
       this.pairTraces.shift();

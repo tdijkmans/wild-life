@@ -308,7 +308,7 @@ export class MurmurationWorld implements InteractiveWorld {
     if (predator.cooldown <= 0 && nearest && nearestDistance < 14 * 14) {
       this.birds.splice(this.birds.indexOf(nearest), 1);
       this.caught++;
-      this.cue('alarm', 0.6, predator.x);
+      this.cue('prey-catch', 0.59, nearest.x);
       predator.cooldown = 7;
     }
   }
@@ -319,6 +319,7 @@ export class MurmurationWorld implements InteractiveWorld {
       const bird = this.birds[i];
       if (bird.age > 190 || (bird.age > 80 && this.random.next() < 0.0015)) {
         this.birds.splice(i, 1);
+        this.cue('hush', 0.23, bird.x);
         continue;
       }
       if (
