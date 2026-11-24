@@ -17,11 +17,13 @@ describe(WorldFoleyQueue.name, () => {
     const queue = new WorldFoleyQueue();
     queue.add({ kind: 'pulse', strength: 0.4 }, 0);
     expect(queue.next(0)?.kind).toBe('pulse');
-    queue.add({ kind: 'pulse', strength: 0.4 }, 0.1);
-    queue.add({ kind: 'division', strength: 0.7 }, 0.1);
-    expect(queue.next(0.2)?.kind).toBe('division');
-    expect(queue.next(0.4)).toBeUndefined();
-    expect(queue.next(1.4)?.kind).toBe('pulse');
+    queue.add({ kind: 'pulse', strength: 0.4 }, 2);
+    queue.add({ kind: 'division', strength: 0.7 }, 2);
+    expect(queue.next(2.5)).toBeUndefined();
+    expect(queue.next(2.9)?.kind).toBe('division');
+    expect(queue.next(4)).toBeUndefined();
+    queue.add({ kind: 'pulse', strength: 0.4 }, 7);
+    expect(queue.next(7)?.kind).toBe('pulse');
   });
 
   it('discards stale events and can clear pending events on pause or restart', () => {

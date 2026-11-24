@@ -307,7 +307,7 @@ Sound button or keyboard (M) activation.
   event sounds, while repeated events of the same kind share one accent.
 - Pause and background visibility suspend audio; navigation and component
   destruction close the context. User can mute at any moment.
-- No third-party audio files, streamed media, tracking or autoplay.
+- Edited field recordings are bundled with the app and fetched only after opt-in. See [recording credits](../public/audio/field/credits.md).
 - All twenty-one worlds use layered procedural event sounds, including bubbles,
   air sweeps, clicks, crackles and stylized animal calls. Accepted tools
   sound at the pointer and use their own rate limit, so a tool can respond
@@ -337,9 +337,9 @@ before changing a world.
 
 ## Sound and volume
 
-Each world feeds read-only observations into its own procedural audio palette.
-The shared Web Audio engine synthesizes the sound material and mixes layered,
-model-driven ambience, event cues and directional tool responses. Accepted
+Each world feeds read-only observations into a mix of edited field recordings,
+model-driven ambience, sparse event cues and directional tool responses. A quiet
+procedural layer plays while recordings load and remains available as a fallback. Accepted
 flow, stir and breeze drags feed a continuous voice that fades after release.
 World sound design lives in `world-audio-design.ts` and `world-foley.ts`.
 For example, flock density opens the ambience in Murmuration, cytoplasmic
