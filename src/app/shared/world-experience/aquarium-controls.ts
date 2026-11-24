@@ -35,8 +35,6 @@ export class AquariumControlsComponent {
   readonly soundAvailable = input(true);
   readonly soundEnabled = input.required<boolean>();
   readonly soundBusy = input.required<boolean>();
-  readonly soundVolume = input.required<number>();
-  readonly volumeChange = output<number>();
   readonly displayToggle = output();
   readonly exit = output();
   readonly soundToggle = output();

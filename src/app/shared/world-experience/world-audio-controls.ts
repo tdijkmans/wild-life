@@ -1,28 +1,22 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { WorldSoundSettingsComponent } from './world-sound-settings';
 
 @Component({
   selector: 'app-world-audio-controls',
+  imports: [WorldSoundSettingsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
       type="button"
-      [attr.aria-label]="aquarium() ? 'Toggle aquarium sound' : 'Toggle ambient sound'"
+      [attr.aria-label]="aquarium() ? 'Toggle aquarium sound' : 'Toggle sound'"
       [attr.aria-pressed]="enabled()"
       [disabled]="busy()"
+      (keydown.space)="$event.stopPropagation()"
       (click)="soundToggle.emit()"
     >
       <span aria-hidden="true">♫</span> Sound {{ enabled() ? 'on' : 'off' }}
     </button>
-    <input
-      type="range"
-      min="0"
-      max="100"
-      [value]="level()"
-      aria-label="Sound volume"
-      [attr.aria-valuetext]="level() + '%'"
-      [title]="'Volume: ' + level() + '%'"
-      (input)="changeVolume($event)"
-    />
+    <app-world-sound-settings />
   `,
   styles: [
     `
@@ -49,13 +43,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       button:hover {
         color: #b9f4d9;
       }
-      input {
-        width: clamp(43px, 9vw, 92px);
-        margin: 0;
-        accent-color: #b9f4d9;
-        cursor: pointer;
-      }
-      :is(button, input):focus-visible {
+      button:focus-visible {
         outline: 2px solid #b9f4d9;
         outline-offset: 2px;
       }
@@ -74,11 +62,5 @@ export class WorldAudioControlsComponent {
   readonly aquarium = input(false);
   readonly enabled = input.required<boolean>();
   readonly busy = input.required<boolean>();
-  readonly level = input.required<number>();
   readonly soundToggle = output();
-  readonly volumeChange = output<number>();
-
-  changeVolume(event: Event): void {
-    this.volumeChange.emit((event.target as HTMLInputElement).valueAsNumber);
-  }
 }

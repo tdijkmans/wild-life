@@ -23,9 +23,7 @@
         <app-world-audio-controls
           [enabled]="soundEnabled()"
           [busy]="soundBusy()"
-          [level]="audioVolume.level()"
           (soundToggle)="toggleSound()"
-          (volumeChange)="setSoundVolume($event)"
         />
       }
     </div>
@@ -112,11 +110,9 @@
           [soundAvailable]="!!definition().soundProfile"
           [soundEnabled]="soundEnabled()"
           [soundBusy]="soundBusy()"
-          [soundVolume]="audioVolume.level()"
           (displayToggle)="display.toggleSettings()"
           (exit)="display.exit()"
           (soundToggle)="toggleSound()"
-          (volumeChange)="setSoundVolume($event)"
           (interactionToggle)="display.toggleInteraction()"
           (cardToggle)="display.toggleCard($event)"
           (toolSelect)="chooseTool($event)"
