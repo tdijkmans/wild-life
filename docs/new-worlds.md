@@ -338,14 +338,15 @@ before changing a world.
 ## Sound and volume
 
 Each world feeds read-only observations into a mix of edited field recordings,
-model-driven ambience, sparse event cues and directional tool responses. A quiet
-procedural layer plays while recordings load and remains available as a fallback. Accepted
+model-driven ambience, event cues and directional tool responses. A quiet tonal
+layer supports softly filtered recordings and serves as the fallback. Accepted
 flow, stir and breeze drags feed a continuous voice that fades after release.
 World sound design lives in `world-audio-design.ts` and `world-foley.ts`.
 For example, flock density opens the ambience in Murmuration, cytoplasmic
-flux changes the hiss and stereo spread in Hyphal Network, and tissue
+flux changes the tone and stereo spread in Hyphal Network, and tissue
 coverage fills out the timbre in Mitotic Bloom. Divisions and apoptosis use
-different accents. The simulation clock, random seed, and replay are independent
+different accents. Predator catches and new lateral hyphae receive localized
+accents. Related or routine events can be grouped during busy passages. The simulation clock, random seed, and replay are independent
 of audio.
 
 Sound requires a deliberate opt-in on each world. The Mix panel shares settings

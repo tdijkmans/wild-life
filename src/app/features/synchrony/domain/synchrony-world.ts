@@ -276,6 +276,7 @@ export class SynchronyWorld implements InteractiveWorld {
       const fly = this.fireflies[i];
       if (fly.age > 210 || (fly.age > 115 && this.random.next() < 0.012)) {
         this.fireflies.splice(i, 1);
+        this.cue('hush', 0.25);
         continue;
       }
       if (

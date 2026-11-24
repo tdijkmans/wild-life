@@ -350,12 +350,14 @@ export class AbyssalBloomWorld implements InteractiveWorld {
     }
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
-      if (this.birthsSinceSample > 4)
-        this.cue('swell', clamp(this.birthsSinceSample / 25, 0.27, 0.9));
-      else if (this.feedsSinceSample > 8 && this.random.next() < 0.28) this.cue('graze', 0.31);
+      // Preserve the model's existing seeded sampling draw on small bloom intervals.
+      const grazingAccent =
+        this.birthsSinceSample <= 4 && this.feedsSinceSample > 8 && this.random.next() < 0.28;
+      if (this.birthsSinceSample > 0)
+        this.cue('swell', clamp(this.birthsSinceSample / 25, 0.23, 0.85));
       this.birthsSinceSample = 0;
       if (this.feedsSinceSample > 0)
-        this.cue('graze', clamp(this.feedsSinceSample / 24, 0.27, 0.49));
+        this.cue('graze', clamp(this.feedsSinceSample / 24, grazingAccent ? 0.31 : 0.27, 0.49));
       this.feedsSinceSample = 0;
       this.sample();
     }

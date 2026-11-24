@@ -443,12 +443,17 @@ export class ReefWorld implements InteractiveWorld {
 
   private turnover(): void {
     for (let i = this.fish.length - 1; i >= 0; i--) {
-      if (this.fish[i].age > 240 || this.fish[i].energy <= 0) this.fish.splice(i, 1);
+      const fish = this.fish[i];
+      if (fish.age > 240 || fish.energy <= 0) {
+        this.fish.splice(i, 1);
+        this.cue('hush', 0.25);
+      }
     }
     const candidates = this.fish.filter((fish) => fish.energy > 0.78 && fish.age > 30);
     if (candidates.length && this.fish.length < MAX_FISH && this.random.next() < 0.43) {
       const parent = candidates[this.random.integer(0, candidates.length)];
       this.fish.push(this.spawnFish(parent.x, parent.y, parent));
+      this.cue('growth', 0.39);
       parent.energy *= 0.65;
     }
     if (this.corals.length >= MAX_CORALS || !this.corals.length) return;

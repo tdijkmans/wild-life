@@ -200,7 +200,6 @@ export class HyphalNetworkWorld extends LivingWorld {
       ) {
         this.extend(index, this.random.next() < 0.5 ? -1.02 : 1.02);
       }
-      if (this.nodes.length % 5 === 0) this.cue('fiber', 0.41, tip.x);
     }
   }
 
@@ -244,6 +243,9 @@ export class HyphalNetworkWorld extends LivingWorld {
       this.nodes[next].reserves = Math.max(0, (source.reserves - 0.045) * 0.5);
       this.nodes[next].pressure = source.pressure;
       this.link(index, next);
+      this.cue(branch ? 'hyphal-branch' : 'hyphal-growth', branch ? 0.59 : 0.28, source.x, {
+        toX: x,
+      });
     }
     return true;
   }

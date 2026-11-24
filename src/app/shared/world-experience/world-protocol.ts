@@ -67,6 +67,8 @@ export interface WorldAudioCue {
     | 'pore-crossing'
     | 'apoptosis'
     | 'mitotic-phase'
+    | 'prey-catch'
+    | 'hyphal-branch'
     | 'hyphal-growth'
     | 'hyphal-fusion'
     | 'flagellar-mating'

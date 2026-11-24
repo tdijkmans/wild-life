@@ -90,7 +90,10 @@ export class PollenPathsWorld extends LivingWorld {
       const flower = this.flowers[i];
       const sun = Math.min(1, this.fieldAt('sunlight', flower.x, flower.y));
       flower.age += dt * (1 + sun * 2);
-      if (flower.age > flower.lifespan) this.flowers.splice(i, 1);
+      if (flower.age > flower.lifespan) {
+        this.flowers.splice(i, 1);
+        this.cue('hush', 0.29, flower.x);
+      }
     }
     for (const visitor of this.pollinators) this.forage(visitor, dt);
     while (this.deliveries.length && this.deliveries[0].time < this.time - 7)

@@ -20,6 +20,24 @@ describe('Hyphal Network', () => {
     expect(flowing).toBeGreaterThan(10);
   });
 
+  it('emits different positional cues for lateral branches and leading growth', () => {
+    const world = new HyphalNetworkWorld(84296);
+    let branch = false;
+    let growth = false;
+    for (let i = 0; i < 60 * 24 && !(branch && growth); i++) {
+      world.step(1 / 60);
+      for (const cue of world.audioCues) {
+        if (cue.kind !== 'hyphal-branch' && cue.kind !== 'hyphal-growth') continue;
+        expect(cue.pan).toBeDefined();
+        expect(cue.panTo).toBeDefined();
+        branch ||= cue.kind === 'hyphal-branch';
+        growth ||= cue.kind === 'hyphal-growth';
+      }
+    }
+    expect(branch).toBe(true);
+    expect(growth).toBe(true);
+  });
+
   it('extends new links across multiple ticks and smooths changes in streaming flux', () => {
     const world = new HyphalNetworkWorld(84296);
     for (let i = 0; i < 60 * 13; i++) world.step(1 / 60);

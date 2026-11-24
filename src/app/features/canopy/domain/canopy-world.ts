@@ -96,6 +96,7 @@ export class CanopyWorld implements InteractiveWorld {
   private reproductionTimer = 0;
   private growthTimer = 0;
   private lostSinceSample = 0;
+  private lastBiteX = 0;
   time = 0;
   leavesEaten = 0;
   births = 0;
@@ -249,8 +250,13 @@ export class CanopyWorld implements InteractiveWorld {
     };
   }
 
-  private cue(kind: WorldAudioCue['kind'], strength: number): void {
-    this.audioCues.push({ id: ++this.nextCueId, kind, strength });
+  private cue(kind: WorldAudioCue['kind'], strength: number, x?: number): void {
+    this.audioCues.push({
+      id: ++this.nextCueId,
+      kind,
+      strength,
+      pan: x === undefined ? undefined : (2 * x) / this.width - 1,
+    });
     if (this.audioCues.length > 16) this.audioCues.shift();
   }
 
@@ -373,7 +379,8 @@ export class CanopyWorld implements InteractiveWorld {
     }
     if (this.sampleTimer >= 1) {
       this.sampleTimer -= 1;
-      if (this.lostSinceSample >= 3) this.cue('rustle', Math.min(1, this.lostSinceSample / 20));
+      if (this.lostSinceSample > 0)
+        this.cue('rustle', Math.min(0.6, 0.32 + this.lostSinceSample / 20), this.lastBiteX);
       this.lostSinceSample = 0;
       this.sample();
     }
@@ -426,6 +433,7 @@ export class CanopyWorld implements InteractiveWorld {
             target.health = 0;
             this.leavesEaten++;
             this.lostSinceSample++;
+            this.lastBiteX = target.x;
           }
         }
       }
