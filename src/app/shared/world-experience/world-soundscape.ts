@@ -2,6 +2,13 @@ import { SeededRandom } from '../simulation/seeded-random';
 import { audioDesign, toolSound } from './world-audio-design';
 import { DEFAULT_SOUND_LEVELS, type SoundLevels } from './world-audio-volume';
 import { createAudioSpace, createEvolvingTexture } from './world-audio-space';
+import {
+  decodeFieldAsset,
+  fieldAssets,
+  fieldBeds,
+  fieldCue,
+  type FieldAsset,
+} from './world-field-audio';
 import { eventSounds, WorldFoleyQueue, type AudibleEvent } from './world-foley';
 import type { WorldAudioScene, WorldSoundProfile } from './world-protocol';
 
@@ -72,6 +79,10 @@ export class WorldSoundscape {
   private eventsVolume?: GainNode;
   private ambienceDuck?: GainNode;
   private textureBed?: GainNode;
+  private generatedBed?: GainNode;
+  private recordedBed?: { gain: GainNode; filter: BiquadFilterNode };
+  private assetLoad?: AbortController;
+  private readonly recordings = new Map<FieldAsset, AudioBuffer>();
   private mellowWave?: PeriodicWave;
   private eventBus?: GainNode;
   private scenePan = 0;
@@ -137,6 +148,10 @@ export class WorldSoundscape {
       ambienceDuck.connect(ambienceVolume).connect(master);
       this.ambienceDuck = ambienceDuck;
       this.ambienceVolume = ambienceVolume;
+      const generatedBed = context.createGain();
+      generatedBed.gain.value = 0.55;
+      generatedBed.connect(ambienceDuck);
+      this.generatedBed = generatedBed;
       const eventsVolume = context.createGain();
       eventsVolume.gain.value = 0;
       eventsVolume.connect(master);
@@ -156,15 +171,15 @@ export class WorldSoundscape {
         new Float32Array([0, 1, 0.19, 0.11, 0.032]),
       );
 
-      this.addVoice(context, ambienceDuck, root, 'sine', 0.032);
-      this.addVoice(context, ambienceDuck, root * 1.503, 'sine', 0.013);
-      this.addVoice(context, ambienceDuck, root * 3.01, 'sine', 0.007);
+      this.addVoice(context, generatedBed, root, 'sine', 0.032);
+      this.addVoice(context, generatedBed, root * 1.503, 'sine', 0.013);
+      this.addVoice(context, generatedBed, root * 3.01, 'sine', 0.007);
       const texture = context.createBufferSource();
       texture.buffer = createEvolvingTexture(context, root, width);
       texture.loop = true;
       const textureBed = context.createGain();
       textureBed.gain.value = 0.42;
-      texture.connect(textureBed).connect(ambienceDuck);
+      texture.connect(textureBed).connect(generatedBed);
       texture.start();
       this.textureBed = textureBed;
       const noise = context.createBuffer(1, Math.round(context.sampleRate * 2), context.sampleRate);
@@ -181,7 +196,7 @@ export class WorldSoundscape {
       wash.Q.value = 0.34;
       const washGain = context.createGain();
       washGain.gain.value = 0.028;
-      wind.connect(wash).connect(washGain).connect(ambienceDuck);
+      wind.connect(wash).connect(washGain).connect(generatedBed);
       this.wash = wash;
       const grain = context.createBiquadFilter();
       grain.type = 'bandpass';
@@ -190,7 +205,7 @@ export class WorldSoundscape {
       const textureGain = context.createGain();
       textureGain.gain.value = 0.05;
       const texturePan = context.createStereoPanner();
-      wind.connect(grain).connect(textureGain).connect(texturePan).connect(ambienceDuck);
+      wind.connect(grain).connect(textureGain).connect(texturePan).connect(generatedBed);
       this.grain = grain;
       this.textureGain = textureGain;
       this.texturePan = texturePan;
@@ -200,18 +215,54 @@ export class WorldSoundscape {
       const drag = this.spatialLayer(context, dragFilter, soften, 0);
       wind.connect(dragFilter);
       this.drag = { ...drag, filter: dragFilter };
-      this.startLayers(context, wind, ambienceDuck);
+      this.startLayers(context, wind, generatedBed);
       wind.start();
 
       this.applyMix();
       await context.resume();
       if (this.context !== context) return false;
       if (!this.desiredActive) await context.suspend();
+      if (this.context === context) void this.loadRecordings(context, ambienceDuck, profile);
       return true;
     } catch {
       await this.stop();
       return false;
     }
+  }
+
+  private async loadRecordings(
+    context: AudioContext,
+    destination: GainNode,
+    profile: SoundscapeProfile,
+  ): Promise<void> {
+    const controller = new AbortController();
+    this.assetLoad = controller;
+    const [bed, rate, ceiling, level] = fieldBeds[profile];
+    await Promise.all(
+      fieldAssets(profile).map(async (asset) => {
+        const buffer = await decodeFieldAsset(context, asset, controller.signal);
+        if (!buffer || controller.signal.aborted || this.context !== context) return;
+        this.recordings.set(asset, buffer);
+        if (asset !== bed) return;
+
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        source.playbackRate.value = rate;
+        const filter = context.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = ceiling;
+        filter.Q.value = 0.3;
+        const gain = context.createGain();
+        gain.gain.value = 0;
+        source.connect(filter).connect(gain).connect(destination);
+        const now = context.currentTime;
+        gain.gain.setTargetAtTime(level * 0.76, now, 0.8);
+        this.generatedBed?.gain.setTargetAtTime(profile === 'abyss' ? 0.22 : 0.09, now, 0.85);
+        this.recordedBed = { gain, filter };
+        source.start(now);
+      }),
+    );
   }
 
   private startLayers(context: AudioContext, wind: AudioBufferSourceNode, master: GainNode): void {
@@ -397,7 +448,7 @@ export class WorldSoundscape {
       duck.setTargetAtTime(1 - ((clamp(event.strength) * this.mix.events) / 100) * 0.5, now, 0.035);
       duck.setTargetAtTime(1, now + 0.22, 0.35);
     }
-    const grain = Math.sqrt(palettes[this.profile][2] / 850) * 0.86;
+    const grain = Math.sqrt(palettes[this.profile][2] / 850) * 0.77;
     const gain = 0.078 * level * clamp(event.strength);
     const spatial = context.createStereoPanner();
     spatial.pan.value = clamp(
@@ -410,6 +461,23 @@ export class WorldSoundscape {
       spatial.pan.linearRampToValueAtTime(clamp(event.panTo, -0.85, 0.85), now + 0.28);
     }
     spatial.connect(bus);
+    const sample = fieldCue(event.kind);
+    const recording = sample && this.recordings.get(sample[0]);
+    if (sample && recording) {
+      const source = context.createBufferSource();
+      source.buffer = recording;
+      source.playbackRate.value = sample[1] * this.variation.range(0.92, 1.08);
+      const envelope = context.createGain();
+      envelope.gain.value = sample[2] * clamp(event.strength);
+      source.connect(envelope).connect(spatial);
+      source.onended = () => {
+        source.disconnect();
+        envelope.disconnect();
+        spatial.disconnect();
+      };
+      source.start(now);
+      return;
+    }
     let remaining = layers.length;
 
     for (const [type, offset, duration, attack, from, to, amplitude, crest] of layers) {
@@ -500,6 +568,20 @@ export class WorldSoundscape {
     const detail = clamp(scene.detail);
     const pan = clamp(scene.pan ?? 0, -1, 1);
     this.scenePan = pan * 0.58;
+    if (this.recordedBed) {
+      const [, , ceiling, level] = fieldBeds[this.profile];
+      const breath = Math.sin(now * 0.19) * 0.09 + Math.sin(now * 0.057) * 0.11;
+      this.recordedBed.gain.gain.setTargetAtTime(
+        level * (0.68 + activity * 0.23 + breath),
+        now,
+        2.4,
+      );
+      this.recordedBed.filter.frequency.setTargetAtTime(
+        ceiling * (0.77 + detail * 0.35 + breath),
+        now,
+        2.8,
+      );
+    }
     audioDesign[this.profile].layers.forEach(([, , position, level], index) => {
       const layer = this.layers[index];
       const input = scene.layers?.[index];
@@ -563,6 +645,11 @@ export class WorldSoundscape {
     this.eventsVolume = undefined;
     this.ambienceDuck = undefined;
     this.textureBed = undefined;
+    this.assetLoad?.abort();
+    this.assetLoad = undefined;
+    this.recordings.clear();
+    this.recordedBed = undefined;
+    this.generatedBed = undefined;
     this.mellowWave = undefined;
     this.eventBus = undefined;
     this.scenePan = 0;

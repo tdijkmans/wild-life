@@ -401,3 +401,45 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
     expect(runtimeErrors).toEqual([]);
   });
 }
+
+for (const [route, bed] of [
+  ['/abyssal-bloom', 'abyss'],
+  ['/murmuration', 'open-air'],
+  ['/membrane-tide', 'shallows'],
+] as const) {
+  test(`${route}: starts its recorded loop after sound opt-in`, async ({ page }) => {
+    await page.addInitScript(() => {
+      const NativeContext = window.AudioContext;
+      const recordings: number[] = [];
+      Object.assign(window, { recordedLoops: recordings });
+      window.AudioContext = class extends NativeContext {
+        override createBufferSource() {
+          const source = super.createBufferSource();
+          const start = source.start.bind(source);
+          source.start = (...args: Parameters<AudioBufferSourceNode['start']>) => {
+            if (source.loop && source.buffer && source.buffer.duration > 30)
+              recordings.push(source.buffer.duration);
+            return start(...args);
+          };
+          return source;
+        }
+      };
+    });
+    const requested: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().includes('/audio/field/')) requested.push(request.url());
+    });
+    await page.goto(route);
+    expect(requested).toEqual([]);
+    const asset = page.waitForResponse((response) => response.url().endsWith('/' + bed + '.mp3'));
+    await page.getByRole('button', { name: 'Toggle sound', exact: true }).click();
+    expect((await asset).ok()).toBe(true);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => (window as Window & { recordedLoops?: number[] }).recordedLoops?.length,
+        ),
+      )
+      .toBe(1);
+  });
+}
