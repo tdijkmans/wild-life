@@ -391,6 +391,18 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
       });
       const NativeAudioContext = window.AudioContext;
       window.AudioContext = class extends NativeAudioContext {
+        override createOscillator() {
+          const oscillator = super.createOscillator();
+          const start = oscillator.start.bind(oscillator);
+          oscillator.start = (...args) => {
+            if (inCanvasPress) {
+              const data = document.documentElement.dataset;
+              data['gestureVoices'] = (data['gestureVoices'] ?? '') + oscillator.type + ' ';
+            }
+            return start(...args);
+          };
+          return oscillator;
+        }
         override createStereoPanner() {
           if (inCanvasPress) {
             gestureStarts++;
@@ -414,6 +426,7 @@ for (const world of [...newWorlds, { title: 'Predator–Prey Evolution', path: '
     await expect(sound).toHaveAttribute('aria-pressed', 'true');
     await canvas.click();
     await expect(count).toHaveAttribute('data-gesture-starts', '1');
+    await expect(count).toHaveAttribute('data-gesture-voices', 'sine sine ');
     await sound.click();
     await expect(sound).toHaveAttribute('aria-pressed', 'false');
     await canvas.click();
